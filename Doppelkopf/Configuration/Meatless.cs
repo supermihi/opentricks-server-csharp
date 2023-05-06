@@ -8,5 +8,9 @@ public class MeatFree : IGameMode
 {
   public GameModeKind Kind => GameModeKind.Solo;
 
-  public ITrickRules TrickRules { get; } = new TrickRules(ImmutableList<Card>.Empty);
+  public ITrickRules TrickRules { get; } =
+    new TrickRules(
+      ImmutableList<Card>.Empty,
+      EldersMode.FirstWins /* irrelevant, no trump! */
+    );
 }

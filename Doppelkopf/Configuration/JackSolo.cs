@@ -6,10 +6,15 @@ namespace Doppelkopf.Configuration;
 
 public class JackSolo : IGameMode
 {
-  private static readonly ITrickRules StaticTrickRules = new TrickRules(
-    Trump: Suits.InOrder.Select(s => new Card(s, Rank.Jack)).ToImmutableList()
-  );
+  public JackSolo(EldersMode elders)
+  {
+    TrickRules = new TrickRules(
+      Suits.InOrder.Select(s => new Card(s, Rank.Jack)).ToImmutableList(),
+      elders
+    );
+  }
+
   public GameModeKind Kind => GameModeKind.Solo;
 
-  public ITrickRules TrickRules => StaticTrickRules;
+  public ITrickRules TrickRules { get; }
 }

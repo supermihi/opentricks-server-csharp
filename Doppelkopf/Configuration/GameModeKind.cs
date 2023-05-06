@@ -1,7 +1,9 @@
 namespace Doppelkopf.Configuration;
 
-public enum GameModeKind {
+public enum GameModeKind
+{
   NormalGame,
   Marriage,
-  Solo
+  Solo,
+  Special
 }

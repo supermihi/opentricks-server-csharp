@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Configuration;
 using Doppelkopf.Errors;
@@ -11,7 +10,7 @@ public class TrickTests
   [Fact]
   public void Initial()
   {
-    var trick = Trick.Initial(Player.Player3);
+    var trick = new Trick(Player.Player3);
 
     Assert.Equal(Player.Player3, trick.Leader);
     Assert.Empty(trick.Cards);
@@ -22,10 +21,9 @@ public class TrickTests
   [Fact]
   public void Add()
   {
-    var trickWithTwoCards = Trick
-      .Initial(Player.Player2)
-      .Add(new Card(Suit.Diamonds, Rank.Queen))
-      .Add(new Card(Suit.Clubs, Rank.Nine));
+    var trickWithTwoCards = new Trick(Player.Player2)
+      .AddCard(new Card(Suit.Diamonds, Rank.Queen))
+      .AddCard(new Card(Suit.Clubs, Rank.Nine));
     Assert.Equal(2, trickWithTwoCards.Cards.Count);
     Assert.Equal(new Card(Suit.Diamonds, Rank.Queen), trickWithTwoCards.Cards[0]);
     Assert.Equal(new Card(Suit.Clubs, Rank.Nine), trickWithTwoCards.Cards[1]);
@@ -37,15 +35,12 @@ public class TrickTests
   [Fact]
   public void FullWithFourCards()
   {
-    var trick = new Trick(
-      Player.Player4,
-      ImmutableArray.Create(
-        new Card(Suit.Hearts, Rank.Ace),
-        new Card(Suit.Hearts, Rank.Ace),
-        new Card(Suit.Hearts, Rank.King),
-        new Card(Suit.Hearts, Rank.Nine)
-      )
-    );
+    var trick = new Trick(Player.Player4)
+      .AddCard(new(Suit.Hearts, Rank.Ace))
+      .AddCard(new(Suit.Hearts, Rank.Ace))
+      .AddCard(new(Suit.Hearts, Rank.King))
+      .AddCard(new(Suit.Hearts, Rank.Nine));
+
     Assert.True(trick.IsFull);
     Assert.Null(trick.Turn);
   }
@@ -53,35 +48,51 @@ public class TrickTests
   [Fact]
   public void AddingFifthCardThrows()
   {
-    var fullTrick = new Trick(
-      Player.Player2,
-      ImmutableArray.Create(
-        new Card(Suit.Hearts, Rank.Ace),
-        new Card(Suit.Hearts, Rank.Ace),
-        new Card(Suit.Hearts, Rank.King),
-        new Card(Suit.Hearts, Rank.Nine)
-      )
-    );
+    var fullTrick = new Trick(Player.Player2)
+      .AddCard(new(Suit.Hearts, Rank.Ace))
+      .AddCard(new(Suit.Hearts, Rank.Ace))
+      .AddCard(new(Suit.Hearts, Rank.King))
+      .AddCard(new(Suit.Hearts, Rank.Nine));
 
-    Assert.Throws<IllegalStateException>(() => fullTrick.Add(new Card(Suit.Clubs, Rank.Ace)));
+    Assert.Throws<IllegalStateException>(() => fullTrick.AddCard(new Card(Suit.Clubs, Rank.Ace)));
   }
 
   [Fact]
   public void SideSuitAceWinsInNormalGame()
   {
-    var trick = new Trick(
-      Player.Player1,
-      ImmutableArray.Create<Card>(
-        new Card(Suit.Spades, Rank.King),
-        new Card(Suit.Spades, Rank.Ace),
-        new Card(Suit.Hearts, Rank.Nine),
-        new Card(Suit.Spades, Rank.Ace)
-      )
-    );
-    var mode = new NormalGameMode();
-    var context = new TrickContext(mode.TrickRules, EldersMode.FirstWins, false);
-    var finishedTrick = trick.Finish(context);
-    Assert.Equal(finishedTrick.Trick, trick);
-    Assert.Equal(Player.Player2, finishedTrick.Winner);
+    var trick = new Trick(Player.Player1)
+      .AddCard(new(Suit.Spades, Rank.King))
+      .AddCard(new(Suit.Spades, Rank.Ace))
+      .AddCard(new(Suit.Hearts, Rank.Nine))
+      .AddCard(new(Suit.Spades, Rank.Ace));
+    var mode = new NormalGameMode(EldersMode.FirstWins);
+    var context = new TrickContext(mode.TrickRules, false);
+    var winner = trick.Winner(context);
+    Assert.Equal(Player.Player2, winner);
+  }
+
+  [Theory]
+  [InlineData(EldersMode.FirstWins, false)]
+  [InlineData(EldersMode.FirstWins, true)]
+  [InlineData(EldersMode.SecondWins, false)]
+  [InlineData(EldersMode.SecondWins, true)]
+  [InlineData(EldersMode.FirstWinsExceptInLastTrick, false)]
+  [InlineData(EldersMode.FirstWinsExceptInLastTrick, true)]
+  public void EldersModeIsRespectedInNormalGame(EldersMode elders, bool isLastTrick)
+  {
+    var trick = new Trick(Player.Player1)
+      .AddCard(new(Suit.Spades, Rank.King))
+      .AddCard(new(Suit.Hearts, Rank.Ten))
+      .AddCard(new(Suit.Hearts, Rank.Ten))
+      .AddCard(new(Suit.Spades, Rank.Ace));
+    var mode = new NormalGameMode(elders);
+    var context = new TrickContext(mode.TrickRules, isLastTrick);
+    var winner = trick.Winner(context);
+    var expectedWniner =
+      elders == EldersMode.SecondWins
+      || (elders == EldersMode.FirstWinsExceptInLastTrick && isLastTrick)
+        ? Player.Player3
+        : Player.Player2;
+    Assert.Equal(expectedWniner, winner);
   }
 }

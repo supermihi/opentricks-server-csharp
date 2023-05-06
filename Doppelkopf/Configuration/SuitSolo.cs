@@ -3,8 +3,17 @@ using Doppelkopf.Tricks;
 
 namespace Doppelkopf.Configuration;
 
-public record SuitSolo(Suit Suit) : IGameMode {
+public class SuitSolo : IGameMode
+{
+  public Suit Trump { get; }
+
+  public SuitSolo(Suit trump, EldersMode elders)
+  {
+    Trump = trump;
+    TrickRules = Tricks.TrickRules.ForTrumpSuit(trump, elders);
+  }
+
   public GameModeKind Kind => GameModeKind.Solo;
 
-  public ITrickRules TrickRules => Tricks.TrickRules.ForTrumpSuit(Suit);
+  public ITrickRules TrickRules { get; }
 }

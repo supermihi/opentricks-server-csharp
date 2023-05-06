@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
-using Doppelkopf.Actions;
 using Doppelkopf.Cards;
-using Doppelkopf.Configuration;
 using Doppelkopf.Errors;
 
 namespace Doppelkopf.Tricks;
@@ -9,43 +7,27 @@ namespace Doppelkopf.Tricks;
 /// <summary>
 /// The trick taking part of a Doppelkopf game.
 /// </summary>
-/// <param name="Rules"></param>
-/// <param name="Contract"></param>
-/// <param name="Cards"></param>
-/// <param name="CompletedTricks"></param>
-/// <param name="CurrentTrick"></param>
 public sealed record TrickTaking(
-  RuleSet Rules,
   Contract Contract,
   ByPlayer<IImmutableList<Card>> Cards,
   IImmutableList<FinishedTrick> CompletedTricks,
   Trick? CurrentTrick
 )
 {
-  public static TrickTaking Initial(
-    RuleSet rules,
-    Contract contract,
-    ByPlayer<IImmutableList<Card>> cards
-  ) =>
-    new(rules, contract, cards, ImmutableList<FinishedTrick>.Empty, Trick.Initial(Player.Player1));
+  public static TrickTaking Initial(Contract contract, ByPlayer<IImmutableList<Card>> cards) =>
+    new(contract, cards, ImmutableList<FinishedTrick>.Empty, new(Player.Player1));
 
   public bool IsFinished => CurrentTrick is null;
 
-  public IEnumerable<(TrickTaking result, IEvent @event)> PlayCard(Player player, Card card)
+  public (TrickTaking result, bool finishedTrick) PlayCard(Player player, Card card)
   {
     var currentTrick = CheckIsPlayersTurn(player);
     CheckPlayerHasCard(player, card);
     CheckCardIsValid(player, card, currentTrick);
-    var game2 = WithCardPlayed(player, card, currentTrick);
-    yield return (game2, new PlayCardEvent(player, card));
-    if (game2.CurrentTrick!.IsFull)
-    {
-      var game3 = game2.WithTrickCompleted();
-      yield return (
-        game2.WithTrickCompleted(),
-        new FinishTrickEvent(game3.CompletedTricks.Last().Winner)
-      );
-    }
+    var gameWithCardPlayed = WithCardPlayed(player, card, currentTrick);
+    return gameWithCardPlayed.CurrentTrick!.IsFull
+      ? (gameWithCardPlayed.WithTrickCompleted(), true)
+      : (gameWithCardPlayed, false);
   }
 
   private TrickTaking WithTrickCompleted()
@@ -54,23 +36,26 @@ public sealed record TrickTaking(
     {
       throw new IllegalStateException("cannot complete trick that is not full");
     }
-    var currentTrickNumber = CompletedTricks.Count + 1;
-    var isLastTrick = currentTrickNumber == Rules.NumberOfTricks;
-    var context = new TrickContext(Contract.Mode.TrickRules, Rules.Elders, isLastTrick);
-    var currentTrickFinished = CurrentTrick.Finish(context);
+    var tricksLeft = Cards.Player1.Count;
+    var currentTrickIsLast = tricksLeft == 0;
+    var context = new TrickContext(Contract.Mode.TrickRules, currentTrickIsLast);
+    var currentTrickFinished = FinishedTrick.FromTrick(CurrentTrick, context);
     return this with
     {
       CompletedTricks = CompletedTricks.Add(currentTrickFinished),
-      CurrentTrick = isLastTrick ? null : Trick.Initial(currentTrickFinished.Winner)
+      CurrentTrick = currentTrickIsLast ? null : new(currentTrickFinished.Winner)
     };
   }
 
   private TrickTaking WithCardPlayed(Player player, Card card, Trick currentTrick)
   {
+    var playersCardsWithoutJustPlayed = Cards.Replace(player, Cards[player].Remove(card));
+    var trickWithJustPlayed = currentTrick.AddCard(card);
+
     return this with
     {
-      Cards = Cards.Replace(player, Cards[player].Remove(card)),
-      CurrentTrick = currentTrick.Add(card)
+      Cards = playersCardsWithoutJustPlayed,
+      CurrentTrick = trickWithJustPlayed,
     };
   }
 
@@ -78,7 +63,7 @@ public sealed record TrickTaking(
   {
     if (!currentTrick.IsValidNextCard(card, Contract.Mode.TrickRules, Cards[player]))
     {
-      throw InputException.Game.PlayCard.ForbiddenCard;
+      throw Err.Game.PlayCard.Forbidden;
     }
   }
 
@@ -86,7 +71,7 @@ public sealed record TrickTaking(
   {
     if (CurrentTrick is null)
     {
-      throw InputException.Game.PlayCard.GameFinished;
+      throw Err.Game.PlayCard.InvalidPhase;
     }
     var currentPlayer = CurrentTrick.Turn;
     if (currentPlayer is null)
@@ -95,7 +80,7 @@ public sealed record TrickTaking(
     }
     if (currentPlayer != player)
     {
-      throw InputException.Game.PlayCard.NotYourTurn;
+      throw Err.Game.PlayCard.NotYourTurn;
     }
     return CurrentTrick;
   }
@@ -104,7 +89,7 @@ public sealed record TrickTaking(
   {
     if (!Cards[player].Contains(card))
     {
-      throw InputException.Game.PlayCard.DoNotHaveCard;
+      throw Err.Game.PlayCard.DoNotHaveCard;
     }
   }
 }

@@ -4,12 +4,22 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Tricks;
 
-public sealed record Trick(Player Leader, IImmutableList<Card> Cards)
+public sealed record Trick
 {
-  public static Trick Initial(Player leader) => new(leader, ImmutableArray<Card>.Empty);
+  private readonly InTurns<Card> _data;
 
-  public Player? Turn => IsFull ? null : Leader.Skip(Cards.Count);
-  public bool IsFull => Cards.Count == Constants.NumberOfPlayers;
+  public Trick(Player leader)
+    : this(new InTurns<Card>(leader)) { }
+
+  private Trick(InTurns<Card> data)
+  {
+    _data = data;
+  }
+
+  public bool IsFull => _data.IsFull;
+  public Player Leader => _data.First;
+  public Player? Turn => _data.Next;
+  public IImmutableList<Card> Cards => _data.Elements;
 
   public bool IsValidNextCard(Card card, ITrickRules rules, IEnumerable<Card> cardsOfPlayer)
   {
@@ -29,31 +39,27 @@ public sealed record Trick(Player Leader, IImmutableList<Card> Cards)
     return !hasSameTrickSuit;
   }
 
-  public Trick Add(Card card)
+  public Trick AddCard(Card card)
   {
     if (IsFull)
     {
       throw new IllegalStateException("can not add card to a full trick");
     }
-    return this with { Cards = Cards.Add(card) };
+    return new(_data.Add(card));
   }
 
-  private Player Winner(TrickContext context)
+  public Player Winner(TrickContext context)
   {
     if (!IsFull)
     {
       throw new IllegalStateException("can only determine winner of full trick");
     }
-
+    var (rules, isLast) = context;
     var indexOfWinner = Enumerable
       .Range(0, Cards.Count)
-      .Aggregate((best, next) => context.TakesTrickFrom(Cards[next], Cards[best]) ? next : best);
+      .Aggregate(
+        (best, next) => rules.TakesTrickFrom(Cards[next], Cards[best], isLast) ? next : best
+      );
     return Leader.Skip(indexOfWinner);
-  }
-
-  public FinishedTrick Finish(TrickContext context)
-  {
-    var winner = Winner(context);
-    return new(this, winner);
   }
 }

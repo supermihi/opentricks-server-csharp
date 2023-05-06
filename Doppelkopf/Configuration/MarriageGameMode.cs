@@ -5,7 +5,12 @@ namespace Doppelkopf.Configuration;
 
 public class MarriageGameMode : IGameMode
 {
+  public MarriageGameMode(EldersMode elders)
+  {
+    TrickRules = Tricks.TrickRules.ForTrumpSuit(Suit.Diamonds, elders);
+  }
+
   public GameModeKind Kind => GameModeKind.Marriage;
 
-  public ITrickRules TrickRules { get; } = Tricks.TrickRules.ForTrumpSuit(Suit.Diamonds);
+  public ITrickRules TrickRules { get; }
 }

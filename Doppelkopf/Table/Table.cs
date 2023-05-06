@@ -1,51 +1,53 @@
 using System.Collections.Immutable;
-using Doppelkopf.Actions;
 using Doppelkopf.Cards;
 using Doppelkopf.Configuration;
 using Doppelkopf.Errors;
 using Doppelkopf.GameFinding;
 using Doppelkopf.Scoring;
-using Doppelkopf.Tricks;
 
 namespace Doppelkopf.Table;
 
-public class Table {
+public class Table
+{
   private readonly IRules _rules;
   private readonly int _numberOfPlayers;
-  public ImmutableList<IEvent> History { get; private set; } = ImmutableList<IEvent>.Empty;
 
-  public ImmutableList<CompletedMatch> CompletedMatches { get; private set; } =
+  public IImmutableList<CompletedMatch> CompletedMatches { get; private set; } =
     ImmutableList<CompletedMatch>.Empty;
 
   public record MatchState(Match.Match Match, ByPlayer<Seat> Players);
 
   public MatchState? CurrentMatch { get; private set; } = null;
 
-  public Table(IRules rules, int numberOfPlayers) {
+  public Table(IRules rules, int numberOfPlayers)
+  {
     _rules = rules;
     _numberOfPlayers = numberOfPlayers;
   }
 
-  public (MatchState game, IEvent action) StartNextGame(Random random) {
-    if (IsFinished) {
-      throw InputException.Table.StartGame.TableComplete;
+  public MatchState StartNextGame(Random random)
+  {
+    if (IsFinished)
+    {
+      throw Err.Table.StartGame.IsComplete;
     }
-    if (CurrentMatch != null) {
-      throw InputException.Table.StartGame.GameInProgress;
+    if (CurrentMatch != null)
+    {
+      throw Err.Table.StartGame.InvalidPhase;
     }
     var players = GetActivePlayers(
-        CompletedMatches.Count,
-        CompletedMatches.Count(g => g.IsCompulsorySolo)
+      CompletedMatches.Count,
+      CompletedMatches.Count(g => g.IsCompulsorySolo)
     );
     var cards = _rules.Deck().Shuffle(random);
-    CurrentMatch = new(new(_rules, Auction.Initial(_rules), null), players);
-    return (CurrentMatch, new StartGameEvent(cards, players));
+    CurrentMatch = new(new(cards, _rules, Auction.Initial, null), players);
+    return CurrentMatch;
   }
 
-  private int NextActionIndex => History.Count;
   public bool IsFinished => CompletedMatches.Count == _rules.RuleSet.NumberOfGames;
 
-  public ByPlayer<Seat> GetActivePlayers(int gamesPlayed, int dealingsRepeated) {
+  public ByPlayer<Seat> GetActivePlayers(int gamesPlayed, int dealingsRepeated)
+  {
     var dealerIndex = gamesPlayed - dealingsRepeated;
     var numSkipped = _numberOfPlayers - Constants.NumberOfPlayers;
     var player1 = new Seat((dealerIndex + numSkipped) % Constants.NumberOfPlayers);

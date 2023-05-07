@@ -63,7 +63,7 @@ public sealed record TrickTaking(
   {
     if (!currentTrick.IsValidNextCard(card, Contract.Mode.TrickRules, Cards[player]))
     {
-      throw Err.Game.PlayCard.Forbidden;
+      throw Err.TrickTaking.PlayCard.Forbidden;
     }
   }
 
@@ -71,7 +71,7 @@ public sealed record TrickTaking(
   {
     if (CurrentTrick is null)
     {
-      throw Err.Game.PlayCard.InvalidPhase;
+      throw Err.TrickTaking.PlayCard.InvalidPhase;
     }
     var currentPlayer = CurrentTrick.Turn;
     if (currentPlayer is null)
@@ -80,7 +80,7 @@ public sealed record TrickTaking(
     }
     if (currentPlayer != player)
     {
-      throw Err.Game.PlayCard.NotYourTurn;
+      throw Err.TrickTaking.PlayCard.NotYourTurn;
     }
     return CurrentTrick;
   }
@@ -89,7 +89,7 @@ public sealed record TrickTaking(
   {
     if (!Cards[player].Contains(card))
     {
-      throw Err.Game.PlayCard.DoNotHaveCard;
+      throw Err.TrickTaking.PlayCard.DoNotHaveCard;
     }
   }
 }

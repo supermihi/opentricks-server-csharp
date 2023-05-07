@@ -97,7 +97,7 @@ public class TrickTakingTests
     var exception = Assert.Throws<InputException>(
       () => trickTaking.PlayCard(player, trickTaking.Cards[player].First())
     );
-    Assert.Equal(Err.Game.PlayCard.NotYourTurn, exception);
+    Assert.Equal(Err.TrickTaking.PlayCard.NotYourTurn, exception);
   }
 
   [Fact]
@@ -108,7 +108,7 @@ public class TrickTakingTests
     var exception = Assert.Throws<InputException>(
       () => trickTaking.PlayCard(Player.Player1, cardNotInPlayersHand)
     );
-    Assert.Equal(Err.Game.PlayCard.DoNotHaveCard, exception);
+    Assert.Equal(Err.TrickTaking.PlayCard.DoNotHaveCard, exception);
   }
 
   [Fact]
@@ -120,7 +120,7 @@ public class TrickTakingTests
     var exception = Assert.Throws<InputException>(
       () => trickTaking.PlayCard(Player.Player3, new(Suit.Clubs, Rank.Queen))
     );
-    Assert.Equal(Err.Game.PlayCard.Forbidden, exception);
+    Assert.Equal(Err.TrickTaking.PlayCard.Forbidden, exception);
   }
 
   [Fact]

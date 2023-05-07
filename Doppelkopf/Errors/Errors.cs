@@ -14,7 +14,8 @@ public static class Err
       );
 
     public InputException NotYourTurn => Create("not_your_turn", "it is not your turn");
-    public InputException SeatPaused => Create("seat_paused", "you do not participate in the current match");
+    public InputException SeatPaused =>
+      Create("seat_paused", "you do not participate in the current match");
   }
 
   public static class Auction
@@ -37,7 +38,7 @@ public static class Err
     public static readonly DeclareCollection Declare = new();
   }
 
-  public static class Game
+  public static class TrickTaking
   {
     public static readonly PlayCardCollection PlayCard = new();
 
@@ -57,6 +58,9 @@ public static class Err
     {
       public InputException IsComplete => Create("table_complete", "the table is already complete");
     }
+
+    public static InputException NotInitialized =
+      new(Component.Table, "generic", "not_initialized", "the table is not initialized");
 
     public static StartGameCollection StartGame = new();
   }

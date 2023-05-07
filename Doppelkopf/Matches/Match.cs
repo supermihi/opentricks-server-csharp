@@ -44,7 +44,7 @@ public sealed record Match(
   {
     if (TrickTaking is null)
     {
-      throw Err.Game.PlayCard.InvalidPhase;
+      throw Err.TrickTaking.PlayCard.InvalidPhase;
     }
     var (newTrickTaking, finished) = TrickTaking.PlayCard(player, card);
     return this with { TrickTaking = newTrickTaking };

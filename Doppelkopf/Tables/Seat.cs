@@ -1,4 +1,4 @@
-namespace Doppelkopf.Table;
+namespace Doppelkopf.Tables;
 
 public readonly record struct Seat(int Position)
 {

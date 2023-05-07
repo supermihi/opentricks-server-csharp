@@ -5,7 +5,7 @@ using Doppelkopf.Errors;
 using Doppelkopf.GameFinding;
 using Doppelkopf.Scoring;
 
-namespace Doppelkopf.Table;
+namespace Doppelkopf.Tables;
 
 public record MatchHistory(
   IImmutableList<CompletedMatch> Matches,
@@ -31,6 +31,24 @@ public record MatchHistory(
         : NeedsCompulsorySolo
     );
   }
+
+  public MatchHistory AddMatch(Match match, ByPlayer<Seat> seats)
+  {
+    if (match.TrickTaking?.IsFinished ?? true)
+    {
+      throw new IllegalStateException("cannot create completed match from unfinished match");
+    }
+    var isSolo = match.Contract!.Mode.Kind == GameModeKind.Solo;
+    var isCompulsory = isSolo && NeedsCompulsorySolo[seats[match.Contract!.Soloist!.Value]];
+
+    var completedMatch = new CompletedMatch(
+      match.TrickTaking.Contract,
+      isCompulsory,
+      seats,
+      new ByPlayer<int>(0, 0, 0, 0) // TODO
+    );
+    return AddMatch(completedMatch);
+  }
 }
 
 public record Table
@@ -39,35 +57,28 @@ public record Table
   public int NumberOfSeats { get; }
   public MatchHistory History { get; init; }
 
-  public Table(IRules rules, int numberOfSeats, Random random)
+  public Table(IRules rules, int numberOfSeats)
   {
     Rules = rules;
     NumberOfSeats = numberOfSeats;
     History = MatchHistory.Init(NumberOfSeats, Rules.Rounds.CompulsorySolos);
-    var cards = Rules.Deck.Shuffle(random);
-    Match = new Match(cards, Auction.Initial, null);
     Seats = GetActiveSeats(0, 0);
   }
 
-  public Match Match { get; init; }
+  public Match? Match { get; init; }
   public ByPlayer<Seat> Seats { get; init; }
 
-  public Table StartNextMatch(Random random)
+  public Table StartNextMatch(ByPlayer<IImmutableList<Card>> cards)
   {
     if (IsFinished)
     {
       throw Err.Table.StartGame.IsComplete;
     }
-    if (!Match.IsFinished)
+    if (Match is null || !Match.IsFinished)
     {
       throw Err.Table.StartGame.InvalidPhase;
     }
-    var isSolo = Match.Contract!.Mode.Kind == GameModeKind.Solo;
-    var isCompulsory = isSolo && History.NeedsCompulsorySolo[Seats[Match.Contract.Soloist!.Value]];
-
-    var nextHistory = History.AddMatch(CompletedMatch.FromMatch(Match, Seats!, isCompulsory));
-
-    var cards = Rules.Deck.Shuffle(random);
+    var nextHistory = History.AddMatch(Match, Seats);
     var newMatch = new Match(cards, Auction.Initial, null);
     var seats = GetActiveSeats(
       nextHistory.Matches.Count,
@@ -79,37 +90,42 @@ public record Table
   public Table PlayCard(Seat seat, Card card)
   {
     var player = GetPlayer(seat);
-    var newMatch = Match.PlayCard(player, card);
+    var newMatch = Match?.PlayCard(player, card) ?? throw Err.TrickTaking.PlayCard.InvalidPhase;
     return this with { Match = newMatch };
   }
 
   public Table Reserve(Seat seat, bool reserved)
   {
     var player = GetPlayer(seat);
-    var newMatch = Match.Reserve(player, reserved, GetMatchContext());
-    return this with { Match = newMatch };
+    var next =
+      Match?.Reserve(player, reserved, GetMatchContext()) ?? throw Err.Auction.Reserve.InvalidPhase;
+    return this with { Match = next };
   }
 
   public Table Declare(Seat seat, IGameMode declaration)
   {
     var player = GetPlayer(seat);
-    var newMatch = Match.Declare(player, declaration, GetMatchContext());
-    return this with { Match = newMatch };
+    var next =
+      Match?.Declare(player, declaration, GetMatchContext())
+      ?? throw Err.Auction.Declare.InvalidPhase;
+    return this with { Match = next };
   }
 
-  private MatchContext GetMatchContext() {
+  private MatchContext GetMatchContext()
+  {
     var needsBySeat = History.NeedsCompulsorySolo;
     var needsCompulsory = new ByPlayer<bool>(
-        needsBySeat[Seats[Player.Player1]],
-        needsBySeat[Seats[Player.Player2]],
-        needsBySeat[Seats[Player.Player3]],
-        needsBySeat[Seats[Player.Player4]]
+      needsBySeat[Seats[Player.Player1]],
+      needsBySeat[Seats[Player.Player2]],
+      needsBySeat[Seats[Player.Player3]],
+      needsBySeat[Seats[Player.Player4]]
     );
 
     return new(needsCompulsory, Rules.Modes);
   }
 
-  private Player GetPlayer(Seat seat) => AtSeat(seat, Seats) ?? throw Err.Game.PlayCard.SeatPaused;
+  private Player GetPlayer(Seat seat) =>
+    AtSeat(seat, Seats) ?? throw Err.TrickTaking.PlayCard.SeatPaused;
 
   private static Player? AtSeat(Seat seat, ByPlayer<Seat> seats)
   {

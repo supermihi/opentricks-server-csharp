@@ -32,6 +32,8 @@ public sealed record ByPlayer<T>(T Player1, T Player2, T Player3, T Player4) : I
       player == Player.Player4 ? value : Player4
     );
 
+  public IEnumerable<(Player player, T item)> Items => Enum.GetValues<Player>().Zip(this);
+
   public IEnumerator<T> GetEnumerator()
   {
     yield return Player1;

@@ -13,9 +13,11 @@ public sealed record Match(
   TrickTaking? TrickTaking
 )
 {
-  public static Match Init(ByPlayer<IImmutableList<Card>> cards) => new(cards, Auction.Initial, null);
+  public static Match Init(ByPlayer<IImmutableList<Card>> cards) =>
+    new(cards, Auction.Initial, null);
 
   public Contract? Contract => TrickTaking?.Contract;
+  public bool IsFinished => TrickTaking?.IsFinished ?? false;
 
   public Match Reserve(Player player, bool reserved, MatchContext context)
   {

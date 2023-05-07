@@ -14,6 +14,7 @@ public static class Err
       );
 
     public InputException NotYourTurn => Create("not_your_turn", "it is not your turn");
+    public InputException SeatPaused => Create("seat_paused", "you do not participate in the current match");
   }
 
   public static class Auction

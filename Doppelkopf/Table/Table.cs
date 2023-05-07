@@ -15,7 +15,7 @@ public class Table
   public IImmutableList<CompletedMatch> CompletedMatches { get; private set; } =
     ImmutableList<CompletedMatch>.Empty;
 
-  public record MatchState(Match.Match Match, ByPlayer<Seat> Players);
+  public record MatchState(Match Match, ByPlayer<Seat> Players);
 
   public MatchState? CurrentMatch { get; private set; } = null;
 
@@ -39,12 +39,12 @@ public class Table
       CompletedMatches.Count,
       CompletedMatches.Count(g => g.IsCompulsorySolo)
     );
-    var cards = _rules.Deck().Shuffle(random);
-    CurrentMatch = new(new(cards, _rules, Auction.Initial, null), players);
+    var cards = _rules.Deck.Shuffle(random);
+    CurrentMatch = new(new(cards, Auction.Initial, null), players);
     return CurrentMatch;
   }
 
-  public bool IsFinished => CompletedMatches.Count == _rules.RuleSet.NumberOfGames;
+  public bool IsFinished => CompletedMatches.Count == _rules.Rounds.NumberOfGames;
 
   public ByPlayer<Seat> GetActivePlayers(int gamesPlayed, int dealingsRepeated)
   {

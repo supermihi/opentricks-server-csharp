@@ -19,7 +19,7 @@ public record Auction(InTurns<bool> Reservations, ByPlayer<IGameMode?> Declarati
       throw Err.Auction.Reserve.NotYourTurn;
     }
     var nextAuction = this with { Reservations = Reservations.Add(reserved) };
-    var contractOrNull = Evaluate(context);
+    var contractOrNull = nextAuction.Evaluate(context);
     return (nextAuction, contractOrNull);
   }
 
@@ -55,7 +55,7 @@ public record Auction(InTurns<bool> Reservations, ByPlayer<IGameMode?> Declarati
     {
       return null;
     }
-    if (!Reservations.Any())
+    if (!Reservations.Any(r => r))
     {
       return new(context.Modes.NormalGame, null);
     }

@@ -8,8 +8,6 @@ namespace Doppelkopf.Tests.Tricks;
 
 public class TrickTakingTests
 {
-  private static readonly RuleSet DefaultRules = RuleSet.DDKV;
-
   private static readonly ByPlayer<IImmutableList<Card>> DefaultCards =
     new(
       ImmutableList.Create<Card>(

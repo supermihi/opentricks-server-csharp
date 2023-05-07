@@ -31,11 +31,12 @@ public sealed record Trick
     {
       return true;
     }
-    if (rules.SameTrickSuit(Cards[0], card))
+    var definingCard = Cards[0];
+    if (rules.SameTrickSuit(definingCard, card))
     {
       return true;
     }
-    var hasSameTrickSuit = cardsOfPlayer.Any(c => rules.SameTrickSuit(c, card));
+    var hasSameTrickSuit = cardsOfPlayer.Any(c => rules.SameTrickSuit(c, definingCard));
     return !hasSameTrickSuit;
   }
 

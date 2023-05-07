@@ -1,7 +1,13 @@
+using System.Collections.Immutable;
+using Doppelkopf.Cards;
+
 namespace Doppelkopf.Configuration;
 
 public interface IRules
 {
   GameModeCollection Modes { get; }
-  RuleSet RuleSet { get; }
+
+  RoundConfiguration Rounds { get; }
+  
+  IImmutableList<Card> Deck { get; }
 }

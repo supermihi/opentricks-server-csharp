@@ -3,4 +3,4 @@ using Doppelkopf.Tables;
 
 namespace Doppelkopf.Persistence;
 
-public record PlayCardAction(Seat Seat, Card Card, int Version) : ISeatedTableAction;
+public record PlayCard(Seat Seat, Card Card) : ISeatedTableAction;

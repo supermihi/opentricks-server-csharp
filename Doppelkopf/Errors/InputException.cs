@@ -2,10 +2,10 @@ namespace Doppelkopf.Errors;
 
 public class InputException : Exception, IEquatable<InputException> {
   private readonly string _code;
-  public Component Component { get; }
+  public string Component { get; }
   public string Action { get; }
 
-  public InputException(Component component, string action, string code, string message)
+  public InputException(string component, string action, string code, string message)
       : base(message) {
     _code = code;
     Component = component;

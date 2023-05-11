@@ -2,4 +2,7 @@
 
 namespace Doppelkopf.Persistence;
 
-public record InitTableAction(IRules Rules, int NumberOfPlayers, int Version) : ITableAction;
+public record InitTable(IRules Rules, int NumberOfPlayers)
+  : ITableActionPayload;
+
+public record TableAction<T>(T Payload, ActionMeta Meta) where T : ITableActionPayload;

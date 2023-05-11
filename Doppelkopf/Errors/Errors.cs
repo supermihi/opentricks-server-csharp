@@ -2,7 +2,7 @@ namespace Doppelkopf.Errors;
 
 public static class Err
 {
-  public abstract record ErrorCollection(Component Component, string Action)
+  public abstract record ErrorCollection(string Component, string Action)
   {
     protected InputException Create(string code, string message) =>
       new(Component, Action, code, message);
@@ -20,11 +20,11 @@ public static class Err
 
   public static class Auction
   {
-    public record ReserveCollection() : ErrorCollection(Component.Game, "state_reservation");
+    public record ReserveCollection() : ErrorCollection(Components.Auction, "state_reservation");
 
     public static readonly ReserveCollection Reserve = new();
 
-    public record DeclareCollection() : ErrorCollection(Component.Game, "declare")
+    public record DeclareCollection() : ErrorCollection(Components.Auction, "declare")
     {
       public InputException NotReserved =>
         Create("not_reserved", "cannot declare without having reserved");
@@ -42,7 +42,7 @@ public static class Err
   {
     public static readonly PlayCardCollection PlayCard = new();
 
-    public record PlayCardCollection() : ErrorCollection(Component.Game, "play_card")
+    public record PlayCardCollection() : ErrorCollection(Components.TrickTaking, "play_card")
     {
       public InputException Forbidden =>
         Create("forbidden_card", "the card is forbidden, choose another one");
@@ -54,13 +54,13 @@ public static class Err
 
   public static class Table
   {
-    public record StartGameCollection() : ErrorCollection(Component.Table, "start_game")
+    public record StartGameCollection() : ErrorCollection(Components.Table, "start_game")
     {
       public InputException IsComplete => Create("table_complete", "the table is already complete");
     }
 
     public static InputException NotInitialized =
-      new(Component.Table, "generic", "not_initialized", "the table is not initialized");
+      new(Components.Table, "generic", "not_initialized", "the table is not initialized");
 
     public static StartGameCollection StartGame = new();
   }

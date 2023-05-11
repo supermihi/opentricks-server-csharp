@@ -2,7 +2,7 @@ using Doppelkopf.Tables;
 
 namespace Doppelkopf.Persistence;
 
-public interface ISeatedTableAction : ITableAction
+public interface ISeatedTableAction : ITableActionPayload
 {
   Seat Seat { get; }
 }

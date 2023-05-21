@@ -1,10 +1,16 @@
 using Doppelkopf.Cards;
+using Doppelkopf.Server.Authentication;
+using Doppelkopf.Server.Controllers.Interface;
+using Doppelkopf.Server.Model;
+using Doppelkopf.Server.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Doppelkopf.Server.Controllers;
 
 [ApiController]
 [Route("table")]
+[Authorize]
 public class TableController : ControllerBase
 {
   private readonly ILogger<TableController> _logger;
@@ -23,19 +29,17 @@ public class TableController : ControllerBase
   }
 
   [HttpPost(Name = "CreateTable")]
-  public async Task<ITable> CreateAsync()
+  public async Task<JsonTable> CreateAsync(JsonCreateTableRequest request)
   {
-    var table = await _tableProvider.Create(CurrentUserId);
-    return table;
+    var table = await _tableProvider.Create(HttpContext.AuthenticatedUserId(), request.Name);
+    return JsonTable.FromTableData(table.Data);
   }
-
-  private UserId CurrentUserId => new("");
 
   [HttpGet("{id}", Name = "GetTable")]
   public async Task<ITable> GetTableAsync(string id)
   {
     var table = await _tableProvider.Get(new TableId(id));
-    if (!table.Meta.ContainsUser(CurrentUserId))
+    if (!table.Data.Users.Contains(HttpContext.AuthenticatedUserId()))
     {
       throw new Exception("forbidden");
     }

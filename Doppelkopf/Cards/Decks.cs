@@ -5,9 +5,8 @@ namespace Doppelkopf.Cards;
 public static class Decks
 {
   public static readonly IImmutableList<Card> WithNines = Enum.GetValues<Suit>()
-    .SelectMany(
-      suit => Enum.GetValues<Rank>().SelectMany(rank => Enumerable.Repeat(new Card(suit, rank), 2))
-    )
+    .SelectMany(suit => Enum.GetValues<Rank>().Select(rank => new Card(suit, rank)))
+    .SelectMany(card => new[] { card, card })
     .ToImmutableArray();
 
   public static readonly IImmutableList<Card> WithoutNines = WithNines
@@ -16,7 +15,7 @@ public static class Decks
 
   public static ByPlayer<IImmutableList<Card>> Shuffle(this IEnumerable<Card> deck, Random random)
   {
-    var shuffledCards = deck.OrderBy(c => random.Next()).ToImmutableArray();
+    var shuffledCards = deck.OrderBy(_ => random.Next()).ToImmutableArray();
     var cardsByPlayer = shuffledCards.Length / Constants.NumberOfPlayers;
     return new(
       shuffledCards[..cardsByPlayer].ToImmutableList(),

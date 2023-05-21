@@ -1,5 +1,5 @@
 using Doppelkopf.Configuration;
-using Doppelkopf.Tables;
+using Doppelkopf.Sessions;
 
 namespace Doppelkopf.Persistence;
 

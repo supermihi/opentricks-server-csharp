@@ -100,5 +100,3 @@ public record Auction(InTurns<bool> Reservations, ByPlayer<IGameMode?> Declarati
       GameModeKind.Solo when needsCompulsorySolo => CompulsorySoloValue
     };
 }
-
-public sealed record AuctionContext(ByPlayer<bool> NeedsCompulsorySolo, GameModeCollection Modes);

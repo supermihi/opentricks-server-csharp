@@ -10,13 +10,13 @@ public sealed record JsonTable(
   [property: JsonPropertyName("players")] IReadOnlyList<string> Players
 )
 {
-  public static JsonTable FromTableData(TableData table)
-  {
-    return new JsonTable(
-      Id: table.Meta.Id,
-      Name: table.Meta.Name,
-      Owner: table.Meta.Owner,
-      Players: table.Users.Users.Select(id => id.Id).ToArray()
-    );
-  }
+    public static JsonTable FromTableData(TableData table)
+    {
+        return new JsonTable(
+          Id: table.Meta.Id,
+          Name: table.Meta.Name,
+          Owner: table.Meta.Owner,
+          Players: table.Users.Users.Select(id => id.Id).ToArray()
+        );
+    }
 }

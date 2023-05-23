@@ -11,48 +11,48 @@ namespace Doppelkopf.Server.Controllers;
 [Authorize]
 public class NotificationStreamController : ControllerBase
 {
-  private readonly IClientNotificationStreamHandler _streamHandler;
-  private readonly INotificationDispatcher _dispatcher;
-  private readonly ILogger<NotificationStreamController>? _logger;
+    private readonly IClientNotificationStreamHandler _streamHandler;
+    private readonly INotificationDispatcher _dispatcher;
+    private readonly ILogger<NotificationStreamController>? _logger;
 
-  public NotificationStreamController(
-    IClientNotificationStreamHandler streamHandler,
-    INotificationDispatcher dispatcher,
-    ILogger<NotificationStreamController>? logger = null
-  )
-  {
-    _streamHandler = streamHandler;
-    _dispatcher = dispatcher;
-    _logger = logger;
-  }
+    public NotificationStreamController(
+      IClientNotificationStreamHandler streamHandler,
+      INotificationDispatcher dispatcher,
+      ILogger<NotificationStreamController>? logger = null
+    )
+    {
+        _streamHandler = streamHandler;
+        _dispatcher = dispatcher;
+        _logger = logger;
+    }
 
-  [Route("/updates")]
-  public async Task Get(CancellationToken cancellationToken)
-  {
-    cancellationToken.Register(() => _logger?.LogInformation("clinet disconnect"));
-    Response.ContentType = "text/event-stream";
-    await Response.Body.FlushAsync(cancellationToken);
-    await Response.WriteAsync("test", cancellationToken: cancellationToken);
-    await _streamHandler.Add(HttpContext.AuthenticatedUserId(), Response);
-    _logger?.LogInformation("/updates finished");
-  }
+    [Route("/updates")]
+    public async Task Get(CancellationToken cancellationToken)
+    {
+        cancellationToken.Register(() => _logger?.LogInformation("clinet disconnect"));
+        Response.ContentType = "text/event-stream";
+        await Response.Body.FlushAsync(cancellationToken);
+        await Response.WriteAsync("test", cancellationToken: cancellationToken);
+        await _streamHandler.Add(HttpContext.AuthenticatedUserId(), Response);
+        _logger?.LogInformation("/updates finished");
+    }
 
-  public record ChatNotification([property: JsonPropertyName("message")] string Message)
-    : IUserNotification;
+    public record ChatNotification([property: JsonPropertyName("message")] string Message)
+      : IUserNotification;
 
-  public record ChatRequest(string Target, string Message);
+    public record ChatRequest(string Target, string Message);
 
-  [Route("/chat")]
-  [HttpPost]
-  public async Task Chat([FromForm] string target, [FromForm] string message)
-  {
-    //var (target, message) = request;
-    _logger?.LogInformation(
-      "{User} sends message {Message} to {Target}",
-      HttpContext.AuthenticatedUserId(),
-      message,
-      target
-    );
-    await _dispatcher.Send(new ChatNotification(message), new UserId(target));
-  }
+    [Route("/chat")]
+    [HttpPost]
+    public async Task Chat([FromForm] string target, [FromForm] string message)
+    {
+        //var (target, message) = request;
+        _logger?.LogInformation(
+          "{User} sends message {Message} to {Target}",
+          HttpContext.AuthenticatedUserId(),
+          message,
+          target
+        );
+        await _dispatcher.Send(new ChatNotification(message), new UserId(target));
+    }
 }

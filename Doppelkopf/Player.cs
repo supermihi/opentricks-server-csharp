@@ -1,6 +1,7 @@
 namespace Doppelkopf;
 
-public enum Player {
+public enum Player
+{
     Player1 = 0,
     Player2 = 1,
     Player3 = 2,

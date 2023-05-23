@@ -1,52 +1,68 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Configuration;
+using Doppelkopf.Conf;
+using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
 using Doppelkopf.GameFinding;
 using Doppelkopf.Tricks;
 
 namespace Doppelkopf.Games;
 
+public sealed record GameContext(
+  ByPlayer<bool> NeedsCompulsorySolo,
+  AvailableContracts Contracts,
+  TrickConfiguration TrickConfiguration
+);
+
 public sealed record Game(
+  GameContext Context,
   ByPlayer<IImmutableList<Card>> Cards,
   Auction Auction,
+  PartyData PartyData,
   TrickTaking? TrickTaking
 )
 {
-  public static Game Init(ByPlayer<IImmutableList<Card>> cards) =>
-    new(cards, Auction.Initial, null);
+    public static Game Init(GameContext context, ByPlayer<IImmutableList<Card>> cards) =>
+      new(context, cards, Auction.Initial, PartyData.NothingClarified, null);
 
-  public Contract? Contract => TrickTaking?.Contract;
-  public bool IsFinished => TrickTaking?.IsFinished ?? false;
+    public bool IsFinished => TrickTaking?.IsFinished ?? false;
 
-  public Game Reserve(Player player, bool reserved, GameContext context)
-  {
-    var (newAuction, contract) = Auction.Reserve(player, reserved, context.AuctionContext);
-    return UpdateOnReserveOrDeclare(contract, newAuction);
-  }
-
-  private Game UpdateOnReserveOrDeclare(Contract? contract, Auction newAuction)
-  {
-    if (contract is not null)
+    public Game Reserve(Player player, bool reserved)
     {
-      return this with { Auction = newAuction, TrickTaking = TrickTaking.Initial(contract, Cards) };
+        var (newAuction, result) = Auction.Reserve(player, reserved, AuctionContext);
+        return UpdateOnReserveOrDeclare(result, newAuction);
     }
-    return this with { Auction = newAuction };
-  }
 
-  public Game Declare(Player player, IGameMode declaration, GameContext context)
-  {
-    var (newAuction, contract) = Auction.Declare(player, declaration, context.AuctionContext);
-    return UpdateOnReserveOrDeclare(contract, newAuction);
-  }
+    private AuctionContext AuctionContext =>
+      new(Context.NeedsCompulsorySolo, Context.Contracts, Cards);
 
-  public Game PlayCard(Player player, Card card)
-  {
-    if (TrickTaking is null)
+    private Game UpdateOnReserveOrDeclare(AuctionResult? result, Auction newAuction)
     {
-      throw Err.TrickTaking.PlayCard.InvalidPhase;
+        if (result is not null)
+        {
+            return this with
+            {
+                Auction = newAuction,
+                PartyData = result.PartyData,
+                TrickTaking = TrickTaking.Initial(result.Contract, Context.TrickConfiguration, Cards)
+            };
+        }
+        return this with { Auction = newAuction };
     }
-    var (newTrickTaking, _) = TrickTaking.PlayCard(player, card);
-    return this with { TrickTaking = newTrickTaking };
-  }
+
+    public Game Declare(Player player, IContract declaration)
+    {
+        var (newAuction, contract) = Auction.Declare(player, declaration, AuctionContext);
+        return UpdateOnReserveOrDeclare(contract, newAuction);
+    }
+
+    public Game PlayCard(Player player, Card card)
+    {
+        if (TrickTaking is null)
+        {
+            throw Err.TrickTaking.PlayCard.InvalidPhase;
+        }
+        var (newTrickTaking, _) = TrickTaking.PlayCard(player, card);
+        return this with { TrickTaking = newTrickTaking };
+    }
 }

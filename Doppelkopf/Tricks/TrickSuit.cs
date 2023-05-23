@@ -1,10 +1,10 @@
 namespace Doppelkopf.Tricks;
 
-internal enum TrickSuit
+public enum TrickSuit
 {
-  Diamonds,
-  Hearts,
-  Spades,
-  Clubs,
-  Trump
+    Diamonds,
+    Hearts,
+    Spades,
+    Clubs,
+    Trump
 }

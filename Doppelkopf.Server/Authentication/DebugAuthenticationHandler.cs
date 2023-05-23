@@ -9,24 +9,24 @@ namespace Doppelkopf.Server.Authentication;
 
 public class DebugAuthenticationHandler : AuthenticationHandler<DebugAuthenticationOptions>
 {
-  public DebugAuthenticationHandler(
-    IOptionsMonitor<DebugAuthenticationOptions> options,
-    ILoggerFactory logger,
-    UrlEncoder encoder,
-    ISystemClock clock
-  )
-    : base(options, logger, encoder, clock) { }
+    public DebugAuthenticationHandler(
+      IOptionsMonitor<DebugAuthenticationOptions> options,
+      ILoggerFactory logger,
+      UrlEncoder encoder,
+      ISystemClock clock
+    )
+      : base(options, logger, encoder, clock) { }
 
-  protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-  {
-    var user = Context.Request.Headers[HeaderNames.Authorization].ToString();
-    if (string.IsNullOrEmpty(user))
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-      return Task.FromResult(AuthenticateResult.Fail("no user"));
+        var user = Context.Request.Headers[HeaderNames.Authorization].ToString();
+        if (string.IsNullOrEmpty(user))
+        {
+            return Task.FromResult(AuthenticateResult.Fail("no user"));
+        }
+        IIdentity id = new GenericIdentity(user);
+        var claimsPrincipal = new ClaimsPrincipal(id);
+        var ticket = new AuthenticationTicket(claimsPrincipal, DebugAuthenticationOptions.Schema);
+        return Task.FromResult(AuthenticateResult.Success(ticket));
     }
-    IIdentity id = new GenericIdentity(user);
-    var claimsPrincipal = new ClaimsPrincipal(id);
-    var ticket = new AuthenticationTicket(claimsPrincipal, DebugAuthenticationOptions.Schema);
-    return Task.FromResult(AuthenticateResult.Success(ticket));
-  }
 }

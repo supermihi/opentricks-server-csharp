@@ -2,8 +2,8 @@ namespace Doppelkopf.Cards;
 
 public enum Suit
 {
-  Diamonds,
-  Hearts,
-  Spades,
-  Clubs
+    Diamonds,
+    Hearts,
+    Spades,
+    Clubs
 }

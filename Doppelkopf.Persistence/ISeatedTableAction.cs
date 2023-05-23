@@ -4,5 +4,5 @@ namespace Doppelkopf.Persistence;
 
 public interface ISeatedTableAction : ITableActionPayload
 {
-  Seat Seat { get; }
+    Seat Seat { get; }
 }

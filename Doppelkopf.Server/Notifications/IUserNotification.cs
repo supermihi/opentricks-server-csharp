@@ -1,3 +1,4 @@
 namespace Doppelkopf.Server.Notifications;
 
-public interface IUserNotification { }
+public interface IUserNotification
+{ }

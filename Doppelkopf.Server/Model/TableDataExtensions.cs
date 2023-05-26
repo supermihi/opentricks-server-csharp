@@ -6,17 +6,17 @@ namespace Doppelkopf.Server.Model;
 
 public static class TableDataExtensions
 {
-    public static (VersionedTable, Seat) TableAndSeat(this TableData tableData, UserId user)
+  public static (VersionedSession, Seat) TableAndSeat(this TableData tableData, UserId user)
+  {
+    if (tableData.Table == null)
     {
-        if (tableData.Table == null)
-        {
-            throw Err.Table.NotInitialized;
-        }
-        var seat = tableData.Users.GetSeat(user);
-        if (seat == null)
-        {
-            throw Error.UserNotAtTable;
-        }
-        return (tableData.Table, seat.Value);
+      throw Err.Table.NotInitialized;
     }
+    var seat = tableData.Users.GetSeat(user);
+    if (seat == null)
+    {
+      throw Error.UserNotAtTable;
+    }
+    return (tableData.Table, seat.Value);
+  }
 }

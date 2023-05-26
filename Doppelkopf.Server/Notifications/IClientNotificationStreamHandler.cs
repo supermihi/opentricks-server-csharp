@@ -4,5 +4,5 @@ namespace Doppelkopf.Server.Notifications;
 
 public interface IClientNotificationStreamHandler
 {
-    Task Add(UserId user, HttpResponse response);
+  Task Add(UserId user, HttpResponse response);
 }

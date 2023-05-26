@@ -9,7 +9,7 @@ namespace Doppelkopf.Tests.Tricks;
 
 public class TrickTakingTests
 {
-    private static readonly ByPlayer<IImmutableList<Card>> DefaultCards =
+  private static readonly ByPlayer<IImmutableList<Card>> DefaultCards =
       new(
         ImmutableList.Create<Card>(
           new(Suit.Hearts, Rank.Nine),
@@ -69,80 +69,80 @@ public class TrickTakingTests
         )
       );
 
-    private static TrickTaking CreateInitialTrickTaking()
-    {
-        var contract = new NormalGame("normal");
-        return TrickTaking.Initial(
-          contract,
-          new TrickConfiguration(EldersMode.FirstWins),
-          DefaultCards
-        );
-    }
+  private static TrickTaking CreateInitialTrickTaking()
+  {
+    var contract = new NormalGame("normal");
+    return TrickTaking.Initial(
+      contract,
+      new TrickConfiguration(EldersMode.FirstWins),
+      DefaultCards
+    );
+  }
 
-    [Fact]
-    public void Initial()
-    {
-        var trickTaking = CreateInitialTrickTaking();
-        Assert.NotNull(trickTaking.CurrentTrick);
-        Assert.Empty(trickTaking.CompletedTricks);
+  [Fact]
+  public void Initial()
+  {
+    var trickTaking = CreateInitialTrickTaking();
+    Assert.NotNull(trickTaking.CurrentTrick);
+    Assert.Empty(trickTaking.CompletedTricks);
 
-        var initialTrick = trickTaking.CurrentTrick!;
-        Assert.Equal(Player.Player1, initialTrick.Leader);
-        Assert.Empty(initialTrick.Cards);
-    }
+    var initialTrick = trickTaking.CurrentTrick!;
+    Assert.Equal(Player.Player1, initialTrick.Leader);
+    Assert.Empty(initialTrick.Cards);
+  }
 
-    [Theory]
-    [InlineData(Player.Player2)]
-    [InlineData(Player.Player3)]
-    [InlineData(Player.Player4)]
-    public void PlayCardThrowsWhenNotPlayersTurn(Player player)
-    {
-        var trickTaking = CreateInitialTrickTaking();
-        Assert.Equal(Player.Player1, trickTaking.CurrentTrick!.Turn);
-        var exception = Assert.Throws<InputException>(
-          () => trickTaking.PlayCard(player, trickTaking.Cards[player].First())
-        );
-        Assert.Equal(Err.TrickTaking.PlayCard.NotYourTurn, exception);
-    }
+  [Theory]
+  [InlineData(Player.Player2)]
+  [InlineData(Player.Player3)]
+  [InlineData(Player.Player4)]
+  public void PlayCardThrowsWhenNotPlayersTurn(Player player)
+  {
+    var trickTaking = CreateInitialTrickTaking();
+    Assert.Equal(Player.Player1, trickTaking.CurrentTrick!.Turn);
+    var exception = Assert.Throws<InputException>(
+      () => trickTaking.PlayCard(player, trickTaking.Cards[player].First())
+    );
+    Assert.Equal(Err.TrickTaking.PlayCard.NotYourTurn, exception);
+  }
 
-    [Fact]
-    public void PlayCardThrowsWhenDoesNotHaveCard()
-    {
-        var trickTaking = CreateInitialTrickTaking();
-        var cardNotInPlayersHand = new Card(Suit.Clubs, Rank.Ace);
-        var exception = Assert.Throws<InputException>(
-          () => trickTaking.PlayCard(Player.Player1, cardNotInPlayersHand)
-        );
-        Assert.Equal(Err.TrickTaking.PlayCard.DoNotHaveCard, exception);
-    }
+  [Fact]
+  public void PlayCardThrowsWhenDoesNotHaveCard()
+  {
+    var trickTaking = CreateInitialTrickTaking();
+    var cardNotInPlayersHand = new Card(Suit.Clubs, Rank.Ace);
+    var exception = Assert.Throws<InputException>(
+      () => trickTaking.PlayCard(Player.Player1, cardNotInPlayersHand)
+    );
+    Assert.Equal(Err.TrickTaking.PlayCard.DoNotHaveCard, exception);
+  }
 
-    [Fact]
-    public void PlayCardThrowsWhenCardNotValid()
-    {
-        var trickTaking = CreateInitialTrickTaking();
-        trickTaking = trickTaking.PlayCard(Player.Player1, new(Suit.Spades, Rank.Ace)).result;
-        trickTaking = trickTaking.PlayCard(Player.Player2, new(Suit.Spades, Rank.Nine)).result;
-        var exception = Assert.Throws<InputException>(
-          () => trickTaking.PlayCard(Player.Player3, new(Suit.Clubs, Rank.Queen))
-        );
-        Assert.Equal(Err.TrickTaking.PlayCard.Forbidden, exception);
-    }
+  [Fact]
+  public void PlayCardThrowsWhenCardNotValid()
+  {
+    var trickTaking = CreateInitialTrickTaking();
+    trickTaking = trickTaking.PlayCard(Player.Player1, new(Suit.Spades, Rank.Ace)).result;
+    trickTaking = trickTaking.PlayCard(Player.Player2, new(Suit.Spades, Rank.Nine)).result;
+    var exception = Assert.Throws<InputException>(
+      () => trickTaking.PlayCard(Player.Player3, new(Suit.Clubs, Rank.Queen))
+    );
+    Assert.Equal(Err.TrickTaking.PlayCard.Forbidden, exception);
+  }
 
-    [Fact]
-    public void PlayCardSuccess()
-    {
-        var before = CreateInitialTrickTaking();
-        var playedCard = new Card(Suit.Spades, Rank.Ace);
-        var (result, finishedTrick) = before.PlayCard(Player.Player1, playedCard);
+  [Fact]
+  public void PlayCardSuccess()
+  {
+    var before = CreateInitialTrickTaking();
+    var playedCard = new Card(Suit.Spades, Rank.Ace);
+    var (result, finishedTrick) = before.PlayCard(Player.Player1, playedCard);
 
-        Assert.False(finishedTrick);
-        var cardsBefore = before.Cards[Player.Player1];
-        var cardsAfter = result.Cards[Player.Player1];
-        Assert.Equal(cardsBefore.Count - 1, cardsAfter.Count);
-        Assert.Equal(cardsBefore.Remove(playedCard), cardsAfter);
+    Assert.False(finishedTrick);
+    var cardsBefore = before.Cards[Player.Player1];
+    var cardsAfter = result.Cards[Player.Player1];
+    Assert.Equal(cardsBefore.Count - 1, cardsAfter.Count);
+    Assert.Equal(cardsBefore.Remove(playedCard), cardsAfter);
 
-        Assert.Equal(before.Cards[Player.Player2], result.Cards[Player.Player2]);
-        Assert.Equal(before.Cards[Player.Player3], result.Cards[Player.Player3]);
-        Assert.Equal(before.Cards[Player.Player4], result.Cards[Player.Player4]);
-    }
+    Assert.Equal(before.Cards[Player.Player2], result.Cards[Player.Player2]);
+    Assert.Equal(before.Cards[Player.Player3], result.Cards[Player.Player3]);
+    Assert.Equal(before.Cards[Player.Player4], result.Cards[Player.Player4]);
+  }
 }

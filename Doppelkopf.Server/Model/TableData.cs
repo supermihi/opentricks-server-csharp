@@ -1,23 +1,24 @@
 using System.Collections.Immutable;
+using Doppelkopf.Conf;
 using Doppelkopf.Persistence;
 
 namespace Doppelkopf.Server.Model;
 
-public sealed record TableData(VersionedTable? Table, TableMeta Meta, TableUsers Users)
+public sealed record TableData(VersionedSession? Table, TableMeta Meta, TableUsers Users)
 {
-    public static TableData Init(TableMeta meta)
-    {
-        return new(null, meta, new(ImmutableList.Create<UserId>(meta.Owner)));
-    }
+  public static TableData Init(TableMeta meta)
+  {
+    return new(null, meta, new(ImmutableList.Create(meta.Owner)));
+  }
 
-    public TableData AddUser(UserId user, Random? random)
+  public TableData AddUser(UserId user, Random? random)
+  {
+    if (IsStarted)
     {
-        if (IsStarted)
-        {
-            throw new Exception("already started");
-        }
-        return this with { Users = Users.Add(user, random) };
+      throw new Exception("already started");
     }
+    return this with { Users = Users.Add(user, random) };
+  }
 
-    public bool IsStarted => Table != null;
+  public bool IsStarted => Table != null;
 }

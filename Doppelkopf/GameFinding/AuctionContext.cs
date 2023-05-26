@@ -4,8 +4,6 @@ using Doppelkopf.Contracts;
 
 namespace Doppelkopf.GameFinding;
 
-public sealed record AuctionContext(
-  ByPlayer<bool> NeedsCompulsorySolo,
+public sealed record AuctionContext(ByPlayer<bool> NeedsCompulsorySolo,
   AvailableContracts Contracts,
-  ByPlayer<IImmutableList<Card>> Cards
-);
+  ByPlayer<IImmutableList<Card>> Cards);

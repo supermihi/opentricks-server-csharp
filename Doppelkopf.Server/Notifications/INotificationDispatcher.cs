@@ -4,5 +4,5 @@ namespace Doppelkopf.Server.Notifications;
 
 public interface INotificationDispatcher
 {
-    Task Send(IUserNotification notification, UserId user);
+  Task Send(IUserNotification notification, UserId user);
 }

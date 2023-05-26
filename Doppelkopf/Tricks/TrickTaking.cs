@@ -9,93 +9,86 @@ namespace Doppelkopf.Tricks;
 /// <summary>
 /// The trick taking part of a Doppelkopf game.
 /// </summary>
-public sealed record TrickTaking(
-  IContract Contract,
+public sealed record TrickTaking(IContract Contract,
   TrickConfiguration Config,
   ByPlayer<IImmutableList<Card>> Cards,
   IImmutableList<FinishedTrick> CompletedTricks,
-  Trick? CurrentTrick
-)
+  Trick? CurrentTrick)
 {
-    public static TrickTaking Initial(
-      IContract contract,
-      TrickConfiguration config,
-      ByPlayer<IImmutableList<Card>> cards
-    ) => new(contract, config, cards, ImmutableList<FinishedTrick>.Empty, new(Player.Player1));
+  public static TrickTaking Initial(IContract contract,
+    TrickConfiguration config,
+    ByPlayer<IImmutableList<Card>> cards) =>
+      new(contract, config, cards, ImmutableList<FinishedTrick>.Empty, new(Player.Player1));
 
-    public bool IsFinished => CurrentTrick is null;
+  public bool IsFinished => CurrentTrick is null;
 
-    public (TrickTaking result, bool finishedTrick) PlayCard(Player player, Card card)
+  public (TrickTaking result, bool finishedTrick) PlayCard(Player player, Card card)
+  {
+    var currentTrick = CheckIsPlayersTurn(player);
+    CheckPlayerHasCard(player, card);
+    CheckCardIsValid(player, card, currentTrick);
+    var gameWithCardPlayed = WithCardPlayed(player, card, currentTrick);
+    return gameWithCardPlayed.CurrentTrick!.IsFull
+        ? (gameWithCardPlayed.WithTrickCompleted(), true)
+        : (gameWithCardPlayed, false);
+  }
+
+  private TrickTaking WithTrickCompleted()
+  {
+    if (CurrentTrick is not { IsFull: true })
     {
-        var currentTrick = CheckIsPlayersTurn(player);
-        CheckPlayerHasCard(player, card);
-        CheckCardIsValid(player, card, currentTrick);
-        var gameWithCardPlayed = WithCardPlayed(player, card, currentTrick);
-        return gameWithCardPlayed.CurrentTrick!.IsFull
-          ? (gameWithCardPlayed.WithTrickCompleted(), true)
-          : (gameWithCardPlayed, false);
+      throw new IllegalStateException("cannot complete trick that is not full");
     }
-
-    private TrickTaking WithTrickCompleted()
+    var tricksLeft = Cards.Player1.Count;
+    var currentTrickIsLast = tricksLeft == 0;
+    var context = new TrickContext(Contract.CardTraits, Config, currentTrickIsLast);
+    var currentTrickFinished = FinishedTrick.FromTrick(CurrentTrick, context);
+    return this with
     {
-        if (CurrentTrick is not { IsFull: true })
-        {
-            throw new IllegalStateException("cannot complete trick that is not full");
-        }
-        var tricksLeft = Cards.Player1.Count;
-        var currentTrickIsLast = tricksLeft == 0;
-        var context = new TrickContext(Contract.CardTraits, Config, currentTrickIsLast);
-        var currentTrickFinished = FinishedTrick.FromTrick(CurrentTrick, context);
-        return this with
-        {
-            CompletedTricks = CompletedTricks.Add(currentTrickFinished),
-            CurrentTrick = currentTrickIsLast ? null : new(currentTrickFinished.Winner)
-        };
-    }
+        CompletedTricks = CompletedTricks.Add(currentTrickFinished),
+        CurrentTrick = currentTrickIsLast ? null : new(currentTrickFinished.Winner)
+    };
+  }
 
-    private TrickTaking WithCardPlayed(Player player, Card card, Trick currentTrick)
+  private TrickTaking WithCardPlayed(Player player, Card card, Trick currentTrick)
+  {
+    var playersCardsWithoutJustPlayed = Cards.Replace(player, Cards[player].Remove(card));
+    var trickWithJustPlayed = currentTrick.AddCard(card);
+
+    return this with { Cards = playersCardsWithoutJustPlayed, CurrentTrick = trickWithJustPlayed, };
+  }
+
+  private void CheckCardIsValid(Player player, Card card, Trick currentTrick)
+  {
+    if (!currentTrick.IsValidNextCard(card, Cards[player], Contract.CardTraits))
     {
-        var playersCardsWithoutJustPlayed = Cards.Replace(player, Cards[player].Remove(card));
-        var trickWithJustPlayed = currentTrick.AddCard(card);
-
-        return this with
-        {
-            Cards = playersCardsWithoutJustPlayed,
-            CurrentTrick = trickWithJustPlayed,
-        };
+      throw Err.TrickTaking.PlayCard.Forbidden;
     }
+  }
 
-    private void CheckCardIsValid(Player player, Card card, Trick currentTrick)
+  private Trick CheckIsPlayersTurn(Player player)
+  {
+    if (CurrentTrick is null)
     {
-        if (!currentTrick.IsValidNextCard(card, Cards[player], Contract.CardTraits))
-        {
-            throw Err.TrickTaking.PlayCard.Forbidden;
-        }
+      throw Err.TrickTaking.PlayCard.InvalidPhase;
     }
-
-    private Trick CheckIsPlayersTurn(Player player)
+    var currentPlayer = CurrentTrick.Turn;
+    if (currentPlayer is null)
     {
-        if (CurrentTrick is null)
-        {
-            throw Err.TrickTaking.PlayCard.InvalidPhase;
-        }
-        var currentPlayer = CurrentTrick.Turn;
-        if (currentPlayer is null)
-        {
-            throw new ArgumentException("no current player");
-        }
-        if (currentPlayer != player)
-        {
-            throw Err.TrickTaking.PlayCard.NotYourTurn;
-        }
-        return CurrentTrick;
+      throw new ArgumentException("no current player");
     }
-
-    private void CheckPlayerHasCard(Player player, Card card)
+    if (currentPlayer != player)
     {
-        if (!Cards[player].Contains(card))
-        {
-            throw Err.TrickTaking.PlayCard.DoNotHaveCard;
-        }
+      throw Err.TrickTaking.PlayCard.NotYourTurn;
     }
+    return CurrentTrick;
+  }
+
+  private void CheckPlayerHasCard(Player player, Card card)
+  {
+    if (!Cards[player].Contains(card))
+    {
+      throw Err.TrickTaking.PlayCard.DoNotHaveCard;
+    }
+  }
 }

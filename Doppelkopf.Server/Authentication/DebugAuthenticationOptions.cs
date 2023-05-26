@@ -4,5 +4,5 @@ namespace Doppelkopf.Server.Authentication;
 
 public class DebugAuthenticationOptions : AuthenticationSchemeOptions
 {
-    public const string Schema = "debug_schema";
+  public const string Schema = "debug_schema";
 }

@@ -4,5 +4,5 @@ namespace Doppelkopf.Contracts;
 
 public interface ICardTraitsProvider
 {
-    CardTraits Get(Card card);
+  CardTraits Get(Card card);
 }

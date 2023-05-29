@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Conf;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
+using Doppelkopf.Games;
 using Doppelkopf.Tricks;
 
 namespace Doppelkopf.Tests.Tricks;
@@ -84,7 +84,7 @@ public class TrickTakingTests
   {
     var trickTaking = CreateInitialTrickTaking();
     Assert.NotNull(trickTaking.CurrentTrick);
-    Assert.Empty(trickTaking.CompletedTricks);
+    Assert.Empty(trickTaking.CompleteTricks);
 
     var initialTrick = trickTaking.CurrentTrick!;
     Assert.Equal(Player.Player1, initialTrick.Leader);

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
 using Doppelkopf.Server.Model;
+using Doppelkopf.Server.TableActions;
 
 namespace Doppelkopf.Server.Notifications;
 
@@ -18,13 +19,11 @@ public class NotificationManager
     _logger = loggerFactory?.CreateLogger<NotificationManager>();
   }
 
-  private readonly Channel<(IUserNotification, UserId)> _queue = Channel.CreateBounded<(
-    IUserNotification,
-    UserId
-    )>(1_000);
+  private readonly Channel<(TableActionResult result, UserId receiver)> _queue =
+      Channel.CreateBounded<(TableActionResult, UserId)>(1_000);
   private readonly ConcurrentDictionary<UserId, UserNotificationStreamHandler> _webSockets = new();
 
-  public Task Add(UserId user, HttpResponse response)
+  public Task AddStream(UserId user, HttpResponse response)
   {
     var handler = _webSockets.AddOrUpdate(
       user,
@@ -38,26 +37,26 @@ public class NotificationManager
     return handler.Ended;
   }
 
-  public Task Send(IUserNotification notification, UserId user)
+  public Task Send(TableActionResult result, UserId receiver)
   {
-    _queue.Writer.TryWrite((notification, user));
+    _queue.Writer.TryWrite((result, receiver));
     return Task.CompletedTask;
   }
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    await foreach (var (notification, user) in _queue.Reader.ReadAllAsync(stoppingToken))
+    await foreach (var (result, user) in _queue.Reader.ReadAllAsync(stoppingToken))
     {
       if (!_webSockets.TryGetValue(user, out var handler))
       {
         _logger?.LogInformation(
-          "Dropping notification {Notification} for offline user {User}",
-          notification,
+          "Dropping action result {ActionResult} for offline user {User}",
+          result,
           user
         );
         continue;
       }
-      await handler.Send(notification, stoppingToken);
+      await handler.Send(result, stoppingToken);
     }
     Console.WriteLine("finish!");
   }

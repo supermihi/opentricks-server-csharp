@@ -1,0 +1,3 @@
+namespace Doppelkopf.Server.Interface;
+
+

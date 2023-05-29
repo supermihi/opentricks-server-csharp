@@ -1,10 +1,8 @@
-using Doppelkopf.Persistence;
-using Doppelkopf.Server.Model;
+using Doppelkopf.Server.TableActions;
 
 namespace Doppelkopf.Server.Notifications;
 
 public interface ITableActionListener
 {
-  Task OnAction<T>(TableData beforeAction, TableAction<T> action, TableData afterAction)
-      where T : ITableActionPayload;
+  Task Notify(TableActionResult actionResult);
 }

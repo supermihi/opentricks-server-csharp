@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf", "Doppelkopf\Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Tests", "Doppelkopf.Tests\Doppelkopf.Tests.csproj", "{16F9986F-43DE-422A-A970-81533FA60505}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Persistence", "Doppelkopf.Persistence\Doppelkopf.Persistence.csproj", "{AB247E9C-B155-4A7C-A0DA-909D7D09CE8D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server", "Doppelkopf.Server\Doppelkopf.Server.csproj", "{FE6E6EA8-9527-4196-A025-F842B4EB1F17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server.Tests", "Doppelkopf.Server.Tests\Doppelkopf.Server.Tests.csproj", "{3987A11E-6E46-44C2-88D2-28BAE079E59E}"
@@ -30,10 +28,6 @@ Global
 		{16F9986F-43DE-422A-A970-81533FA60505}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16F9986F-43DE-422A-A970-81533FA60505}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16F9986F-43DE-422A-A970-81533FA60505}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB247E9C-B155-4A7C-A0DA-909D7D09CE8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB247E9C-B155-4A7C-A0DA-909D7D09CE8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB247E9C-B155-4A7C-A0DA-909D7D09CE8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB247E9C-B155-4A7C-A0DA-909D7D09CE8D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -1,6 +1,4 @@
-using System.Text.Json.Serialization;
 using Doppelkopf.Server.Authentication;
-using Doppelkopf.Server.Model;
 using Doppelkopf.Server.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +29,7 @@ public class NotificationStreamController : ControllerBase
     Response.ContentType = "text/event-stream";
     await Response.Body.FlushAsync(cancellationToken);
     await Response.WriteAsync("test", cancellationToken: cancellationToken);
-    await _streamHandler.Add(HttpContext.AuthenticatedUserId(), Response);
+    await _streamHandler.AddStream(HttpContext.AuthenticatedUser().Id, Response);
     _logger?.LogInformation("/updates finished");
   }
 }

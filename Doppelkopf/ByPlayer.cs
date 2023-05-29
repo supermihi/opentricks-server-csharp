@@ -22,17 +22,14 @@ public static class ByPlayer
 
 public sealed record ByPlayer<T>(T Player1, T Player2, T Player3, T Player4) : IEnumerable<T>
 {
-  public T Get(Player player) =>
-      player switch
-      {
-          Player.Player1 => Player1,
-          Player.Player2 => Player2,
-          Player.Player3 => Player3,
-          Player.Player4 => Player4,
-          _ => throw new ArgumentOutOfRangeException(nameof(player))
-      };
-
-  public T this[Player p] => Get(p);
+  public T this[Player p] => p switch
+  {
+    Player.Player1 => Player1,
+    Player.Player2 => Player2,
+    Player.Player3 => Player3,
+    Player.Player4 => Player4,
+    _ => throw new ArgumentOutOfRangeException(nameof(p))
+  };
 
   public ByPlayer<T> Replace(Player player, T value) =>
       new(

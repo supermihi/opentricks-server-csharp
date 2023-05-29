@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Doppelkopf.Server.Model;
+using Doppelkopf.Server.TableActions;
 
 namespace Doppelkopf.Server.Notifications;
 
@@ -28,14 +29,10 @@ internal sealed class UserNotificationStreamHandler
 
   public Task Ended => _tcs.Task;
 
-  public async Task Send(IUserNotification notification, CancellationToken cancellationToken)
+  public async Task Send(TableActionResult result, CancellationToken cancellationToken)
   {
-    await JsonSerializer.SerializeAsync(
-      _response.Body,
-      notification,
-      notification.GetType(),
-      cancellationToken: cancellationToken
-    );
+    var notification = UserNotification.FromTableActionResult(result, _user);
+    await JsonSerializer.SerializeAsync(_response.Body, notification, cancellationToken: cancellationToken);
     await _response.Body.FlushAsync(cancellationToken);
     _logger?.LogInformation("message sent to {User}", _user);
   }

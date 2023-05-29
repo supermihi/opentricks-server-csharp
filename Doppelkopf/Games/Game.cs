@@ -1,16 +1,9 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Conf;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
-using Doppelkopf.GameFinding;
-using Doppelkopf.Tricks;
 
 namespace Doppelkopf.Games;
-
-public sealed record GameContext(ByPlayer<bool> NeedsCompulsorySolo,
-  AvailableContracts Contracts,
-  TrickConfiguration TrickConfiguration);
 
 public sealed record Game(GameContext Context,
   ByPlayer<IImmutableList<Card>> Cards,
@@ -22,6 +15,7 @@ public sealed record Game(GameContext Context,
       new(context, cards, Auction.Initial, PartyData.NothingClarified, null);
 
   public bool IsFinished => TrickTaking?.IsFinished ?? false;
+  public IContract? Contract => TrickTaking?.Contract;
 
   public Game Reserve(Player player, bool reserved)
   {
@@ -51,13 +45,23 @@ public sealed record Game(GameContext Context,
     return UpdateOnReserveOrDeclare(contract, newAuction);
   }
 
-  public Game PlayCard(Player player, Card card)
+  public (Game result, bool finishedTrick) PlayCard(Player player, Card card)
   {
     if (TrickTaking is null)
     {
       throw Err.TrickTaking.PlayCard.InvalidPhase;
     }
-    var (newTrickTaking, _) = TrickTaking.PlayCard(player, card);
-    return this with { TrickTaking = newTrickTaking };
+    var (newTrickTaking, finished) = TrickTaking.PlayCard(player, card);
+    return (this with { TrickTaking = newTrickTaking }, finished);
+  }
+
+  public (Game result, bool finishedTrickTaking) FinishTrick()
+  {
+    if (TrickTaking is null)
+    {
+      throw Err.TrickTaking.PlayCard.InvalidPhase;
+    }
+    var (nextTrickTaking, finished) = TrickTaking.FinishTrick();
+    return (this with { TrickTaking = nextTrickTaking }, finished);
   }
 }

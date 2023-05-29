@@ -1,5 +1,4 @@
-using Doppelkopf.Persistence;
-using Doppelkopf.Server.Model;
+using Doppelkopf.Server.TableActions;
 
 namespace Doppelkopf.Server.Notifications;
 
@@ -12,16 +11,11 @@ public class UserNotifyingTableActionListener : ITableActionListener
     _notificationDispatcher = notificationDispatcher;
   }
 
-  public async Task OnAction<T>(TableData previous, TableAction<T> action, TableData data)
-      where T : ITableActionPayload
+  public async Task Notify(TableActionResult actionResult)
   {
     await Task.WhenAll(
-      data.Users.Select(
-        user =>
-        {
-          var notification = action.ToTableUpdateFor(data, user);
-          return _notificationDispatcher.Send(notification, user);
-        })
+      actionResult.Table.Users.Select(
+        user => _notificationDispatcher.Send(actionResult, user))
     );
   }
 }

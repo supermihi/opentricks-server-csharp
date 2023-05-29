@@ -1,4 +1,3 @@
-using Doppelkopf.Conf;
 using Doppelkopf.Contracts;
 
 namespace Doppelkopf.Tricks;

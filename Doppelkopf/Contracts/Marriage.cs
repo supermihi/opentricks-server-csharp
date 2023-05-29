@@ -27,6 +27,6 @@ public class Marriage : IContract
     {
       throw new ArgumentException("marriage needs a declarer");
     }
-    return new(ByPlayer.Init(Party.NotClarified).Replace(declarer.Value, Party.Re), null, null);
+    return new(ByPlayer.Init(Party.NotClarified).Replace(declarer.Value, Party.Re), null, declarer, null);
   }
 }

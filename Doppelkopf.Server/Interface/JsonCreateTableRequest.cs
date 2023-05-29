@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
+using Doppelkopf.Server.Model;
 
 namespace Doppelkopf.Server.Interface;
 
-public sealed record JsonCreateTableRequest([property: JsonPropertyName("name"), JsonRequired]
-  string Name);
+public sealed record JsonCreateTableRequest(string Name, RuleSet RuleSet, int MaxSeats = Constants.MaxSeats,
+  IReadOnlyList<UserId>? InvitedUsers = null);

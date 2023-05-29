@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Conf;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
 using Doppelkopf.Tricks;

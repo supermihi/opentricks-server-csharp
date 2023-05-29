@@ -12,10 +12,10 @@ public interface IContract
   PartyData GetPartyData(ByPlayer<IImmutableList<Card>> cards, Player? declarer = null);
 }
 
-public sealed record PartyData(ByPlayer<Party> PartyOf, int? ClarifyingTrick, Player? Soloist)
+public sealed record PartyData(ByPlayer<Party> PartyOf, int? ClarifyingTrick, Player? Declarer, Player? Soloist)
 {
   public bool IsClarified => PartyOf.All(p => p != Party.NotClarified);
-  public static PartyData NothingClarified => new(ByPlayer.Init(Party.NotClarified), null, null);
+  public static PartyData NothingClarified => new(ByPlayer.Init(Party.NotClarified), null, null, null);
 }
 
 public enum Party

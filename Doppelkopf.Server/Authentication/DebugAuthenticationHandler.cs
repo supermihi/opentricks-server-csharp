@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -18,14 +16,18 @@ public class DebugAuthenticationHandler : AuthenticationHandler<DebugAuthenticat
 
   protected override Task<AuthenticateResult> HandleAuthenticateAsync()
   {
-    var user = Context.Request.Headers[HeaderNames.Authorization].ToString();
-    if (string.IsNullOrEmpty(user))
+    var authenticatedUser = UserCookie.Get(Context.Request.Cookies);
+    if (authenticatedUser is null)
     {
-      return Task.FromResult(AuthenticateResult.Fail("no user"));
+      var user = Context.Request.Headers[HeaderNames.Authorization].ToString();
+      if (string.IsNullOrEmpty(user))
+      {
+        return Task.FromResult(AuthenticateResult.Fail("no user"));
+      }
+      authenticatedUser = new(new(user), user);
     }
-    IIdentity id = new GenericIdentity(user);
-    var claimsPrincipal = new ClaimsPrincipal(id);
-    var ticket = new AuthenticationTicket(claimsPrincipal, DebugAuthenticationOptions.Schema);
+    var principal = Claims.CreateClaimsPrincipal(authenticatedUser, DebugAuthenticationOptions.Schema);
+    var ticket = new AuthenticationTicket(principal, DebugAuthenticationOptions.Schema);
     return Task.FromResult(AuthenticateResult.Success(ticket));
   }
 }

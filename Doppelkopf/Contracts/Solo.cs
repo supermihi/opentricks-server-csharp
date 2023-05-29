@@ -23,7 +23,7 @@ public class Solo : IContract
       throw new ArgumentException("solo contract needs a declarer");
     }
     var parties = ByPlayer.Init(Party.Contra).Replace(soloist, Party.Re);
-    return new PartyData(parties, 0, soloist);
+    return new PartyData(parties, 0, soloist, soloist);
   }
 
   public bool CanDeclare(ByPlayer<IImmutableList<Card>> cards, Player declarer) => true;

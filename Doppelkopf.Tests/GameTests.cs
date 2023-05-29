@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Conf;
 using Doppelkopf.Games;
 
 namespace Doppelkopf.Tests;
@@ -11,7 +10,7 @@ public class GameTests
   public void TestInitialState()
   {
     var config = Configuration.Minikopf;
-    var cards = config.Deck.Shuffle(Random.Shared);
+    var cards = config.Cards.ShuffleCards(0);
     var context = new GameContext(ByPlayer.Init(false), config.Contracts, config.Tricks);
     var game = Game.Init(context, cards);
 
@@ -63,33 +62,39 @@ public class GameTests
     Assert.Equal(Configuration.Minikopf.Contracts.NormalGame.Id, game.TrickTaking.Contract.Id);
 
     // trick 1
-    game = game.PlayCard(Player.Player1, new(Suit.Hearts, Rank.Ace))
-        .PlayCard(Player.Player2, new(Suit.Diamonds, Rank.Ace))
-        .PlayCard(Player.Player3, new(Suit.Hearts, Rank.Nine))
-        .PlayCard(Player.Player4, new Card(Suit.Hearts, Rank.King));
+    var afterFirstTrick = game.PlayCard(Player.Player1, new(Suit.Hearts, Rank.Ace))
+        .result.PlayCard(Player.Player2, new(Suit.Diamonds, Rank.Ace))
+        .result.PlayCard(Player.Player3, new(Suit.Hearts, Rank.Nine))
+        .result.PlayCard(Player.Player4, new Card(Suit.Hearts, Rank.King));
 
-    var trick = Assert.Single(game.TrickTaking!.CompletedTricks);
+    Assert.True(afterFirstTrick.finishedTrick);
+    game = afterFirstTrick.result.FinishTrick().result;
+
+    var trick = Assert.Single(game.TrickTaking!.CompleteTricks);
     Assert.Equal(Player.Player2, trick.Winner);
 
     // trick 2def
     game = game.PlayCard(Player.Player2, new(Suit.Spades, Rank.Ace))
-        .PlayCard(Player.Player3, new(Suit.Clubs, Rank.Queen))
-        .PlayCard(Player.Player4, new(Suit.Hearts, Rank.Ace))
-        .PlayCard(Player.Player1, new(Suit.Clubs, Rank.Queen));
+        .result.PlayCard(Player.Player3, new(Suit.Clubs, Rank.Queen))
+        .result.PlayCard(Player.Player4, new(Suit.Hearts, Rank.Ace))
+        .result.PlayCard(Player.Player1, new(Suit.Clubs, Rank.Queen))
+        .result.FinishTrick().result;
 
-    Assert.Equal(2, game.TrickTaking!.CompletedTricks.Count);
-    trick = game.TrickTaking!.CompletedTricks.Last();
+    Assert.Equal(2, game.TrickTaking!.CompleteTricks.Count);
+    trick = game.TrickTaking!.CompleteTricks.Last();
     Assert.Equal(Player.Player3, trick.Winner);
 
     // trick 3
     game = game.PlayCard(Player.Player3, new(Suit.Hearts, Rank.Ten))
-        .PlayCard(Player.Player4, new(Suit.Diamonds, Rank.Ace))
-        .PlayCard(Player.Player1, new(Suit.Hearts, Rank.Ten))
-        .PlayCard(Player.Player2, new(Suit.Clubs, Rank.Jack));
-    Assert.Equal(3, game.TrickTaking!.CompletedTricks.Count);
-    trick = game.TrickTaking!.CompletedTricks.Last();
+        .result.PlayCard(Player.Player4, new(Suit.Diamonds, Rank.Ace))
+        .result.PlayCard(Player.Player1, new(Suit.Hearts, Rank.Ten))
+        .result.PlayCard(Player.Player2, new(Suit.Clubs, Rank.Jack))
+        .result.FinishTrick().result;
+    Assert.Equal(3, game.TrickTaking!.CompleteTricks.Count);
+    trick = game.TrickTaking!.CompleteTricks.Last();
     Assert.Equal(Player.Player1, trick.Winner);
 
     Assert.True(game.TrickTaking.IsFinished);
+    Assert.True(game.IsFinished);
   }
 }

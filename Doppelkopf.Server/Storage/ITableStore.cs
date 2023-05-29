@@ -1,14 +1,13 @@
-using Doppelkopf.Persistence;
 using Doppelkopf.Server.Model;
 
 namespace Doppelkopf.Server.Storage;
 
 public interface ITableStore
 {
-  Task<TableData?> TryGet(TableId id);
-  Task StoreMeta(TableMeta meta);
-  IAsyncEnumerable<TableMeta> GetAll();
+  Task<Table?> TryGet(TableId id);
 
-  Task RecordAction<T>(TableId id, TableAction<T> action)
-      where T : ITableActionPayload;
+  IAsyncEnumerable<Table> GetAll(UserId user);
+
+  Task Create(Table table);
+  Task Update(Table previous, Table table);
 }

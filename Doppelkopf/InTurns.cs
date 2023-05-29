@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Doppelkopf;
 
-public record InTurns<T>(Player First, IImmutableList<T> Elements) : IEnumerable<T>
+public record InTurns<T>(Player First, IImmutableList<T> Elements) : IEnumerable<T> where T : notnull
 {
   public InTurns(Player First)
       : this(First, ImmutableList<T>.Empty)
@@ -22,6 +23,18 @@ public record InTurns<T>(Player First, IImmutableList<T> Elements) : IEnumerable
 
   public T this[Player p] => Elements[p.DistanceFrom(First)];
 
+  public bool TryGet(Player p, [NotNullWhen(true)] out T? value)
+  {
+    var index = p.DistanceFrom(First);
+    if (index >= Elements.Count)
+    {
+      value = default;
+      return false;
+    }
+    value = Elements[index];
+    return true;
+  }
+
   public bool IsFull => Elements.Count == Constants.NumberOfPlayers;
 
   public IEnumerator<T> GetEnumerator()
@@ -37,12 +50,12 @@ public record InTurns<T>(Player First, IImmutableList<T> Elements) : IEnumerable
 
 public static class InTurnsExtensions
 {
-  public static IEnumerable<(Player player, T value)> Items<T>(this InTurns<T> self)
+  public static IEnumerable<(Player player, T value)> Items<T>(this InTurns<T> self) where T : notnull
   {
     return self.First.Cycle().Zip(self.Elements);
   }
 
-  public static IEnumerable<Player> PlayersWhere<T>(this InTurns<T> self, Predicate<T> predicate)
+  public static IEnumerable<Player> PlayersWhere<T>(this InTurns<T> self, Predicate<T> predicate) where T : notnull
   {
     return self.Items().Where(tuple => predicate(tuple.value)).Select(tuple => tuple.player);
   }

@@ -15,7 +15,7 @@ public static class Seats
     return new ByPlayer<Seat>(player1, player2, player3, player4);
   }
 
-  public static ByPlayer<Seat> NextGameActiveSeats(this GameHistory history, int numberOfSeats) =>
+  public static ByPlayer<Seat> NextGameActiveSeats(this Finishedgames history, int numberOfSeats) =>
       GetActiveSeats(
         numberOfSeats,
         history.Games.Count,

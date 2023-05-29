@@ -24,7 +24,7 @@ public class NormalGame : IContract
     var parties = ByPlayer.Init(
       player => cards[player].Any(c => c == Card.QueenOfClubs) ? Party.Re : Party.Contra
     );
-    return new(parties, 0, null);
+    return new(parties, 0, null, null);
   }
 
   public bool CanDeclare(ByPlayer<IImmutableList<Card>> cards, Player declarer) => false;

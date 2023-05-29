@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Conf;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
 using Doppelkopf.Games;
@@ -14,77 +13,93 @@ namespace Doppelkopf.Sessions;
 /// Number of people participating in this session. Can be larger than <see cref="Constants.NumberOfPlayers"/>; in
 /// that case, seats will take turns in being skipped.
 /// </param>
-/// <param name="ActiveGame">
-/// Current game. Is <c>null</c> before the first was started and after the session has ended.
+/// <param name="Game">
+/// Current game.
 /// </param>
 /// <param name="ActiveSeats">
 /// <see cref="Seat"/> to <see cref="Player"/> mapping for the current game.
 /// </param>
-public sealed record Session(Configuration Configuration, int NumberOfSeats, GameHistory CompletedGames,
-  Game? ActiveGame, ByPlayer<Seat> ActiveSeats)
+public sealed record Session(Configuration Configuration, int NumberOfSeats, Finishedgames CompleteGames,
+  Game Game, ByPlayer<Seat> ActiveSeats)
 {
-  public Session(Configuration configuration, int numberOfSeats = 4) : this(
-    configuration,
-    numberOfSeats,
-    GameHistory.Empty,
-    null,
-    Seats.GetActiveSeats(numberOfSeats, 0, 0))
-  { }
+  public static Session Init(Configuration configuration, int numberOfSeats, Random? random)
+  {
+    var cards = configuration.Cards.ShuffleCards(0);
+    var activeSeats = Seats.GetActiveSeats(numberOfSeats, 0, 0);
+    var history = Finishedgames.Empty;
+    var context = GetGameContext(history, configuration, activeSeats);
+    return new(
+      configuration,
+      numberOfSeats,
+      history,
+      Game.Init(context, cards),
+      activeSeats
+    );
+  }
 
-  public Session StartNextGame(ByPlayer<IImmutableList<Card>> cards)
+  public Session FinishGame()
   {
     if (IsFinished)
     {
       throw Err.Table.StartGame.IsComplete;
     }
-    if (ActiveGame is null || !ActiveGame.IsFinished)
+    if (Game is null || !Game.IsFinished)
     {
       throw Err.Table.StartGame.InvalidPhase;
     }
-    var newHistory = CompletedGames.AddGame(ActiveGame, ActiveSeats);
-    var newGame = Game.Init(GetCurrentGameContext(), cards);
+    var newHistory = CompleteGames.AddGame(Game, ActiveSeats);
     var newSeats = newHistory.NextGameActiveSeats(NumberOfSeats);
-    return this with { ActiveGame = newGame, ActiveSeats = newSeats, CompletedGames = newHistory };
+    var context = GetGameContext(newHistory, Configuration, newSeats);
+    var newGame = Game.Init(context, Configuration.Cards.ShuffleCards(newHistory.Games.Count));
+    return this with { Game = newGame, ActiveSeats = newSeats, CompleteGames = newHistory };
   }
 
-  public Session PlayCard(Seat seat, Card card)
+  public (Session, bool finishedTrick) PlayCard(Seat seat, Card card)
   {
     var player = GetPlayer(seat);
-    var newMatch =
-        ActiveGame?.PlayCard(player, card) ?? throw Err.TrickTaking.PlayCard.InvalidPhase;
-    return this with { ActiveGame = newMatch };
+    var (newGame, finishedTrick) = Game.PlayCard(player, card);
+    var newSession = this with { Game = newGame };
+    return (newSession, finishedTrick);
+  }
+
+  public (Session, bool finishedGame) FinishTrick()
+  {
+    var (newGame, finishedGame) = Game.FinishTrick();
+    var newSession = this with { Game = newGame };
+    return (newSession, finishedGame);
   }
 
   public Session Reserve(Seat seat, bool reserved)
   {
     var player = GetPlayer(seat);
-    var next = ActiveGame?.Reserve(player, reserved) ?? throw Err.Auction.Reserve.InvalidPhase;
-    return this with { ActiveGame = next };
+    var next = Game.Reserve(player, reserved) ?? throw Err.Auction.Reserve.InvalidPhase;
+    return this with { Game = next };
   }
 
   public Session Declare(Seat seat, IContract declaration)
   {
     var player = GetPlayer(seat);
-    var next = ActiveGame?.Declare(player, declaration) ?? throw Err.Auction.Declare.InvalidPhase;
-    return this with { ActiveGame = next };
+    var next = Game.Declare(player, declaration) ?? throw Err.Auction.Declare.InvalidPhase;
+    return this with { Game = next };
   }
 
-  private GameContext GetCurrentGameContext()
+  private static GameContext GetGameContext(Finishedgames finishedgames, Configuration configuration,
+    ByPlayer<Seat> activeSeats)
   {
     var needsCompulsory = ByPlayer.Init(
       p =>
-          Configuration.Session.CompulsorySolos
-          && !CompletedGames.HasPlayedCompulsorySolo(ActiveSeats[p])
+          configuration.Session.CompulsorySolos
+          && !finishedgames.HasPlayedCompulsorySolo(activeSeats[p])
     );
-    return new(needsCompulsory, Configuration.Contracts, Configuration.Tricks);
+    return new(needsCompulsory, configuration.Contracts, configuration.Tricks);
   }
 
-  private Player GetPlayer(Seat seat) => AtSeat(seat, ActiveSeats) ?? throw Err.TrickTaking.PlayCard.SeatPaused;
+  private Player GetPlayer(Seat seat) => AtSeat(seat) ?? throw Err.TrickTaking.PlayCard.SeatPaused;
 
-  private static Player? AtSeat(Seat seat, ByPlayer<Seat> seats)
+  public Player? AtSeat(Seat seat)
   {
-    return seats.Items.FirstOrDefault(t => t.item == seat).player;
+    return ActiveSeats.Items.FirstOrDefault(t => t.item == seat).player;
   }
 
-  public bool IsFinished => CompletedGames.Games.Count == Configuration.Session.NumberOfGames;
+  public bool IsFinished => CompleteGames.Games.Count == Configuration.Session.NumberOfGames;
 }

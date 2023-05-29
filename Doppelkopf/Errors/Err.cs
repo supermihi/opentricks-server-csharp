@@ -28,7 +28,7 @@ public static class Err
 
       public InputException NotAllowed => Create("not_allowed", "you are not allowed to declare this game");
 
-      public InputException InvalidGameMode =>
+      public InputException InvalidContract =>
           Create("invalid_mode", "the specified game mode is not configured for this game");
     }
 

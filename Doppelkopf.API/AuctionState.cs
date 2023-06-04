@@ -1,3 +1,5 @@
 namespace Doppelkopf.API;
 
-public sealed record AuctionState(ByPlayerState<bool?> Reservations, ByPlayerState<string?> Declarations);
+public sealed record AuctionState(ByPlayerState<PlayerAuctionState> State);
+
+public sealed record PlayerAuctionState(bool? IsReserved, bool? HasDeclared);

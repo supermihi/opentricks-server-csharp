@@ -61,9 +61,9 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
     return new TableActionResult(newTable, TableEvent.Start());
   }
 
-  private void AssertUserAtTable(UserId user)
+  private void AssertUserAtTable(UserId id)
   {
-    if (!Users.Contains(user))
+    if (!Users.Contains(id))
     {
       throw new ArgumentException("user not at table");
     }

@@ -7,6 +7,7 @@ namespace Doppelkopf.Server.Storage;
 class InMemoryTableStore : ITableStore
 {
   private readonly ConcurrentDictionary<TableId, Table> _tables = new();
+
   public Task<Table?> TryGet(TableId id)
   {
     return Task.FromResult(_tables.TryGetValue(id, out var result) ? result : null);

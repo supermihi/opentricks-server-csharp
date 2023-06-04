@@ -49,11 +49,13 @@ public static class Extensions
 
   public static AuctionState ToJsonAuction(this Auction auction, Player? maskFor)
   {
-    var reservations = JsonByPlayer.FromInTurns(auction.Reservations, (_, reserved) => (bool?)reserved, null);
-    var declarations = JsonByPlayer.FromByPlayer(
-      auction.Declarations,
-      (player, contract) => player == maskFor ? contract?.Id : contract is null ? null : "?");
-    return new(reservations, declarations);
+    return new(
+      JsonByPlayer.Create(
+        player =>
+        {
+          var isReserved = auction.Reservations.TryGet(player, out var reserved) ? (bool?)reserved : null;
+          return new PlayerAuctionState(isReserved, auction.HasDeclared(player));
+        }));
   }
 
   public static SessionState ToJsonSession(this Session session, Seat maskFor)

@@ -59,7 +59,7 @@ public sealed record Auction(InTurns<bool> Reservations,
   private record struct DeclarationEval(Player Player, IContract Contract, int Value);
 
   private IEnumerable<Player> ReservedPlayers => Reservations.Players.Where(reserved => Reservations[reserved]);
-  private bool HasDeclared(Player p) => Declarations.Any(d => d.player == p);
+  public bool HasDeclared(Player p) => Declarations.Any(d => d.player == p);
 
   private AuctionResult? Evaluate(AuctionContext context)
   {

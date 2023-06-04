@@ -1,12 +1,14 @@
+using System.Collections.Immutable;
 using Doppelkopf.Contracts;
 using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
 
-public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> Declarations)
+public sealed record Auction(InTurns<bool> Reservations,
+  ImmutableStack<(Player player, IContract contract)> Declarations)
 {
   public static readonly Auction Initial =
-      new(new InTurns<bool>(Player.Player1), ByPlayer.Init((IContract?)null));
+      new(new InTurns<bool>(Player.Player1), ImmutableStack<(Player, IContract)>.Empty);
 
   public (Auction, AuctionResult?) Reserve(Player player, bool reserved, AuctionContext context)
   {
@@ -36,7 +38,11 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
     {
       throw Errors.Auction.NoReservation;
     }
-    // todo check turn!
+    var turn = ReservedPlayers.FirstOrDefault(HasDeclared);
+    if (turn != player)
+    {
+      throw Errors.Generic.OtherPlayersTurn(turn);
+    }
     if (!contract.CanDeclare(context.Cards, player))
     {
       throw Errors.Auction.CannotDeclareContract;
@@ -45,12 +51,15 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
     {
       throw new ArgumentException("invalid contract not contained in game configuration");
     }
-    var newAuction = this with { Declarations = Declarations.Replace(player, contract) };
+    var newAuction = this with { Declarations = Declarations.Push((player, contract)) };
     var resultOrNull = Evaluate(context);
     return (newAuction, resultOrNull);
   }
 
   private record struct DeclarationEval(Player Player, IContract Contract, int Value);
+
+  private IEnumerable<Player> ReservedPlayers => Reservations.Players.Where(reserved => Reservations[reserved]);
+  private bool HasDeclared(Player p) => Declarations.Any(d => d.player == p);
 
   private AuctionResult? Evaluate(AuctionContext context)
   {
@@ -64,17 +73,15 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
       var parties = contract.GetPartyData(context.Cards);
       return new(contract, parties);
     }
-    var reservedPlayers = Reservations.Players.Where(reserved => Reservations[reserved]).ToArray();
+    var reservedPlayers = ReservedPlayers.ToArray();
     var maxValue = reservedPlayers.Any(p => context.NeedsCompulsorySolo[p])
         ? CompulsorySoloValue
         : VoluntarySoloValue;
 
-    var evalByPlayer = reservedPlayers
-        .Where(player => Declarations[player] != null)
-        .Select(
-          player =>
+    var evalByPlayer = Declarations.Select(
+          declaration =>
           {
-            var contract = Declarations[player]!;
+            var (player, contract) = declaration;
             var needsCompulsorySolo = context.NeedsCompulsorySolo[player];
             var value = DeclarationValue(contract, needsCompulsorySolo);
             return new DeclarationEval(player, contract, value);
@@ -98,10 +105,10 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
   private static int DeclarationValue(IContract declaration, bool needsCompulsorySolo) =>
       declaration.Type switch
       {
-          ContractType.NormalGame => NormalGameValue,
-          ContractType.Special => SpecialGameValue,
-          ContractType.Marriage => MarriageValue,
-          ContractType.Solo when !needsCompulsorySolo => VoluntarySoloValue,
-          ContractType.Solo when needsCompulsorySolo => CompulsorySoloValue
+        ContractType.NormalGame => NormalGameValue,
+        ContractType.Special => SpecialGameValue,
+        ContractType.Marriage => MarriageValue,
+        ContractType.Solo when !needsCompulsorySolo => VoluntarySoloValue,
+        ContractType.Solo when needsCompulsorySolo => CompulsorySoloValue
       };
 }

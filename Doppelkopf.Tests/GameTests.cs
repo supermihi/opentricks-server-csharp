@@ -18,7 +18,7 @@ public class GameTests
     Assert.Equal(cards, game.Cards);
     Assert.Null(game.TrickTaking);
     Assert.Empty(game.Auction.Reservations);
-    Assert.All(game.Auction.Declarations, Assert.Null);
+    Assert.Empty(game.Auction.Declarations);
   }
 
   [Fact]

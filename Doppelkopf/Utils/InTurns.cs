@@ -1,21 +1,21 @@
 using System.Collections;
+using System.Collections.Immutable;
 
 namespace Doppelkopf.Utils;
 
 public sealed record InTurns<T> : IReadOnlyCollection<T>
 {
   public Player Start { get; }
-  public int Count { get; }
-  private readonly ByPlayer<T> _values;
+  public int Count => _values.Count();
+  private readonly ImmutableArray<T> _values;
   public bool IsFull => Count == Constants.NumberOfPlayers;
 
-  public InTurns(Player start) : this(start, 0, ByPlayer.Init((T)default!))
+  public InTurns(Player start) : this(start, ImmutableArray.Create<T>())
   { }
 
-  private InTurns(Player start, int count, ByPlayer<T> values)
+  private InTurns(Player start, ImmutableArray<T> values)
   {
     Start = start;
-    Count = count;
     _values = values;
   }
 
@@ -23,25 +23,29 @@ public sealed record InTurns<T> : IReadOnlyCollection<T>
 
   public InTurns<T> Add(T element)
   {
-    if (Next is { } next)
+    if (IsFull)
     {
-      return new(Start, Count + 1, _values.Replace(next, element));
+      throw new ArgumentException("cannot add: full");
     }
-    throw new ArgumentException("cannot add: full");
+    return new(Start, _values.Add(element));
   }
 
   public bool Contains(Player p) => p.DistanceFrom(Start) < Count;
 
-  public T this[Player p] => Contains(p) ? _values[p] : throw new IndexOutOfRangeException();
-  public T this[int index] => this[Start.Skip(index)];
+  public T this[Player p] => this[p.DistanceFrom(Start)];
+  public T this[int index] => index < Count ? _values[index] : throw new IndexOutOfRangeException();
 
   public bool TryGet(Player p, out T value)
   {
-    value = _values[p];
-    return Contains(p);
+    if (Contains(p))
+    {
+      value = this[p];
+      return true;
+    }
+    value = default!;
+    return false;
   }
   public IEnumerable<Player> Players => Start.Cycle().Take(Count);
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-  public IEnumerator<T> GetEnumerator() => Players.Select(p => _values[p]).GetEnumerator();
+  public IEnumerator<T> GetEnumerator() => _values.AsEnumerable().GetEnumerator();
 }

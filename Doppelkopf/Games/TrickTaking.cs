@@ -3,6 +3,7 @@ using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
 using Doppelkopf.Tricks;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
 
@@ -44,7 +45,7 @@ public sealed record TrickTaking(IContract Contract,
     {
       throw new IllegalStateException("cannot complete trick that is not full");
     }
-    var tricksLeft = Cards.Player1.Count;
+    var tricksLeft = Cards[Player.Player1].Count;
     var currentTrickIsLast = tricksLeft == 0;
     var context = new TrickContext(Contract.CardTraits, Config, currentTrickIsLast);
     var currentTrickFinished = CompleteTrick.FromTrick(CurrentTrick, context);

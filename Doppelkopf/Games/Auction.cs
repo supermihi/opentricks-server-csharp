@@ -1,5 +1,6 @@
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
 
@@ -63,7 +64,7 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
       var parties = contract.GetPartyData(context.Cards);
       return new(contract, parties);
     }
-    var reservedPlayers = Reservations.PlayersWhere(reserved => reserved).ToArray();
+    var reservedPlayers = Reservations.Players.Where(reserved => Reservations[reserved]).ToArray();
     var maxValue = reservedPlayers.Any(p => context.NeedsCompulsorySolo[p])
         ? CompulsorySoloValue
         : VoluntarySoloValue;

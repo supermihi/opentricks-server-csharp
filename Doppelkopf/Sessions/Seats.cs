@@ -1,3 +1,5 @@
+using Doppelkopf.Utils;
+
 namespace Doppelkopf.Sessions;
 
 public static class Seats

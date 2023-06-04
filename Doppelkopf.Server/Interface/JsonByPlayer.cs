@@ -1,4 +1,5 @@
 using Doppelkopf.API;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Server.Interface;
 
@@ -9,8 +10,7 @@ public static class JsonByPlayer
     return Create(p => map(p, byPlayer[p]));
   }
 
-  public static ByPlayerState<TJson> FromInTurns<TJson, T>(InTurns<T> inTurns, Func<Player, T, TJson> map,
-    TJson defaultValue) where T : notnull
+  public static ByPlayerState<TJson> FromInTurns<TJson, T>(InTurns<T> inTurns, Func<Player, T, TJson> map, TJson defaultValue)
   {
     return Create(p => inTurns.TryGet(p, out var playerValue) ? map(p, playerValue) : defaultValue);
   }

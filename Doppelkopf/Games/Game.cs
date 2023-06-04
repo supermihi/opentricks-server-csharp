@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
 

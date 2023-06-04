@@ -4,6 +4,7 @@ using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
 using Doppelkopf.Games;
 using Doppelkopf.Tricks;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Tests.Tricks;
 

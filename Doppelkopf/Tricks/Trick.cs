@@ -2,30 +2,30 @@ using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
 using Doppelkopf.Errors;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Tricks;
 
 public sealed record Trick
 {
-  public InTurns<Card> Data { get; }
+  public InTurns<Card> Cards { get; }
 
   public Trick(Player leader)
       : this(new InTurns<Card>(leader))
   { }
 
-  private Trick(InTurns<Card> data)
+  private Trick(InTurns<Card> cards)
   {
-    Data = data;
+    Cards = cards;
   }
 
-  public bool IsFull => Data.IsFull;
-  public Player Leader => Data.First;
-  public Player? Turn => Data.Next;
-  public IImmutableList<Card> Cards => Data.Elements;
+  public bool IsFull => Cards.IsFull;
+  public Player Leader => Cards.Start;
+  public Player? Turn => Cards.Next;
 
   public bool IsValidNextCard(Card card, IEnumerable<Card> cardsOfPlayer, ICardTraitsProvider contract)
   {
-    if (IsFull)
+    if (Cards.IsFull)
     {
       return false;
     }
@@ -45,7 +45,7 @@ public sealed record Trick
     {
       throw new IllegalStateException("can not add card to a full trick");
     }
-    return new(Data.Add(card));
+    return new(Cards.Add(card));
   }
 
   private static bool TakesTrickFrom(Card current, Card bestSoFar, TrickContext context)

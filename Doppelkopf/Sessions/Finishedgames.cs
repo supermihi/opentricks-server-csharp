@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Doppelkopf.Errors;
 using Doppelkopf.Games;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Sessions;
 

@@ -1,4 +1,5 @@
 using Doppelkopf.Games;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Tests;
 

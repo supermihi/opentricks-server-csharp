@@ -1,5 +1,6 @@
 using Doppelkopf.Contracts;
 using Doppelkopf.Tricks;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
 

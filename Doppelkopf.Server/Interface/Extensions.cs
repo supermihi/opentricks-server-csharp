@@ -25,7 +25,7 @@ public static class Extensions
   {
     {
       var currentTrick = JsonByPlayer.FromInTurns(
-        trickTaking.CurrentTrick!.Data,
+        trickTaking.CurrentTrick!.Cards,
         (_, card) => card.Id,
         null);
       var tricksWon = JsonByPlayer.Create(p => trickTaking.CompleteTricks.Count(trick => trick.Winner == p));

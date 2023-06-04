@@ -3,6 +3,7 @@ using Doppelkopf.Cards;
 using Doppelkopf.Games;
 using Doppelkopf.Sessions;
 using Doppelkopf.Tricks;
+using Doppelkopf.Utils;
 
 namespace Doppelkopf.Tests.Sessions;
 

@@ -1,4 +1,4 @@
-namespace Doppelkopf.Server.Interface;
+namespace Doppelkopf.API;
 
 public enum RequestType
 {

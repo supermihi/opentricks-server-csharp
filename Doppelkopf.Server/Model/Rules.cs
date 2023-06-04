@@ -1,10 +1,6 @@
-namespace Doppelkopf.Server.Model;
+using Doppelkopf.API;
 
-public enum RuleSet
-{
-  DDKV,
-  Minikopf
-}
+namespace Doppelkopf.Server.Model;
 
 public sealed record Rules(RuleSet RuleSet, int MaxSeats)
 {

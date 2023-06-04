@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Immutable;
+using Doppelkopf.API;
 using Doppelkopf.Sessions;
 
 namespace Doppelkopf.Server.Model;

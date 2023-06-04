@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server", "Doppel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server.Tests", "Doppelkopf.Server.Tests\Doppelkopf.Server.Tests.csproj", "{3987A11E-6E46-44C2-88D2-28BAE079E59E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Client.CLI", "Doppelkopf.Client.CLI\Doppelkopf.Client.CLI.csproj", "{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.API", "Doppelkopf.API\Doppelkopf.API.csproj", "{1679DC2B-2070-4915-BE46-507432538744}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1679DC2B-2070-4915-BE46-507432538744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1679DC2B-2070-4915-BE46-507432538744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1679DC2B-2070-4915-BE46-507432538744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1679DC2B-2070-4915-BE46-507432538744}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

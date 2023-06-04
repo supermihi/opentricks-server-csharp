@@ -1,4 +1,4 @@
-using Doppelkopf.Server.Model;
+using Doppelkopf.API;
 
 namespace Doppelkopf.Server.Notifications;
 

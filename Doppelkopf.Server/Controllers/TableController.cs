@@ -1,3 +1,4 @@
+using Doppelkopf.API;
 using Doppelkopf.Server.Authentication;
 using Doppelkopf.Server.Interface;
 using Doppelkopf.Server.Model;
@@ -26,13 +27,17 @@ public class TableController : ControllerBase
   }
 
   [HttpGet(Name = "GetTables")]
-  public IAsyncEnumerable<Table> GetAsync()
+  public async IAsyncEnumerable<TableState> GetAsync()
   {
-    return _store.GetAll(HttpContext.AuthenticatedUser().Id);
+    var userId = HttpContext.AuthenticatedUser().Id;
+    await foreach (var table in _store.GetAll(userId))
+    {
+      yield return table.ToJsonTable(userId);
+    }
   }
 
   [HttpPost(Name = "CreateTable")]
-  public async Task<JsonTable> CreateAsync(JsonCreateTableRequest request)
+  public async Task<TableState> CreateAsync(CreateTableRequest request)
   {
     var tableId = TableId.New();
     var creator = HttpContext.AuthenticatedUser();
@@ -42,19 +47,19 @@ public class TableController : ControllerBase
     }
     var rules = new Rules(request.RuleSet, request.MaxSeats);
     var meta = new TableMeta(tableId, DateTime.UtcNow, request.Name, creator.Id, rules);
-    var table = Table.Init(meta, request.InvitedUsers);
+    var table = Table.Init(meta, request.InvitedUsers?.Select(s => new UserId(s)));
     await _store.Create(table);
     await _tableActionListener.Notify(new TableActionResult(table, TableEvent.CreateTable(table)));
     _logger.LogInformation("{Creator} created new table {TableId}", creator.Id, tableId);
-    return JsonTable.FromTable(table, creator.Id);
+    return table.ToJsonTable(creator.Id);
   }
 
   [HttpGet("{id}", Name = "GetTable")]
   [Produces(typeof(Table))]
-  public async Task<ActionResult<JsonTable>> GetTableAsync(string id)
+  public async Task<ActionResult<TableState>> GetTableAsync(string id)
   {
     var table = await GetAuthenticatedTable(id);
-    return JsonTable.FromTable(table, HttpContext.AuthenticatedUser().Id);
+    return table.ToJsonTable(HttpContext.AuthenticatedUser().Id);
   }
 
   private async Task<Table> GetAuthenticatedTable(string id)

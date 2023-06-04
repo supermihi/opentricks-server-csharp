@@ -1,8 +1,7 @@
-using System.Security.Claims;
 using System.Text.Json;
+using Doppelkopf.API;
 using Doppelkopf.Server.Authentication;
 using Doppelkopf.Server.Controllers;
-using Doppelkopf.Server.Interface;
 using Doppelkopf.Server.Model;
 using Doppelkopf.Server.Notifications;
 using Doppelkopf.Server.Storage;
@@ -18,21 +17,21 @@ public class CreateTableTests
   public async Task SucceedsWithOnlyName()
   {
     var controller = CreateController();
-    await controller.CreateAsync(JsonSerializer.Deserialize<JsonCreateTableRequest>("""{"name":"test"}""")!);
+    await controller.CreateAsync(JsonSerializer.Deserialize<CreateTableRequest>("""{"name":"test"}""", JsonConfiguration.Options)!);
   }
 
   [Fact]
   public async Task FailsWithoutName()
   {
     var controller = CreateController();
-    await controller.CreateAsync(JsonSerializer.Deserialize<JsonCreateTableRequest>("""{}""")!);
+    await controller.CreateAsync(JsonSerializer.Deserialize<CreateTableRequest>("""{}""", JsonConfiguration.Options)!);
   }
 
   [Fact]
   public async Task FailsWithUnknownField()
   {
     var controller = CreateController();
-    await controller.CreateAsync(JsonSerializer.Deserialize<JsonCreateTableRequest>("""{"bla":  "blub"}""")!);
+    await controller.CreateAsync(JsonSerializer.Deserialize<CreateTableRequest>("""{"bla":  "blub"}""", JsonConfiguration.Options)!);
   }
 
   private static TableController CreateController() {

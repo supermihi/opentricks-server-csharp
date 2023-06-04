@@ -23,7 +23,8 @@ public class NotificationStreamController : ControllerBase
   }
 
   [Route("/updates")]
-  public async Task Get(CancellationToken cancellationToken)
+  [HttpGet]
+  public async Task GetAsync(CancellationToken cancellationToken)
   {
     cancellationToken.Register(() => _logger?.LogInformation("clinet disconnect"));
     Response.ContentType = "text/event-stream";

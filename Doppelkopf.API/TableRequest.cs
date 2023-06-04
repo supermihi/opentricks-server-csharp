@@ -1,11 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace Doppelkopf.Server.Interface;
+namespace Doppelkopf.API;
 
-public record TableRequest
+public record TableRequest([property: JsonRequired] RequestType Type)
 {
-  [JsonRequired]
-  public RequestType Type { get; init; }
 
   public int? ExpectedVersion { get; init; }
 

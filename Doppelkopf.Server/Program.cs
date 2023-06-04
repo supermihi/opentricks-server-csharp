@@ -1,5 +1,5 @@
+using Doppelkopf.API;
 using Doppelkopf.Server.Authentication;
-using Doppelkopf.Server.Interface;
 using Doppelkopf.Server.Notifications;
 using Doppelkopf.Server.Storage;
 
@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers()
-    .AddJsonOptions(JsonConfiguration.SetupJsonOptions);
+    .AddJsonOptions(options => JsonConfiguration.SetupJsonOptions(options.JsonSerializerOptions));
 builder.Services
     .AddEndpointsApiExplorer()
     .AddSwaggerGen()

@@ -1,3 +1,22 @@
+using Doppelkopf.API;
+
 namespace Doppelkopf.Server.Interface;
 
-public sealed record JsonByPlayer<T>(T Player1, T Player2, T Player3, T Player4);
+public static class JsonByPlayer
+{
+  public static ByPlayerState<TJson> FromByPlayer<TJson, T>(ByPlayer<T> byPlayer, Func<Player, T, TJson> map)
+  {
+    return Create(p => map(p, byPlayer[p]));
+  }
+
+  public static ByPlayerState<TJson> FromInTurns<TJson, T>(InTurns<T> inTurns, Func<Player, T, TJson> map,
+    TJson defaultValue) where T : notnull
+  {
+    return Create(p => inTurns.TryGet(p, out var playerValue) ? map(p, playerValue) : defaultValue);
+  }
+
+  public static ByPlayerState<T> Create<T>(Func<Player, T> factory)
+  {
+    return new(factory(Player.Player1), factory(Player.Player2), factory(Player.Player3), factory(Player.Player4));
+  }
+}

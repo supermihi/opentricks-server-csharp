@@ -1,3 +1,4 @@
+using Doppelkopf.API;
 using Doppelkopf.Server.Model;
 
 namespace Doppelkopf.Server.Authentication;

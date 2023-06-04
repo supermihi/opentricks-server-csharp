@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Doppelkopf.API;
 using Doppelkopf.Server.Model;
 
 namespace Doppelkopf.Server.Authentication;

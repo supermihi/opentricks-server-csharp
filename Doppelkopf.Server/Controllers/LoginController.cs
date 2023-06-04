@@ -1,3 +1,4 @@
+using Doppelkopf.API;
 using Doppelkopf.Server.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,6 @@ public class LoginController : ControllerBase
   {
     _loginHandler = loginHandler;
   }
-
-  public record LoginRequest(string Id, string? Name, string Secret);
 
   [HttpPost]
   public async Task Login(LoginRequest request)

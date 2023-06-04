@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Doppelkopf.Server.Model;
+using Doppelkopf.API;
 using Doppelkopf.Server.TableActions;
 
 namespace Doppelkopf.Server.Notifications;

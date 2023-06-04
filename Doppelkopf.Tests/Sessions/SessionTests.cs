@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
-using Doppelkopf.Contracts;
 using Doppelkopf.Games;
 using Doppelkopf.Sessions;
 using Doppelkopf.Tricks;
-using Moq;
 
 namespace Doppelkopf.Tests.Sessions;
 

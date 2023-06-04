@@ -22,7 +22,7 @@ public class SessionTests
     var session = new Session(
       Configuration.Default(EldersMode.FirstWins, sessionConfig, new RandomCardProvider(Decks.WithNines)),
       4,
-      new Finishedgames(Enumerable.Repeat(completeGame, gamesPlayed).ToImmutableArray()),
+      new FinishedGames(Enumerable.Repeat(completeGame, gamesPlayed).ToImmutableArray()),
       GameFactory.InitialMinikopfGame(),
       ByPlayer.Init(new Seat(1)));
     Assert.Equal(gamesPlayed == 13, session.IsFinished);

@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
@@ -50,7 +49,7 @@ public sealed record Game(GameContext Context,
   {
     if (TrickTaking is null)
     {
-      throw Err.TrickTaking.PlayCard.InvalidPhase;
+      throw Errors.Generic.InvalidPhase;
     }
     var (newTrickTaking, finished) = TrickTaking.PlayCard(player, card);
     return (this with { TrickTaking = newTrickTaking }, finished);
@@ -60,7 +59,7 @@ public sealed record Game(GameContext Context,
   {
     if (TrickTaking is null)
     {
-      throw Err.TrickTaking.PlayCard.InvalidPhase;
+      throw Errors.Generic.InvalidPhase;
     }
     var (nextTrickTaking, finished) = TrickTaking.FinishTrick();
     return (this with { TrickTaking = nextTrickTaking }, finished);

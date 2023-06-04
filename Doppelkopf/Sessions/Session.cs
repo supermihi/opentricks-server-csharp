@@ -1,8 +1,8 @@
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Games;
 using Doppelkopf.Utils;
+using static Doppelkopf.Errors;
 
 namespace Doppelkopf.Sessions;
 
@@ -19,14 +19,14 @@ namespace Doppelkopf.Sessions;
 /// <param name="ActiveSeats">
 /// <see cref="Seat"/> to <see cref="Player"/> mapping for the current game.
 /// </param>
-public sealed record Session(Configuration Configuration, int NumberOfSeats, Finishedgames CompleteGames,
+public sealed record Session(Configuration Configuration, int NumberOfSeats, FinishedGames CompleteGames,
   Game Game, ByPlayer<Seat> ActiveSeats)
 {
   public static Session Init(Configuration configuration, int numberOfSeats, Random? random)
   {
     var cards = configuration.Cards.ShuffleCards(0);
     var activeSeats = Seats.GetActiveSeats(numberOfSeats, 0, 0);
-    var history = Finishedgames.Empty;
+    var history = FinishedGames.Empty;
     var context = GetGameContext(history, configuration, activeSeats);
     return new(
       configuration,
@@ -41,11 +41,11 @@ public sealed record Session(Configuration Configuration, int NumberOfSeats, Fin
   {
     if (IsFinished)
     {
-      throw Err.Table.StartGame.IsComplete;
+      throw Errors.Session.IsFinished;
     }
     if (Game is null || !Game.IsFinished)
     {
-      throw Err.Table.StartGame.InvalidPhase;
+      throw Errors.Generic.InvalidPhase;
     }
     var newHistory = CompleteGames.AddGame(Game, ActiveSeats);
     var newSeats = newHistory.NextGameActiveSeats(NumberOfSeats);
@@ -72,29 +72,29 @@ public sealed record Session(Configuration Configuration, int NumberOfSeats, Fin
   public Session Reserve(Seat seat, bool reserved)
   {
     var player = GetPlayer(seat);
-    var next = Game.Reserve(player, reserved) ?? throw Err.Auction.Reserve.InvalidPhase;
+    var next = Game.Reserve(player, reserved) ?? throw Errors.Generic.InvalidPhase;
     return this with { Game = next };
   }
 
   public Session Declare(Seat seat, IContract declaration)
   {
     var player = GetPlayer(seat);
-    var next = Game.Declare(player, declaration) ?? throw Err.Auction.Declare.InvalidPhase;
+    var next = Game.Declare(player, declaration) ?? throw Errors.Generic.InvalidPhase;
     return this with { Game = next };
   }
 
-  private static GameContext GetGameContext(Finishedgames finishedgames, Configuration configuration,
+  private static GameContext GetGameContext(FinishedGames finishedGames, Configuration configuration,
     ByPlayer<Seat> activeSeats)
   {
     var needsCompulsory = ByPlayer.Init(
       p =>
           configuration.Session.CompulsorySolos
-          && !finishedgames.HasPlayedCompulsorySolo(activeSeats[p])
+          && !finishedGames.HasPlayedCompulsorySolo(activeSeats[p])
     );
     return new(needsCompulsory, configuration.Contracts, configuration.Tricks);
   }
 
-  private Player GetPlayer(Seat seat) => AtSeat(seat) ?? throw Err.TrickTaking.PlayCard.SeatPaused;
+  private Player GetPlayer(Seat seat) => AtSeat(seat) ?? throw Errors.Session.SeatPaused;
 
   public Player? AtSeat(Seat seat)
   {

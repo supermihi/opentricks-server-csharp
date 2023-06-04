@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Tricks;
 using Doppelkopf.Utils;
 
@@ -43,7 +42,7 @@ public sealed record TrickTaking(IContract Contract,
   {
     if (CurrentTrick is not { IsFull: true })
     {
-      throw new IllegalStateException("cannot complete trick that is not full");
+      throw Errors.TrickTaking.TrickNotFull;
     }
     var tricksLeft = Cards[Player.Player1].Count;
     var currentTrickIsLast = tricksLeft == 0;
@@ -67,7 +66,7 @@ public sealed record TrickTaking(IContract Contract,
   {
     if (!currentTrick.IsValidNextCard(card, Cards[player], Contract.CardTraits))
     {
-      throw Err.TrickTaking.PlayCard.Forbidden;
+      throw Errors.TrickTaking.InvalidCard;
     }
   }
 
@@ -75,7 +74,7 @@ public sealed record TrickTaking(IContract Contract,
   {
     if (CurrentTrick is null)
     {
-      throw Err.TrickTaking.PlayCard.InvalidPhase;
+      throw Errors.Generic.InvalidPhase;
     }
     var currentPlayer = CurrentTrick.Turn;
     if (currentPlayer is null)
@@ -84,7 +83,7 @@ public sealed record TrickTaking(IContract Contract,
     }
     if (currentPlayer != player)
     {
-      throw Err.TrickTaking.PlayCard.NotYourTurn;
+      throw Errors.Generic.OtherPlayersTurn(currentPlayer.Value);
     }
     return CurrentTrick;
   }
@@ -93,7 +92,7 @@ public sealed record TrickTaking(IContract Contract,
   {
     if (!Cards[player].Contains(card))
     {
-      throw Err.TrickTaking.PlayCard.DoNotHaveCard;
+      throw Errors.TrickTaking.DoNotHaveCard;
     }
   }
 }

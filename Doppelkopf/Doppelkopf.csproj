@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Conf\" />
+    <Folder Include="Actions\" />
+    <Folder Include="Errors\" />
   </ItemGroup>
 
 </Project>

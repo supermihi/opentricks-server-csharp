@@ -1,5 +1,4 @@
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Utils;
 
 namespace Doppelkopf.Games;
@@ -11,13 +10,13 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
 
   public (Auction, AuctionResult?) Reserve(Player player, bool reserved, AuctionContext context)
   {
-    if (Reservations.IsFull)
+    if (Reservations.Next is null)
     {
-      throw Err.Auction.Reserve.InvalidPhase;
+      throw Errors.Generic.InvalidPhase;
     }
     if (Reservations.Next != player)
     {
-      throw Err.Auction.Reserve.NotYourTurn;
+      throw Errors.Generic.OtherPlayersTurn(Reservations.Next.Value);
     }
     var nextAuction = this with { Reservations = Reservations.Add(reserved) };
     var resultOrNull = nextAuction.Evaluate(context);
@@ -30,20 +29,21 @@ public sealed record Auction(InTurns<bool> Reservations, ByPlayer<IContract?> De
   {
     if (!Reservations.IsFull)
     {
-      throw Err.Auction.Declare.InvalidPhase;
+      throw Errors.Generic.InvalidPhase;
     }
     var reservation = Reservations[player];
     if (!reservation)
     {
-      throw Err.Auction.Declare.NotReserved;
+      throw Errors.Auction.NoReservation;
     }
+    // todo check turn!
     if (!contract.CanDeclare(context.Cards, player))
     {
-      throw Err.Auction.Declare.NotAllowed;
+      throw Errors.Auction.CannotDeclareContract;
     }
     if (!context.Contracts.Contains(contract))
     {
-      throw Err.Auction.Declare.InvalidContract;
+      throw new ArgumentException("invalid contract not contained in game configuration");
     }
     var newAuction = this with { Declarations = Declarations.Replace(player, contract) };
     var resultOrNull = Evaluate(context);

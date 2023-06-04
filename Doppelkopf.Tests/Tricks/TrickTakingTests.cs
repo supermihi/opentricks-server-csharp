@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Games;
 using Doppelkopf.Tricks;
 using Doppelkopf.Utils;
@@ -100,10 +99,10 @@ public class TrickTakingTests
   {
     var trickTaking = CreateInitialTrickTaking();
     Assert.Equal(Player.Player1, trickTaking.CurrentTrick!.Turn);
-    var exception = Assert.Throws<InputException>(
+    var exception = Assert.Throws<OtherPlayersTurnException>(
       () => trickTaking.PlayCard(player, trickTaking.Cards[player].First())
     );
-    Assert.Equal(Err.TrickTaking.PlayCard.NotYourTurn, exception);
+    Assert.Equal(Player.Player1, exception.Player);
   }
 
   [Fact]
@@ -114,7 +113,7 @@ public class TrickTakingTests
     var exception = Assert.Throws<InputException>(
       () => trickTaking.PlayCard(Player.Player1, cardNotInPlayersHand)
     );
-    Assert.Equal(Err.TrickTaking.PlayCard.DoNotHaveCard, exception);
+    Assert.Equal(Errors.TrickTaking.DoNotHaveCard, exception);
   }
 
   [Fact]
@@ -126,7 +125,7 @@ public class TrickTakingTests
     var exception = Assert.Throws<InputException>(
       () => trickTaking.PlayCard(Player.Player3, new(Suit.Clubs, Rank.Queen))
     );
-    Assert.Equal(Err.TrickTaking.PlayCard.Forbidden, exception);
+    Assert.Equal(Errors.TrickTaking.InvalidCard, exception);
   }
 
   [Fact]

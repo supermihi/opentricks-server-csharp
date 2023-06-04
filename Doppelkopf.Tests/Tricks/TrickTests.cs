@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Tricks;
 
 namespace Doppelkopf.Tests.Tricks;
@@ -54,7 +53,7 @@ public class TrickTests
         .AddCard(new(Suit.Hearts, Rank.King))
         .AddCard(new(Suit.Hearts, Rank.Nine));
 
-    Assert.Throws<IllegalStateException>(() => fullTrick.AddCard(new Card(Suit.Clubs, Rank.Ace)));
+    Assert.Throws<ArgumentException>(() => fullTrick.AddCard(new Card(Suit.Clubs, Rank.Ace)));
   }
 
   [Fact]

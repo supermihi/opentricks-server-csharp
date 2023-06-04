@@ -1,7 +1,5 @@
-using System.Collections.Immutable;
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
-using Doppelkopf.Errors;
 using Doppelkopf.Utils;
 
 namespace Doppelkopf.Tricks;
@@ -43,7 +41,7 @@ public sealed record Trick
   {
     if (IsFull)
     {
-      throw new IllegalStateException("can not add card to a full trick");
+      throw new ArgumentException("can not add card to a full trick");
     }
     return new(Cards.Add(card));
   }
@@ -79,7 +77,7 @@ public sealed record Trick
   {
     if (!IsFull)
     {
-      throw new IllegalStateException("can only determine winner of full trick");
+      throw new InvalidOperationException("can only determine winner of full trick");
     }
     var indexOfWinner = Enumerable
         .Range(0, Cards.Count)

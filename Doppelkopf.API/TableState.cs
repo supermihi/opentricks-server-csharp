@@ -12,4 +12,5 @@ public sealed record TableState([property: JsonRequired]
   int Version,
   bool Started,
   RuleSet RuleSet,
-  int MaxSeats);
+  int MaxSeats,
+  SessionState? Session);

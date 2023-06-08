@@ -1,27 +1,28 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
-using Doppelkopf.API;
 using Doppelkopf.Server.TableActions;
 
 namespace Doppelkopf.Server.Notifications;
 
-public class NotificationManager
+public class HttpStreamingNotificationHandler
     : BackgroundService,
       IClientNotificationStreamHandler,
-      INotificationDispatcher
+      INotificationHandler
 {
   private readonly ILoggerFactory? _loggerFactory;
-  private readonly ILogger<NotificationManager>? _logger;
+  private readonly ILogger<HttpStreamingNotificationHandler>? _logger;
 
-  public NotificationManager(ILoggerFactory? loggerFactory = null)
+  public HttpStreamingNotificationHandler(NotificationDispatcher dispatcher, ILoggerFactory? loggerFactory = null)
   {
     _loggerFactory = loggerFactory;
-    _logger = loggerFactory?.CreateLogger<NotificationManager>();
+    _unsubscribe = dispatcher.Subscribe(this);
+    _logger = loggerFactory?.CreateLogger<HttpStreamingNotificationHandler>();
   }
 
   private readonly Channel<(TableActionResult result, UserId receiver)> _queue =
       Channel.CreateBounded<(TableActionResult, UserId)>(1_000);
   private readonly ConcurrentDictionary<UserId, UserNotificationStreamHandler> _webSockets = new();
+  private readonly IDisposable _unsubscribe;
 
   public Task AddStream(UserId user, HttpResponse response)
   {
@@ -37,7 +38,16 @@ public class NotificationManager
     return handler.Ended;
   }
 
-  public Task Send(TableActionResult result, UserId receiver)
+  public async Task OnTableAction(TableActionResult result)
+  {
+    var receivers = result.Table.Users.Where(u => u != result.Events.First().Actor);
+    foreach (var receiver in receivers)
+    {
+      await _queue.Writer.WriteAsync((result, receiver));
+    }
+  }
+
+  public Task OnTableAction(TableActionResult result, UserId receiver)
   {
     _queue.Writer.TryWrite((result, receiver));
     return Task.CompletedTask;
@@ -51,7 +61,7 @@ public class NotificationManager
       {
         _logger?.LogInformation(
           "Dropping action result {ActionResult} for offline user {User}",
-          result,
+          result.Events.First().Type,
           user
         );
         continue;
@@ -59,5 +69,6 @@ public class NotificationManager
       await handler.Send(result, stoppingToken);
     }
     Console.WriteLine("finish!");
+    _unsubscribe.Dispose();
   }
 }

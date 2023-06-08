@@ -1,5 +1,7 @@
 using Doppelkopf.API;
 using Doppelkopf.Server.Authentication;
+using Doppelkopf.Server.Bots;
+using Doppelkopf.Server.Controllers;
 using Doppelkopf.Server.Notifications;
 using Doppelkopf.Server.Storage;
 
@@ -13,12 +15,14 @@ builder.Services
     .AddEndpointsApiExplorer()
     .AddSwaggerGen()
     .AddSingleton<ITableStore, InMemoryTableStore>()
-    .AddSingleton<ITableActionListener, UserNotifyingTableActionListener>()
-    .AddSingleton<NotificationManager>()
-    .AddSingleton<INotificationDispatcher>(s => s.GetRequiredService<NotificationManager>())
-    .AddSingleton<IClientNotificationStreamHandler>(s => s.GetRequiredService<NotificationManager>())
-    .AddScoped<ILoginHandler, AllowAllLoginHandler>()
-    .AddHostedService(s => s.GetRequiredService<NotificationManager>())
+    .AddSingleton<NotificationDispatcher>()
+    .AddSingleton<HttpStreamingNotificationHandler>()
+    .AddSingleton<IClientNotificationStreamHandler>(s => s.GetRequiredService<HttpStreamingNotificationHandler>())
+    .AddTransient<ILoginHandler, AllowAllLoginHandler>()
+    .AddTransient<ITableService, TableService>()
+    .AddSingleton(BotIds.Default)
+    .AddHostedService(s => s.GetRequiredService<HttpStreamingNotificationHandler>())
+    .AddHostedService<BotService>()
     .AddAuthentication()
     .AddScheme<DebugAuthenticationOptions, DebugAuthenticationHandler>(
       DebugAuthenticationOptions.Schema,

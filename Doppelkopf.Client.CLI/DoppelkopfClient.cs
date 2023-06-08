@@ -8,14 +8,14 @@ namespace Doppelkopf.Client.CLI;
 public class DoppelkopfClient
 {
   private readonly string _host;
-  private readonly string _user;
+  public string User { get; }
   private readonly HttpClient _httpClient;
   private readonly HttpClientHandler _handler;
 
   public DoppelkopfClient(string host, string user)
   {
     _host = host;
-    _user = user;
+    User = user;
     _handler = new HttpClientHandler();
     _handler.CookieContainer = new CookieContainer();
     _httpClient = new HttpClient(_handler);
@@ -40,7 +40,7 @@ public class DoppelkopfClient
 
   public async Task Login()
   {
-    var response = await Post("/login", new LoginRequest(_user, _user, "secret"));
+    var response = await Post("/login", new LoginRequest(User, User, "secret"));
     response.EnsureSuccessStatusCode();
     Console.WriteLine("logged in");
   }
@@ -59,10 +59,26 @@ public class DoppelkopfClient
     return (await table.Content.ReadFromJsonAsync<TableState>(JsonConfiguration.Options))!;
   }
 
-  public async Task<JsonElement> Act(string tableId, TableRequest request)
+  public async Task<TableState> Act(string tableId, TableRequest request)
   {
-    var result = await Patch($"/table/{tableId}", request);
-    result.EnsureSuccessStatusCode();
-    return await result.Content.ReadFromJsonAsync<JsonElement>(JsonConfiguration.Options);
+    var response = await Patch($"/table/{tableId}", request);
+    response.EnsureSuccessStatusCode();
+    var result = await response.Content.ReadFromJsonAsync<JsonElement>(JsonConfiguration.Options);
+    return result.GetProperty("tableState").Deserialize<TableState>(JsonConfiguration.Options)!;
+  }
+
+  public async Task SubscribeToUpdates()
+  {
+    var response = await _httpClient.GetStreamAsync($"{_host}/updates");
+    var buffer = new byte[1024 * 1024];
+    while (true)
+    {
+      var result = await response.ReadAsync(buffer);
+      if (result == 0)
+      {
+        Console.WriteLine("stream ended");
+      }
+      JsonSerializer.DeserializeAsync<UserNotification>()
+    }
   }
 }

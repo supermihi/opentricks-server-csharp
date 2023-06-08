@@ -10,15 +10,12 @@ namespace Doppelkopf.Server.Controllers;
 public class NotificationStreamController : ControllerBase
 {
   private readonly IClientNotificationStreamHandler _streamHandler;
-  private readonly INotificationDispatcher _dispatcher;
   private readonly ILogger<NotificationStreamController>? _logger;
 
   public NotificationStreamController(IClientNotificationStreamHandler streamHandler,
-    INotificationDispatcher dispatcher,
     ILogger<NotificationStreamController>? logger = null)
   {
     _streamHandler = streamHandler;
-    _dispatcher = dispatcher;
     _logger = logger;
   }
 

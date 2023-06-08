@@ -30,7 +30,10 @@ class InMemoryTableStore : ITableStore
 
   public Task Update(Table previous, Table next)
   {
-    _tables.TryUpdate(next.Meta.Id, next, previous);
+    if (!_tables.TryUpdate(next.Meta.Id, next, previous))
+    {
+      throw new Exception("table update failed");
+    }
     return Task.CompletedTask;
   }
 }

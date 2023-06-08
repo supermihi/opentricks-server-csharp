@@ -10,15 +10,28 @@ public sealed record Auction(InTurns<bool> Reservations,
   public static readonly Auction Initial =
       new(new InTurns<bool>(Player.Player1), ImmutableStack<(Player, IContract)>.Empty);
 
+  public enum AuctionPhase {Reservations, Declarations, Finished}
+
+  public (AuctionPhase, Player) PhaseAndTurn()
+  {
+    if (Reservations.Next is {} turnReserve)
+    {
+      return (AuctionPhase.Reservations, turnReserve);
+    }
+    var turnDeclare = ReservedPlayers.FirstOrDefault(HasDeclared);
+    return turnDeclare is var turn ? (AuctionPhase.Declarations, turn) : (AuctionPhase.Finished, default);
+  }
+
   public (Auction, AuctionResult?) Reserve(Player player, bool reserved, AuctionContext context)
   {
-    if (Reservations.Next is null)
+    var (phase, turn) = PhaseAndTurn();
+    if (phase != AuctionPhase.Reservations)
     {
       throw Errors.Generic.InvalidPhase;
     }
-    if (Reservations.Next != player)
+    if (turn != player)
     {
-      throw Errors.Generic.OtherPlayersTurn(Reservations.Next.Value);
+      throw Errors.Generic.OtherPlayersTurn(turn);
     }
     var nextAuction = this with { Reservations = Reservations.Add(reserved) };
     var resultOrNull = nextAuction.Evaluate(context);
@@ -29,7 +42,8 @@ public sealed record Auction(InTurns<bool> Reservations,
     IContract contract,
     AuctionContext context)
   {
-    if (!Reservations.IsFull)
+    var (phase, turn) = PhaseAndTurn();
+    if (phase != AuctionPhase.Declarations)
     {
       throw Errors.Generic.InvalidPhase;
     }
@@ -38,7 +52,6 @@ public sealed record Auction(InTurns<bool> Reservations,
     {
       throw Errors.Auction.NoReservation;
     }
-    var turn = ReservedPlayers.FirstOrDefault(HasDeclared);
     if (turn != player)
     {
       throw Errors.Generic.OtherPlayersTurn(turn);

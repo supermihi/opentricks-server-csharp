@@ -15,6 +15,7 @@ public static class JsonConfiguration
   }
 
   public static readonly JsonSerializerOptions Options = CreateJsonOptions();
+  public static readonly JsonSerializerOptions Pretty = new(Options) { WriteIndented = true };
 
   public static JsonSerializerOptions CreateJsonOptions()
   {

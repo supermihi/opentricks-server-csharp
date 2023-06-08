@@ -1,4 +1,3 @@
-using Doppelkopf.API;
 using Doppelkopf.Server.TableActions;
 using Doppelkopf.Sessions;
 
@@ -19,14 +18,14 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
     return new(meta, users, 0, null);
   }
 
-  public TableActionResult Join(UserId user)
+  public TableActionResult AddUser(UserId user, bool ready)
   {
     AssertNotStarted();
     if (Users.Count + 1 > Meta.Rules.MaxSeats)
     {
       throw new ArgumentException("table is full");
     }
-    var newTable = this with { Users = Users.Add(user), Version = NextVersion };
+    var newTable = this with { Users = Users.Add(user, ready), Version = NextVersion };
     return new(newTable, TableEvent.JoinTable(user));
   }
 
@@ -45,13 +44,17 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
   public TableActionResult Start(UserId player, Random? random = null)
   {
     AssertNotStarted();
-    if (Users is not { Count: >= Constants.NumberOfPlayers, AreAllReady: true })
+    if (Users is not { Count: >= Constants.NumberOfPlayers })
     {
-      throw new ArgumentException("not all users ready");
+      throw new ArgumentException("not enough users");
     }
     if (player != Meta.Owner)
     {
       throw new ArgumentException("not your table");
+    }
+    if (Users.Any(u => !Users.IsReady(u) && u != player))
+    {
+      throw new ArgumentException("not everybody is ready");
     }
     var newTable = this with
     {

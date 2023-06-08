@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Immutable;
-using Doppelkopf.API;
 using Doppelkopf.Sessions;
 
 namespace Doppelkopf.Server.Model;
@@ -36,7 +35,7 @@ public sealed class TableUsers : IReadOnlyCollection<UserId>
 
   public IEnumerator<UserId> GetEnumerator() => _data.Select(userAndReady => userAndReady.user).GetEnumerator();
   public int Count => _data.Count;
-  public TableUsers Add(UserId user) => new(_data.Add((user, false)));
+  public TableUsers Add(UserId user, bool ready) => new(_data.Add((user, ready)));
 
   public bool IsReady(UserId user)
   {
@@ -44,7 +43,6 @@ public sealed class TableUsers : IReadOnlyCollection<UserId>
   }
 
   public TableUsers SetReady(UserId user) => new(_data.Replace((user, false), (user, true)));
-  public bool AreAllReady => _data.All(t => t.ready);
 
   public Seat SeatOf(UserId user)
   {

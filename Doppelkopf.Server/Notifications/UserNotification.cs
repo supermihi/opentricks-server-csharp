@@ -8,6 +8,6 @@ public record UserNotification(TableState TableState, IReadOnlyList<TableEvent> 
 {
   public static UserNotification FromTableActionResult(TableActionResult result, UserId maskFor)
   {
-    return new(result.Table.ToJsonTable(maskFor), result.Events, result.Timestamp);
+    return new(result.Table.ToTableState(maskFor), result.Events, result.Timestamp);
   }
 }

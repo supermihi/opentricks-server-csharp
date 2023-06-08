@@ -46,7 +46,7 @@ public class InteractiveClient
   private async Task ListTables()
   {
     var tables = await _client.ListTables();
-    Console.WriteLine($"these are the tables");
+    Console.WriteLine("these are the tables");
     foreach (var table in tables)
     {
       Console.WriteLine(table);
@@ -61,25 +61,65 @@ public class InteractiveClient
 
   private async Task TableLoop()
   {
+    _client.SubscribeToUpdates();
     while (true)
     {
       Console.WriteLine($"table: {_table!.Name}");
-      var what = Prompt.Select("what to do?", new[] { "get state", "join", "start", "quit" });
+      var what = Prompt.Select("what to do?", new[] { "get state", "add bot", "join", "start", "quit" });
       switch (what)
       {
         case "get state":
-          var table = await _client.GetTable(_table.Id);
-          Console.WriteLine($"current state: {table}");
+          _table = await _client.GetTable(_table.Id);
+          PrintTable();
+          break;
+        case "add bot":
+          var addBotResponse = await _client.Act(_table.Id, new TableRequest(RequestType.AddBot));
+          Console.WriteLine(addBotResponse);
+          _table = addBotResponse;
           break;
         case "join":
           throw new NotImplementedException();
         case "start":
           var response = await _client.Act(_table.Id, new TableRequest(RequestType.Start));
           Console.WriteLine(response);
+          _table = response;
+          await PlayLoop();
+          break;
+        case "play":
+          await PlayLoop();
           break;
         case "quit":
           return;
       }
     }
   }
+
+  private async Task PlayLoop()
+  {
+    while (true)
+    {
+      Console.WriteLine($"table: {_table!.Name}");
+      PrintTable();
+      var what = Prompt.Select("what to do?", new[] { "gesund", "card", "quit" });
+      switch (what)
+      {
+        case "gesund":
+          _table = await _client.Act(_table.Id, new TableRequest(RequestType.Reserve) { IsReserved = false });
+          continue;
+        case "card":
+          var mySeat = _table.Players.ToList().IndexOf(_client.User);
+          var myPlayer = _table.Session!.PlayerIndexes.ToList().IndexOf(mySeat);
+          var cards = _table.Session.CurrentGame!.Cards[myPlayer];
+          var cardsWithIndex = cards.Select((c, i) => $"{i}: {c}").ToList();
+          var cardWithIndex = Prompt.Select("which card", cardsWithIndex);
+          var card = cards[cardsWithIndex.IndexOf(cardWithIndex)];
+          _table = await _client.Act(_table.Id, new TableRequest(RequestType.PlayCard) { CardId = card });
+          continue;
+        case "quit":
+          return;
+      }
+    }
+  }
+
+  private void PrintTable() => Console.WriteLine(JsonSerializer.Serialize(_table, JsonConfiguration.Pretty));
 }

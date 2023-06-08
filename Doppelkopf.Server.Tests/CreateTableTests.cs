@@ -38,7 +38,7 @@ public class CreateTableTests
     var controller = new TableController(
       Mock.Of<ILogger<TableController>>(),
       Mock.Of<ITableStore>(),
-      Mock.Of<ITableActionListener>()) {
+      new NotificationDispatcher()) {
       ControllerContext = {
         HttpContext = new DefaultHttpContext {
           User = Claims.CreateClaimsPrincipal(new UserData(new("m"), "michi"), "test")

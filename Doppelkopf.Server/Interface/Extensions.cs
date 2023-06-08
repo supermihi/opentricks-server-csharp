@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using Doppelkopf.API;
+using Doppelkopf.Cards;
 using Doppelkopf.Games;
 using Doppelkopf.Server.Model;
 using Doppelkopf.Sessions;
@@ -7,7 +9,7 @@ namespace Doppelkopf.Server.Interface;
 
 public static class Extensions
 {
-  public static TableState ToJsonTable(this Table table, UserId maskFor)
+  public static TableState ToTableState(this Table table, UserId maskFor)
   {
     return new TableState(
       Id: table.Meta.Id,
@@ -17,11 +19,12 @@ public static class Extensions
       Version: table.Version,
       RuleSet: table.Meta.Rules.RuleSet,
       MaxSeats: table.Meta.Rules.MaxSeats,
-      Started: table.IsStarted
+      Started: table.IsStarted,
+      Session: table.Session?.ToTableState(table.Users.SeatOf(maskFor))
     );
   }
 
-  public static JsonTricks ToJsonTricks(this TrickTaking trickTaking)
+  public static JsonTricks ToTricksState(this TrickTaking trickTaking)
   {
     {
       var currentTrick = JsonByPlayer.FromInTurns(
@@ -33,21 +36,20 @@ public static class Extensions
     }
   }
 
-  public static GameState ToJsonGame(this Game game, Player? maskFor)
+  public static GameState ToGameState(this Game game, Player? maskFor)
 
   {
-    var cards = JsonByPlayer.FromByPlayer(
-      game.Cards,
-      (player, cards) => player == maskFor
-          ? (IReadOnlyList<string>)cards.Select(c => c.Id).ToArray()
-          : new string[] { });
-    var auction = game.TrickTaking is null ? game.Auction.ToJsonAuction(maskFor) : null;
+    var cards = Enum.GetValues<Player>()
+        .Select(
+          player => (player == maskFor ? game.Cards[player] : ImmutableList<Card>.Empty).Select(c => c.Id).ToArray())
+        .ToArray();
     var contract = game.TrickTaking?.Contract.Id;
-    var tricks = game.TrickTaking is null or { IsFinished: true } ? null : game.TrickTaking.ToJsonTricks();
+    var auction = game.TrickTaking is null ? game.Auction.ToAuctionState(maskFor) : null;
+    var tricks = game.TrickTaking is null or { IsFinished: true } ? null : game.TrickTaking.ToTricksState();
     return new(cards, auction, contract, tricks);
   }
 
-  public static AuctionState ToJsonAuction(this Auction auction, Player? maskFor)
+  public static AuctionState ToAuctionState(this Auction auction, Player? maskFor)
   {
     return new(
       JsonByPlayer.Create(
@@ -58,13 +60,13 @@ public static class Extensions
         }));
   }
 
-  public static SessionState ToJsonSession(this Session session, Seat maskFor)
+  public static SessionState ToTableState(this Session session, Seat maskFor)
   {
     var player = session.AtSeat(maskFor);
     return new(
       PlayerIndexes: session.ActiveSeats.Select(seat => seat.Position).ToArray(),
       IsFinished: session.IsFinished,
-      CurrentGame: session.Game.ToJsonGame(player)
+      CurrentGame: session.Game.ToGameState(player)
     );
   }
 }

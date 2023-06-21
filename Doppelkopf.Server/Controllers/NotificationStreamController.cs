@@ -23,11 +23,10 @@ public class NotificationStreamController : ControllerBase
   [HttpGet]
   public async Task GetAsync(CancellationToken cancellationToken)
   {
-    cancellationToken.Register(() => _logger?.LogInformation("clinet disconnect"));
+    cancellationToken.Register(() => _logger?.LogInformation("client disconnect"));
     Response.ContentType = "text/event-stream";
     await Response.Body.FlushAsync(cancellationToken);
-    await Response.WriteAsync("test", cancellationToken: cancellationToken);
-    await _streamHandler.AddStream(HttpContext.AuthenticatedUser().Id, Response);
+    await _streamHandler.AddStream(HttpContext.AuthenticatedUser().Id, Response, cancellationToken);
     _logger?.LogInformation("/updates finished");
   }
 }

@@ -30,18 +30,13 @@ public class NotificationDispatcher
     }
   }
 
-  public Task Notify(TableActionResult action)
+  public Task Notify(TableActionResult action, UserId actor)
   {
     Task result;
     lock (_handlersLock)
     {
-      result = Task.WhenAll(_handlers.Select(h => h.OnTableAction(action)));
+      result = Task.WhenAll(_handlers.Select(h => h.OnTableAction(action, actor)));
     }
     return result;
   }
-}
-
-public interface INotificationHandler
-{
-  Task OnTableAction(TableActionResult result);
 }

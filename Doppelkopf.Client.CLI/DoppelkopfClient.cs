@@ -63,8 +63,8 @@ public class DoppelkopfClient
   {
     var response = await Patch($"/table/{tableId}", request);
     response.EnsureSuccessStatusCode();
-    var result = await response.Content.ReadFromJsonAsync<JsonElement>(JsonConfiguration.Options);
-    return result.GetProperty("tableState").Deserialize<TableState>(JsonConfiguration.Options)!;
+    var result = await response.Content.ReadFromJsonAsync<Notification>(JsonConfiguration.Options);
+    return result!.State;
   }
 
   public async Task SubscribeToUpdates()
@@ -78,7 +78,8 @@ public class DoppelkopfClient
       {
         Console.WriteLine("stream ended");
       }
-      JsonSerializer.DeserializeAsync<UserNotification>()
+      var not = JsonSerializer.Deserialize<Notification>(buffer[..result], JsonConfiguration.Options);
+      Console.WriteLine($"received notification {not}");
     }
   }
 }

@@ -31,7 +31,7 @@ internal sealed class UserNotificationStreamHandler
 
   public async Task Send(TableActionResult result, CancellationToken cancellationToken)
   {
-    var notification = UserNotification.FromTableActionResult(result, _user);
+    var notification = result.ToNotification(_user);
     await JsonSerializer.SerializeAsync(_response.Body, notification, cancellationToken: cancellationToken);
     await _response.Body.FlushAsync(cancellationToken);
     _logger?.LogInformation("message sent to {User}", _user);

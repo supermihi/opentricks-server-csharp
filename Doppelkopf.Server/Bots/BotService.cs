@@ -22,7 +22,7 @@ public class BotService : BackgroundService, INotificationHandler
     dispatcher.Subscribe(this);
   }
 
-  public Task OnTableAction(TableActionResult result)
+  public Task OnTableAction(TableActionResult result, UserId actor)
   {
     var botsAtTable = result.Table.Users.Where(u => _ids.Bots.Contains(u)).ToArray();
 

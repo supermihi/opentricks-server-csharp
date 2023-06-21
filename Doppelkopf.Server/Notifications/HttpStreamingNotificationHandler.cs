@@ -21,47 +21,43 @@ public class HttpStreamingNotificationHandler
 
   private readonly Channel<(TableActionResult result, UserId receiver)> _queue =
       Channel.CreateBounded<(TableActionResult, UserId)>(1_000);
-  private readonly ConcurrentDictionary<UserId, UserNotificationStreamHandler> _webSockets = new();
+  private readonly ConcurrentDictionary<UserId, UserNotificationStreamHandler> _handlers = new();
   private readonly IDisposable _unsubscribe;
 
-  public Task AddStream(UserId user, HttpResponse response)
+  public Task AddStream(UserId user, HttpResponse response, CancellationToken cancellationToken)
   {
-    var handler = _webSockets.AddOrUpdate(
+    var handler = _handlers.AddOrUpdate(
       user,
       addValueFactory: _ => new UserNotificationStreamHandler(user, response, _loggerFactory),
-      updateValueFactory: (_, oldWebSocketHandler) =>
+      updateValueFactory: (_, oldHandler) =>
       {
-        oldWebSocketHandler.Cancel();
+        oldHandler.Cancel();
         return new UserNotificationStreamHandler(user, response, _loggerFactory);
       }
     );
+    cancellationToken.Register(handler.Cancel);
     return handler.Ended;
   }
 
-  public async Task OnTableAction(TableActionResult result)
+  public async Task OnTableAction(TableActionResult result, UserId actor)
   {
-    var receivers = result.Table.Users.Where(u => u != result.Events.First().Actor);
+    var receivers = result.Table.Users.Where(u => u != actor);
     foreach (var receiver in receivers)
     {
       await _queue.Writer.WriteAsync((result, receiver));
     }
   }
 
-  public Task OnTableAction(TableActionResult result, UserId receiver)
-  {
-    _queue.Writer.TryWrite((result, receiver));
-    return Task.CompletedTask;
-  }
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
     await foreach (var (result, user) in _queue.Reader.ReadAllAsync(stoppingToken))
     {
-      if (!_webSockets.TryGetValue(user, out var handler))
+      if (!_handlers.TryGetValue(user, out var handler))
       {
         _logger?.LogInformation(
-          "Dropping action result {ActionResult} for offline user {User}",
-          result.Events.First().Type,
+          "Dropping event {Event} for offline user {User}",
+          result.Events.Last(),
           user
         );
         continue;

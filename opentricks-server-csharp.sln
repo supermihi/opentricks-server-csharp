@@ -15,6 +15,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Client.CLI", "Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.API", "Doppelkopf.API\Doppelkopf.API.csproj", "{1679DC2B-2070-4915-BE46-507432538744}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Core", "Doppelkopf.Core\Doppelkopf.Core.csproj", "{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Errors", "Doppelkopf.Errors\Doppelkopf.Errors.csproj", "{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Core.Tests", "Doppelkopf.Core.Tests\Doppelkopf.Core.Tests.csproj", "{26041A75-9AEC-4F38-B2A5-C26D85D996E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.TestUtils", "Doppelkopf.TestUtils\Doppelkopf.TestUtils.csproj", "{FFD06163-C75D-485E-983B-94CFAD745926}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +56,21 @@ Global
 		{1679DC2B-2070-4915-BE46-507432538744}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1679DC2B-2070-4915-BE46-507432538744}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1679DC2B-2070-4915-BE46-507432538744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFD06163-C75D-485E-983B-94CFAD745926}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFD06163-C75D-485E-983B-94CFAD745926}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFD06163-C75D-485E-983B-94CFAD745926}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFD06163-C75D-485E-983B-94CFAD745926}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

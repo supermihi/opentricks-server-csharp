@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Doppelkopf.Errors\Doppelkopf.Errors.csproj" />
+  </ItemGroup>
+
+</Project>

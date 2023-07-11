@@ -4,7 +4,13 @@ using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Tricks.Impl;
 
-public sealed record TrickTakingState(ByPlayer<IImmutableList<Card>> RemainingCards, InTurns<Card>? CurrentTrick,
-  ImmutableList<CompletedTrick> CompletedTricks);
-
-public sealed record CompletedTrick(ByPlayer<Card> Cards, Player First, Player Winner);
+internal sealed record TrickTakingState(CardsByPlayer RemainingCards,
+  InTurns<Card>? CurrentTrick,
+  ImmutableList<CompletedTrick> CompletedTricks)
+{
+  public static TrickTakingState Initial(CardsByPlayer initialCards) =>
+      new(
+        initialCards,
+        new InTurns<Card>(Player.One),
+        ImmutableList<CompletedTrick>.Empty);
+}

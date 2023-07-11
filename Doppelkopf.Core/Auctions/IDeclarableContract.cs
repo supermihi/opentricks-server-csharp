@@ -1,7 +1,9 @@
+using Doppelkopf.Core.Cards;
+
 namespace Doppelkopf.Core.Auctions;
 
 public interface IDeclarableContract
 {
-  bool IsAllowed(IPlayerCards cards);
-  DeclaredContractType Type { get; }
+    bool IsAllowed(IEnumerable<Card> playerCards);
+    DeclaredContractType Type { get; }
 }

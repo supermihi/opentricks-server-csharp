@@ -3,9 +3,13 @@ using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Tricks;
 
-public interface ITrickTaking
+public interface ITrickTakingInteractor
 {
     void PlayCard(Player player, Card card);
-    InTurns<Card>? CurrentTrick { get; }
+}
+
+public interface ITrickTakingProgress
+{
+    IReadOnlyList<ITrick> Tricks { get; }
     ICardsByPlayer RemainingCards { get; }
 }

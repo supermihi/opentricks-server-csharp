@@ -1,80 +1,60 @@
-using System.Collections;
-using Doppelkopf.Core.Auctions.Impl;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Utils;
 using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Tricks.Impl;
 
-internal class TrickTaking : ITrickTaking
+internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
 {
-    private readonly ICardTraitsProvider _cardTraitsProvider;
-    private TrickTakingState _state;
-    public InTurns<Card>? CurrentTrick => _state.CurrentTrick;
-    public ICardsByPlayer RemainingCards => _state.RemainingCards;
+  private readonly ITrickEvaluator _trickEvaluator;
+  private readonly ITrickSuitProvider _trickSuitProvider;
+  private TrickTakingState _state;
+  public Trick CurrentTrick => _state.CurrentTrick;
+  public IReadOnlyList<ITrick> Tricks => _state.Tricks;
+  public ICardsByPlayer RemainingCards => _state.RemainingCards;
 
-    public TrickTaking(ICardTraitsProvider cardTraitsProvider, TrickTakingState state)
+  public TrickTaking(ITrickEvaluator trickEvaluator, ITrickSuitProvider trickSuitProvider, TrickTakingState state)
+  {
+    _trickEvaluator = trickEvaluator;
+    _trickSuitProvider = trickSuitProvider;
+    _state = state;
+  }
+
+  public void PlayCard(Player player, Card card)
+  {
+    if (CurrentTrick.IsComplete)
     {
-        _cardTraitsProvider = cardTraitsProvider;
-        _state = state;
+      ErrorCodes.InvalidPhase.Throw();
     }
+    CurrentTrick.Cards.CheckIsTurn(player);
+    CheckPlayerHasCard(player, card);
+    CheckIsAllowedCard(_state.RemainingCards[player], card);
+    var updatedCurrentTrick = CurrentTrick.AddCard(card);
+    var remainingCards = _state.RemainingCards.Remove(player, card);
+    _state = new TrickTakingState(remainingCards, _state.Tricks[..^1].Add(updatedCurrentTrick))
+        .UpdateCurrentAndStartNextIfNeeded(_trickEvaluator);
+  }
 
-    public void PlayCard(Player player, Card card)
+  private void CheckPlayerHasCard(Player player, Card card)
+  {
+    if (!_state.RemainingCards[player].Contains(card))
     {
-        if (CurrentTrick is null)
-        {
-            ErrorCodes.InvalidPhase.Throw();
-        }
-        CurrentTrick.CheckIsTurn(player);
-        CheckPlayerHasCard(player, card);
-        CheckIsAllowedCard(_state.RemainingCards[player], card);
-        var currentTrickWithNewCard = CurrentTrick.Add(card);
-        var remainingCards = _state.RemainingCards.Remove(player, card);
-        if (currentTrickWithNewCard.IsFull)
-        {
-            var isLastTrick = remainingCards.Cards[Player.One].IsEmpty;
-            var completedTrick = TrickUtils.Complete(
-                currentTrickWithNewCard,
-                _cardTraitsProvider,
-                isLastTrick
-            );
-            var nextTrick = isLastTrick ? null : new InTurns<Card>(completedTrick.Winner);
-            _state = new TrickTakingState(
-                CompletedTricks: _state.CompletedTricks.Add(completedTrick),
-                CurrentTrick: nextTrick,
-                RemainingCards: remainingCards
-            );
-            return;
-        }
-        _state = _state with
-        {
-            CurrentTrick = currentTrickWithNewCard,
-            RemainingCards = remainingCards
-        };
+      ErrorCodes.CardNotOwned.Throw();
     }
+  }
 
-    public IEnumerable<CompletedTrick> CompletedTricks => _state.CompletedTricks;
-
-    private void CheckPlayerHasCard(Player player, Card card)
+  private void CheckIsAllowedCard(IEnumerable<Card> playerCards, Card card)
+  {
+    if (CurrentTrick.Cards.Count == 0)
     {
-        if (!_state.RemainingCards[player].Contains(card))
-        {
-            ErrorCodes.CardNotOwned.Throw();
-        }
+      return;
     }
-
-    private void CheckIsAllowedCard(IEnumerable<Card> playerCards, Card card)
+    if (!FollowsSuit(card) && playerCards.Any(FollowsSuit))
     {
-        if (CurrentTrick!.Count == 0)
-        {
-            return;
-        }
-        if (!FollowsSuit(card) && playerCards.Any(FollowsSuit))
-        {
-            ErrorCodes.CardNotAllowed.Throw();
-        }
+      ErrorCodes.CardNotAllowed.Throw();
     }
+  }
 
-    private bool FollowsSuit(Card card) =>
-        _cardTraitsProvider.FollowsSuit(CurrentTrick!.First(), card);
+  private bool FollowsSuit(Card card) =>
+      _trickSuitProvider.GetTrickSuit(card) == _trickSuitProvider.GetTrickSuit(CurrentTrick!.Cards.First());
 }

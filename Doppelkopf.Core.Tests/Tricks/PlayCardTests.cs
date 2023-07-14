@@ -12,14 +12,15 @@ public class PlayCardTests
     [Fact]
     public void PlayInitialCardSuccess()
     {
-        var provider = Mock.Of<ICardTraitsProvider>();
+        var provider = Mock.Of<ITrickSuitProvider>();
+        var evaluator = Mock.Of<ITrickEvaluator>(MockBehavior.Strict);
         var cards = CardFactory.PlayersCards(cardsPerPlayer: 3, seed: 1245);
         var state = TrickTakingState.Initial(cards);
-        var trickTaking = new TrickTaking(provider, state);
+        var trickTaking = new TrickTaking(evaluator, provider, state);
 
         var card = cards[Player.One][0];
         trickTaking.PlayCard(Player.One, card);
-        Assert.Equal(card, trickTaking.CurrentTrick![0]);
+        Assert.Equal(card, trickTaking.CurrentTrick.Cards[0]);
         Assert.Equal(cards[Player.One][1..], trickTaking.RemainingCards.GetCards(Player.One));
     }
 
@@ -28,31 +29,29 @@ public class PlayCardTests
     [InlineData(true)]
     public void CompletesTrickAndCreatesNewIfNotLast(bool isLastTrick)
     {
-        var provider = Mock.Of<ICardTraitsProvider>(
-            // last card always wins
-            p =>
-                p.TakesTrickFrom(It.IsAny<Card>(), It.IsAny<Card>(), It.IsAny<bool>()) == true
-                && p.GetTraits(It.IsAny<Card>()) == new CardTraits(TrickSuit.Hearts, 1)
-        );
+        var evaluator = Mock.Of<ITrickEvaluator>(p => p.GetWinner(It.IsAny<ITrick>(), It.IsAny<bool>()) == Player.Four);
+        var suitProvider = Mock.Of<ITrickSuitProvider>(p => p.GetTrickSuit(It.IsAny<Card>()) == TrickSuit.Hearts);
+
         var cards = CardFactory.PlayersCards(cardsPerPlayer: isLastTrick ? 1 : 2, seed: 1234);
         var state = TrickTakingState.Initial(cards);
 
-        var trickTaking = new TrickTaking(provider, state);
+        var trickTaking = new TrickTaking(evaluator, suitProvider, state);
         for (var i = 0; i < 4; i++)
         {
-            var next = trickTaking.CurrentTrick!.Next!.Value;
+            var next = trickTaking.CurrentTrick.Cards.Next!.Value;
             trickTaking.PlayCard(next, trickTaking.RemainingCards.GetCards(next).First());
         }
-        var completed = Assert.Single(trickTaking.CompletedTricks);
+        var completed = trickTaking.Tricks[0];
         Assert.Equal(Player.Four, completed.Winner);
         if (isLastTrick)
         {
-            Assert.Null(trickTaking.CurrentTrick);
+            Assert.Single(trickTaking.Tricks);
         }
         else
         {
-            Assert.Empty(trickTaking.CurrentTrick!);
-            Assert.Equal(Player.Four, trickTaking.CurrentTrick!.Start);
+          Assert.Equal(2, trickTaking.Tricks.Count);
+          Assert.Equal(Player.Four, trickTaking.Tricks[^1].Leader);
+          Assert.Empty(trickTaking.Tricks[^1].Cards);
         }
     }
 }

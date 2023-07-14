@@ -9,4 +9,14 @@ public static class ErrorCodes
   public static readonly ErrorCode CardNotAllowed = new("card_not_allowed", "you must follow suit");
   public static readonly ErrorCode InvalidPhase = new("invalid_phase", "the specified action is not valid in the current phase of the game");
   public static readonly ErrorCode ContractNotAllowed = new("contract_not_allowed", "the selected contract is not allowed with your cards");
+  public static readonly ErrorCode PartyNotDefined = new(
+    "parties_not_defined",
+    "the specified action is not valid because your party is not yet defined");
+  public static readonly ErrorCode WrongParty = new("wrong_party", "the specified action is not valid for your party");
+  public static readonly ErrorCode RedundantBid = new(
+    "redundant_bid",
+    "the bid you specified has already been declared");
+  public static readonly ErrorCode BidToLate = new(
+    "bid_too_late",
+    "you have played too many cards already to still declare the specified bid");
 }

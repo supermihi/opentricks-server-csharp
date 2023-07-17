@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Doppelkopf.API\Doppelkopf.API.csproj" />
-    <ProjectReference Include="..\Doppelkopf\Doppelkopf.csproj" />
+    <ProjectReference Include="..\Doppelkopf.Sessions\Doppelkopf.Sessions.csproj" />
   </ItemGroup>
 
 </Project>

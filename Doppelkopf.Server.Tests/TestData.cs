@@ -36,7 +36,7 @@ public static class TestData
   public static class Session
   {
     public static readonly Doppelkopf.Sessions.Session JustStarted = Sessions.Session.Init(
-      Rules.Default.ToConfiguration(),
+      Rules.Default.GameConfiguration(),
       Rules.Default.MaxSeats,
       null);
   }

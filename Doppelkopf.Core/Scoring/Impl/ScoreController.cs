@@ -1,4 +1,5 @@
 using Doppelkopf.Core.Tricks;
+using Doppelkopf.Core.Tricks.Impl;
 using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Scoring.Impl;
@@ -16,7 +17,7 @@ public class ScoreController : IBids
 
   public void PlaceBid(Player player, Bid bid)
   {
-    if (_parties.GetParty(player) is not { } party || _parties.DeclaringTrick is not {} declaringTrick)
+    if (_parties.GetParty(player) is not { } party || _parties.DefiningTrick is not {} definingTrick)
     {
       throw ErrorCodes.PartyNotDefined.ToException();
     }
@@ -28,13 +29,12 @@ public class ScoreController : IBids
     {
       throw ErrorCodes.RedundantBid.ToException();
     }
-    var playedCards = _trickTaking.Tricks.Count(t => t.Cards.Contains(player));
-    var maxPlayedCards = bid.MaximumPlayedCards() + declaringTrick;
-    if (playedCards > maxPlayedCards)
+    var maxPlayedCards = bid.MaximumPlayedCards() + definingTrick;
+    if (_trickTaking.NumCardsPlayed(player) > maxPlayedCards)
     {
       throw ErrorCodes.BidToLate.ToException();
     }
-    _placedBids.Add(new PlacedBid(player, party, bid, _trickTaking.Tricks.Count - 1));
+    _placedBids.Add(new PlacedBid(player, party, bid, _trickTaking.CurrentTrick!.Index));
   }
 
   private sealed record PlacedBid(Player Player, Party Party, Bid Bid, int Trick);

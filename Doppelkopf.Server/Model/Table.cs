@@ -1,4 +1,6 @@
 using System.Net;
+using Doppelkopf.Core.Cards;
+using Doppelkopf.Core.Games;
 using Doppelkopf.Server.TableActions;
 using Doppelkopf.Sessions;
 
@@ -10,16 +12,21 @@ namespace Doppelkopf.Server.Model;
 /// <param name="Meta"></param>
 /// <param name="Users">Table users, including the owner.</param>
 /// <param name="Session"></param>
-public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
-  Session? Session)
+public class Table
 {
-  public static Table Init(TableMeta meta, IEnumerable<UserId>? invitedUsers = null)
+  public TableMeta Meta { get; }
+  public int Version { get; private set; }
+  public Session? Session { get; private set; }
+
+  public Table(TableMeta meta, IEnumerable<UserId>? invitedUsers = null)
   {
-    var users = TableUsers.Init(new[] { meta.Owner }.Concat(invitedUsers ?? Enumerable.Empty<UserId>()));
-    return new(meta, users, 0, null);
+    Meta = meta;
+    Users = TableUsers.Init(new[] { meta.Owner }.Concat(invitedUsers ?? Enumerable.Empty<UserId>()));
   }
 
-  public TableActionResult AddUser(UserId user, bool ready)
+  public TableUsers Users { get; private set; }
+
+  public JoinTableEvent AddUser(UserId user, bool ready)
   {
     AssertNotStarted();
     if (Users.Contains(user))
@@ -30,11 +37,17 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
     {
       throw new UserInputException(HttpStatusCode.BadRequest, "table_full", "table is full");
     }
-    var newTable = this with { Users = Users.Add(user, ready), Version = NextVersion };
-    return new(newTable, new JoinTableEvent(user));
+    Users = Users.Add(user, ready);
+    BumpVersion();
+    return new JoinTableEvent(user);
   }
 
-  public TableActionResult MarkReady(UserId user)
+  private void BumpVersion()
+  {
+    Version++;
+  }
+
+  public MarkedReadyEvent MarkReady(UserId user)
   {
     AssertNotStarted();
     AssertUserAtTable(user);
@@ -42,14 +55,15 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
     {
       throw new ArgumentException("user already ready");
     }
-    var newTable = this with { Users = Users.SetReady(user), Version = NextVersion };
-    return new(newTable, new MarkedReadyEvent(user));
+    Users = Users.SetReady(user);
+    BumpVersion();
+    return new MarkedReadyEvent(user);
   }
 
-  public TableActionResult Start(UserId player, Random? random = null)
+  public StartTableEvent Start(UserId player, Random? random = null)
   {
     AssertNotStarted();
-    if (Users is not { Count: >= Constants.NumberOfPlayers })
+    if (Users is not { Count: >= Core.Rules.NumPlayers })
     {
       throw new UserInputException(HttpStatusCode.BadRequest, "too_few_users", "not enough users to start table");
     }
@@ -61,12 +75,12 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
     {
       throw new UserInputException(HttpStatusCode.BadRequest, "not_ready", "not everybody is ready");
     }
-    var newTable = this with
-    {
-      Session = Session.Init(Meta.Rules.ToConfiguration(), Users.Count, random ?? Random.Shared),
-      Version = NextVersion
-    };
-    return new TableActionResult(newTable, new StartTableEvent(player));
+    Session = new Session(
+      Meta.Rules.SessionConfiguration(),
+      Meta.Rules.GameConfiguration().CreateGameFactory(123),
+      numberOfSeats: Users.Count);
+
+    return new StartTableEvent(player);
   }
 
   private void AssertUserAtTable(UserId id)
@@ -77,39 +91,31 @@ public sealed record Table(TableMeta Meta, TableUsers Users, int Version,
     }
   }
 
-  public TableActionResult Reserve(UserId user, bool reservation)
-  {
-    var (session, seat) = GetSessionAndSeat(user);
-    var newTable = this with { Session = session.Reserve(seat, reservation), Version = NextVersion };
-    var result = new TableActionResult(newTable, new ReserveEvent(user, reservation));
-    return newTable.AuctionFinishedEventIfFinished() is { } contracted ? result.Add(contracted) : result;
-  }
-
   private AuctionFinishedEvent? AuctionFinishedEventIfFinished()
   {
-    var game = Session!.Game;
-    return game.Contract is not null ? new AuctionFinishedEvent() : null;
+    var game = Session!.CurrentGame;
+    return game.Phase == GamePhase.TrickTaking ? new AuctionFinishedEvent() : null;
   }
 
   public TableActionResult Declare(UserId user, string contractId)
   {
     var (session, seat) = GetSessionAndSeat(user);
-    var contract = session.Configuration.Contracts.FirstOrDefault(c => c.Id == contractId);
+    var contract = session.CurrentGame.Contracts.DeclarableContracts.FirstOrDefault(c => c.Id == contractId);
     if (contract is null)
     {
       throw new ArgumentException("contract not found");
     }
-    var newTable = this with { Session = session.Declare(seat, contract), Version = NextVersion };
-    var result = new TableActionResult(newTable, new DeclareEvent(user, contract.Type));
-    return newTable.AuctionFinishedEventIfFinished() is { } contracted ? result.Add(contracted) : result;
+    session.MakeReservation(seat, contract);
+    BumpVersion();
+    var result = new TableActionResult(this,new DeclareEvent(user, contract.Type));
+    return AuctionFinishedEventIfFinished() is { } contracted ? result.Add(contracted) : result;
   }
 
-  public TableActionResult PlayCard(UserId user, string cardId)
+  public TableActionResult PlayCard(UserId user, Card card)
   {
     var (session, seat) = GetSessionAndSeat(user);
-    var card = session.Configuration.Cards.GetById(cardId);
-    var (newSession, finishedTrick, finishedGame) = session.PlayCardAndProceed(seat, card);
-    var newTable = this with { Session = newSession, Version = NextVersion };
+    session.PlayCard(seat, card);
+    BumpVersion();
     var result = new TableActionResult(newTable, new PlayCardEvent(user, card));
     if (finishedTrick != null)
     {

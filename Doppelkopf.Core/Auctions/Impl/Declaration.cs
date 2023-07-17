@@ -1,3 +1,5 @@
+using Doppelkopf.Core.Contracts;
+
 namespace Doppelkopf.Core.Auctions.Impl;
 
 internal sealed record Declaration

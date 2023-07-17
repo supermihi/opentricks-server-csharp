@@ -1,5 +1,7 @@
 using Doppelkopf.Cards;
 using Doppelkopf.Contracts;
+using Doppelkopf.Core.Cards;
+using Doppelkopf.Core.Contracts;
 using Doppelkopf.Server.Model;
 
 namespace Doppelkopf.Server.TableActions;

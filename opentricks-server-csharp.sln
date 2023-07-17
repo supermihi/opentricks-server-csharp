@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Core.Tests", "Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.TestUtils", "Doppelkopf.TestUtils\Doppelkopf.TestUtils.csproj", "{FFD06163-C75D-485E-983B-94CFAD745926}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Sessions", "Doppelkopf.Sessions\Doppelkopf.Sessions.csproj", "{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{FFD06163-C75D-485E-983B-94CFAD745926}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFD06163-C75D-485E-983B-94CFAD745926}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFD06163-C75D-485E-983B-94CFAD745926}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

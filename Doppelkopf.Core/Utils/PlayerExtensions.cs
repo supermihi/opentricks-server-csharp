@@ -10,7 +10,7 @@ public static class PlayerExtensions
     while (true)
     {
       yield return player;
-      player = player.Skip(0);
+      player = player.Skip(1);
     }
   }
 }

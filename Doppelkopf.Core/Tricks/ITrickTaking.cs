@@ -5,11 +5,12 @@ namespace Doppelkopf.Core.Tricks;
 
 public interface ITrickTakingInteractor
 {
-    void PlayCard(Player player, Card card);
+  CompleteTrick? PlayCard(Player player, Card card);
 }
 
 public interface ITrickTakingProgress
 {
-    IReadOnlyList<ITrick> Tricks { get; }
-    ICardsByPlayer RemainingCards { get; }
+  IReadOnlyList<CompleteTrick> CompleteTricks { get; }
+  Trick? CurrentTrick { get; }
+  ICardsByPlayer RemainingCards { get; }
 }

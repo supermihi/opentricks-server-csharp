@@ -1,6 +1,6 @@
 using Doppelkopf.Core.Tricks;
 
-namespace Doppelkopf.Core.Scoring;
+namespace Doppelkopf.Core.Scoring.Impl;
 
 public class Doppelkopf : IExtraPointRule
 {
@@ -8,7 +8,7 @@ public class Doppelkopf : IExtraPointRule
 
   public IEnumerable<ExtraPoint> Evaluate(CompleteTrick trick, IPartyProvider parties)
   {
-    if (trick.Score() >= MinScore && parties.GetParty(trick.Winner) is { } party)
+    if (trick.Points() >= MinScore && parties.GetParty(trick.Winner) is { } party)
     {
       return new[] { new ExtraPoint(ExtraPointKind.Doppelkopf, party, trick.Index) };
     }

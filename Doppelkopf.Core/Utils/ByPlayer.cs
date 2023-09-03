@@ -16,7 +16,7 @@ public static class ByPlayer
     }
 }
 
-public sealed record ByPlayer<T> : IByPlayer<T>, IEnumerable<T>
+public sealed record ByPlayer<T> : IByPlayer<T>
 {
     private readonly ImmutableArray<T> _values;
 

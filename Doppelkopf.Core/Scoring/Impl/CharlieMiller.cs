@@ -1,7 +1,7 @@
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
 
-namespace Doppelkopf.Core.Scoring;
+namespace Doppelkopf.Core.Scoring.Impl;
 
 public class CharlieMiller : IExtraPointRule
 {

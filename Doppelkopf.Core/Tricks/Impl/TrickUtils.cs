@@ -46,7 +46,7 @@ internal static class TrickExtensions
           TieBreakingMode.FirstWins => false,
           TieBreakingMode.SecondWins => true,
           TieBreakingMode.SecondWinsInLastTrick => isLastTrick,
-          _ => throw new ArgumentOutOfRangeException()
+          _ => throw new ArgumentOutOfRangeException("unexpected tie breaking mode", (Exception?)null)
         }
       }
     };

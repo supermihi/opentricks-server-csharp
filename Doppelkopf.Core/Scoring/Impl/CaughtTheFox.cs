@@ -1,7 +1,7 @@
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
 
-namespace Doppelkopf.Core.Scoring;
+namespace Doppelkopf.Core.Scoring.Impl;
 
 public class CaughtTheFox : IExtraPointRule
 {
@@ -17,6 +17,6 @@ public class CaughtTheFox : IExtraPointRule
     var caughtFoxes = trick.Cards.Items
         .Where(t => t.item == Fox && t.player != trick.Winner)
         .Count(t => parties.GetParty(t.player) != winnerParty);
-    return Enumerable.Repeat(new ExtraPoint(ExtraPointKind.CatchedTheFox, winnerParty, trick.Index), caughtFoxes);
+    return Enumerable.Repeat(new ExtraPoint(ExtraPointKind.CaughtTheFox, winnerParty, trick.Index), caughtFoxes);
   }
 }

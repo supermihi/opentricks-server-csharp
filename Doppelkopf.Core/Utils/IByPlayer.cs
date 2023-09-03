@@ -1,6 +1,6 @@
 namespace Doppelkopf.Core.Utils;
 
-public interface IByPlayer<out T>
+public interface IByPlayer<out T> : IEnumerable<T>
 {
   T this[Player p] { get; }
 }

@@ -1,8 +1,9 @@
 namespace Doppelkopf.Core.Scoring;
 
-public enum ExtraPointKind
+public readonly record struct ExtraPointKind(string Id)
 {
-  CatchedTheFox,
-  Doppelkopf,
-  CharlieMiller
+  public static readonly ExtraPointKind CaughtTheFox = new("caught_the_fox");
+  public static readonly ExtraPointKind AgaintsTheElders = new("against_the_elders");
+  public static readonly ExtraPointKind CharlieMiller = new("charlie_miller");
+  public static readonly ExtraPointKind Doppelkopf = new("doppelkopf");
 }

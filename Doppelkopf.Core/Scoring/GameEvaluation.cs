@@ -1,6 +1,6 @@
+using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Scoring;
 
-public sealed record GameEvaluation(ByPlayer<Party> Parties, ByPlayer<int> Points,
-  Party Winner, ByPlayer<int> Score);
+public sealed record GameEvaluation(ByParty<int> Points, Party? Winner, ByPlayer<int> Score);

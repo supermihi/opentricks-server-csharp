@@ -13,6 +13,6 @@ public static class CardExtensions
         Rank.King => 4,
         Rank.Ten => 10,
         Rank.Ace => 11,
-        _ => throw new ArgumentOutOfRangeException()
+        _ => throw new ArgumentOutOfRangeException(nameof(card))
       };
 }

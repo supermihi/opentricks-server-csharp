@@ -17,10 +17,10 @@ public sealed class CardTraitsProvider : ICardTraitsProvider
     _traits = traits;
   }
 
-  public static ImmutableArray<Card> HigherTrump =
+  public static readonly ImmutableArray<Card> HigherTrump =
       Card.Jacks.ToImmutableArray().AddRange(Card.Queens).Add(Card.HeartsTen);
 
-  public static ImmutableArray<Rank> SideSuitRanks = ImmutableArray.Create(
+  public static readonly ImmutableArray<Rank> SideSuitRanks = ImmutableArray.Create(
     Rank.Nine,
     Rank.Jack,
     Rank.Queen,

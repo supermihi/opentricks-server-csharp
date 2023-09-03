@@ -5,7 +5,7 @@ namespace Doppelkopf.Core.Scoring.Impl;
 
 public sealed record PartyProvider(ByPlayer<Party?> Parties, int? DefiningTrick) : IPartyProvider
 {
-  public Party? GetParty(Player p) => Parties[p];
+  public Party? GetParty(Player player) => Parties[player];
 
   public void OnTrickFinished(CompleteTrick trick)
   { }

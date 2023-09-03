@@ -10,9 +10,10 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Games;
 
-public class Game : IGame
+internal class Game : IGame
 {
   public GamePhase Phase { get; private set; } = GamePhase.Auction;
+
   public Game(CardsByPlayer cards, IByPlayer<bool> needCompulsorySolo, AvailableContracts availableContracts)
   {
     _initialCards = cards;
@@ -21,6 +22,13 @@ public class Game : IGame
     _bids = null;
     _trickTaking = null;
   }
+
+  private readonly IAuction _auction;
+  private IBids? _bids;
+  private TrickTaking? _trickTaking;
+  private readonly CardsByPlayer _initialCards;
+  public AvailableContracts Contracts { get; }
+  private IPartyProvider? _partyProvider;
 
   public void MakeReservation(Player player, IDeclarableContract contract)
   {
@@ -34,21 +42,24 @@ public class Game : IGame
     TryFinishAuction();
   }
 
-  public void PlayCard(Player player, Card card)
+  public PlayCardResult PlayCard(Player player, Card card)
   {
     if (_trickTaking is null)
     {
       throw ErrorCodes.InvalidPhase.ToException();
     }
     var finishedTrick = _trickTaking.PlayCard(player, card);
+    GameEvaluation? evaluation = null;
     if (finishedTrick != null)
     {
-      _partyProvider.OnTrickFinished(finishedTrick);
+      _partyProvider!.OnTrickFinished(finishedTrick);
       if (!_trickTaking.TryStartNextTrick())
       {
         Phase = GamePhase.Finished;
+        evaluation = Evaluate();
       }
     }
+    return new PlayCardResult(finishedTrick, evaluation);
   }
 
   public void PlaceBid(Player player, Bid bid)
@@ -66,11 +77,12 @@ public class Game : IGame
     {
       throw ErrorCodes.InvalidPhase.ToException();
     }
-    var points = ByPlayer.Init(p => _trickTaking!.CompleteTricks.Select(t => t.Cards[p].Points()).Sum());
-    var parties = ByPlayer.Init(p => _partyProvider.GetParty(p)!.Value);
-    var rePoints = points.Items.Where(i => parties[i.player] == Party.Re).Sum(i => i.item);
-
-    return new GameEvaluation(parties, points)
+    var parties = ByPlayer.Init(p => _partyProvider!.GetParty(p)!.Value);
+    var (winner, score) = Evaluation.Evaluate(
+      _trickTaking!.CompleteTricks,
+      parties,
+      new(_bids!.MaxBidOf(Party.Re), _bids!.MaxBidOf(Party.Contra)));
+    throw new NotImplementedException();
   }
 
   private void TryFinishAuction()
@@ -89,14 +101,7 @@ public class Game : IGame
     }
     _trickTaking = new TrickTaking(auctionResult.Contract.CardTraits, _initialCards);
     _partyProvider = auctionResult.Contract.CreatePartyProvider(auctionResult.Declarer, _initialCards);
-    _bids = new ScoreController(_partyProvider, _trickTaking);
+    _bids = new Bids(_partyProvider, _trickTaking);
     Phase = GamePhase.TrickTaking;
   }
-
-  private readonly IAuction _auction;
-  private IBids? _bids;
-  private TrickTaking? _trickTaking;
-  private readonly CardsByPlayer _initialCards;
-  public  AvailableContracts Contracts { get; }
-  private IPartyProvider _partyProvider;
 }

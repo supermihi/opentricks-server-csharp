@@ -17,10 +17,10 @@ public static class Decks
     var cardsByPlayer = shuffledCards.Length / Rules.NumPlayers;
     return new(
       new ByPlayer<ImmutableArray<Card>>(
-        shuffledCards[..cardsByPlayer].ToImmutableArray(),
-        shuffledCards[cardsByPlayer..(cardsByPlayer * 2)].ToImmutableArray(),
-        shuffledCards[(cardsByPlayer * 2)..(cardsByPlayer * 3)].ToImmutableArray(),
-        shuffledCards[(cardsByPlayer * 3)..(cardsByPlayer * 4)].ToImmutableArray()
+        shuffledCards[..cardsByPlayer],
+        shuffledCards[cardsByPlayer..(cardsByPlayer * 2)],
+        shuffledCards[(cardsByPlayer * 2)..(cardsByPlayer * 3)],
+        shuffledCards[(cardsByPlayer * 3)..(cardsByPlayer * 4)]
       )
     );
   }

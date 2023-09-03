@@ -23,5 +23,4 @@ public class Marriage : IDeclarableContract
         declarer ?? throw new ArgumentNullException(nameof(declarer)));
 
   public ContractType Type => ContractType.Marriage;
-  public bool? IsCompulsorySolo => null;
 }

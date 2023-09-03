@@ -7,18 +7,20 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Sessions;
 
-public class Session
+internal sealed class Session : ISession
 {
   private readonly SessionConfiguration _configuration;
-  private readonly int _numberOfSeats;
   private ByPlayer<bool> _needsCompulsorySolo;
 
-  public Session(SessionConfiguration configuration, IGameFactory gameFactory, int numberOfSeats)
+  public Session(SessionConfiguration configuration, IGameFactory gameFactory)
   {
+    if (configuration.NumberOfSeats < Rules.NumPlayers)
+    {
+      throw new ArgumentException("not enough players");
+    }
     _configuration = configuration;
-    _numberOfSeats = numberOfSeats;
     _needsCompulsorySolo = ByPlayer.Init(configuration.CompulsorySolos);
-    Players = Seats.GetActiveSeats(numberOfSeats, 0, 0);
+    Players = Seats.GetActiveSeats(configuration.NumberOfSeats, 0, 0);
     CurrentGame = gameFactory.CreateGame(_needsCompulsorySolo);
   }
 
@@ -32,11 +34,11 @@ public class Session
 
   public void PlayCard(Seat seat, Card card) => CurrentGame.PlayCard(ActivePlayer(seat), card);
 
-  private Player ActivePlayer(Seat seat) => AtSeat(seat) ?? throw ErrorCodes.SeatPaused.ToException();
+  public Player ActivePlayer(Seat seat) => AtSeat(seat) ?? throw ErrorCodes.SeatPaused.ToException();
 
-  public Player? AtSeat(Seat seat)
+  private Player? AtSeat(Seat seat)
   {
-    if (seat.Position >= _numberOfSeats)
+    if (seat.Position >= _configuration.NumberOfSeats)
     {
       throw ErrorCodes.InvalidSeat.ToException();
     }

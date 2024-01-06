@@ -1,4 +1,5 @@
 using Doppelkopf.Core;
+using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Games;

@@ -1,3 +1,4 @@
+using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Cards.Impl;
 using Doppelkopf.Core.Contracts;
@@ -7,32 +8,31 @@ using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core;
 
-public sealed record GameConfiguration(TieBreakingMode HeartTenTieBreaking, bool WithNines)
+public interface IGameConfiguration
 {
-  public AvailableContracts CreateContracts()
+  IReadOnlyList<IDeclarableContract> DeclarableContracts { get; }
+}
+public sealed class GameConfiguration : IGameConfiguration
+{
+
+  public GameConfiguration(bool withNines, TieBreakingMode heartTenTieBreaking)
   {
-    var marriage = new Marriage(HeartTenTieBreaking);
-    var meatFree = Solo.MeatFree;
-    var jackSolo = Solo.JackSolo;
-    var queenSolo = Solo.QueenSolo;
-    var diamondsSolo = Solo.SuitSolo(Suit.Diamonds, HeartTenTieBreaking);
-    var heartsSolo = Solo.SuitSolo(Suit.Hearts, HeartTenTieBreaking);
-    var spadesSolo = Solo.SuitSolo(Suit.Spades, HeartTenTieBreaking);
-    var clubsSolo = Solo.SuitSolo(Suit.Clubs, HeartTenTieBreaking);
-    return new(
-      new NormalGame(HeartTenTieBreaking),
-      marriage,
-      meatFree,
-      jackSolo,
-      queenSolo,
-      diamondsSolo,
-      heartsSolo,
-      spadesSolo,
-      clubsSolo
-    );
+    Deck = withNines ? Decks.WithNines : Decks.WithoutNines;
+    DeclarableContracts = new IDeclarableContract[]
+    {
+      Solo.MeatFree,
+      Solo.JackSolo,
+      Solo.QueenSolo,
+      Solo.SuitSolo(Suit.Diamonds, heartTenTieBreaking),
+      Solo.SuitSolo(Suit.Hearts, heartTenTieBreaking),
+      Solo.SuitSolo(Suit.Spades, heartTenTieBreaking),
+      Solo.SuitSolo(Suit.Clubs, heartTenTieBreaking)
+    };
   }
 
-  public IReadOnlyList<Card> Deck => WithNines ? Decks.WithNines : Decks.WithoutNines;
+  public IReadOnlyList<IDeclarableContract> DeclarableContracts { get; }
+
+  public IReadOnlyList<Card> Deck { get; }
 
   public IGameFactory CreateGameFactory(int? seed)
   {

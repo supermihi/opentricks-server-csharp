@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Scoring;
 using Doppelkopf.Core.Scoring.Impl;
@@ -28,7 +29,7 @@ public class Solo : IDeclarableContract
   public ICardTraitsProvider CardTraits { get; }
   public string Id { get; }
 
-  public IPartyProvider CreatePartyProvider(Player? declarer, ICardsByPlayer initialCards)
+  public IPartyProvider CreatePartyProvider(Player declarer, ICardsByPlayer initialCards)
   {
     return PartyProvider.Solo(declarer ?? throw new ArgumentNullException(nameof(declarer)));
   }

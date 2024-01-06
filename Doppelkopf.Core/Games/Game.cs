@@ -16,9 +16,9 @@ internal class Game : IGame
 
   public Game(CardsByPlayer cards, IByPlayer<bool> needCompulsorySolo, AvailableContracts availableContracts)
   {
-    _initialCards = cards;
+    _dealtCards = cards;
     Contracts = availableContracts;
-    _auction = new Auction(_initialCards, availableContracts, needCompulsorySolo);
+    _auction = new Auction(_dealtCards, availableContracts, needCompulsorySolo);
     _bids = null;
     _trickTaking = null;
   }
@@ -26,7 +26,7 @@ internal class Game : IGame
   private readonly IAuction _auction;
   private IBids? _bids;
   private TrickTaking? _trickTaking;
-  private readonly CardsByPlayer _initialCards;
+  private readonly CardsByPlayer _dealtCards;
   public AvailableContracts Contracts { get; }
   private IPartyProvider? _partyProvider;
 
@@ -99,8 +99,8 @@ internal class Game : IGame
     {
       throw new InvalidOperationException("can only start trick taking when in auction phase");
     }
-    _trickTaking = new TrickTaking(auctionResult.Contract.CardTraits, _initialCards);
-    _partyProvider = auctionResult.Contract.CreatePartyProvider(auctionResult.Declarer, _initialCards);
+    _trickTaking = new TrickTaking(auctionResult.Contract.CardTraits, _dealtCards);
+    _partyProvider = auctionResult.Contract.CreatePartyProvider(auctionResult.Declarer, _dealtCards);
     _bids = new Bids(_partyProvider, _trickTaking);
     Phase = GamePhase.TrickTaking;
   }

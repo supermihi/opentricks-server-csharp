@@ -1,5 +1,3 @@
-using Doppelkopf.Core.Contracts;
-
 namespace Doppelkopf.Core.Auctions;
 
-public sealed record AuctionResult(IContract Contract, Player? Declarer, bool? IsCompulsorySolo);
+public sealed record AuctionResult(IDeclarableContract? Contract, Player? Declarer, bool? IsCompulsorySolo);

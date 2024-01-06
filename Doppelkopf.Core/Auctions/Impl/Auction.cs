@@ -1,4 +1,3 @@
-using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Utils;
 using Doppelkopf.Errors;
 
@@ -9,11 +8,11 @@ internal sealed record Auction : IAuction
   private readonly ICardsByPlayer _cards;
   private readonly IByPlayer<bool> _needsCompulsorySolo;
   private InTurns<Declaration> _state;
-  private readonly AvailableContracts _contracts;
+  private readonly IReadOnlyCollection<IDeclarableContract> _contracts;
   public static InTurns<Declaration> InitialState => new(Player.One);
 
   public Auction(ICardsByPlayer cards,
-    AvailableContracts contracts,
+    IReadOnlyCollection<IDeclarableContract> contracts,
     IByPlayer<bool> needsCompulsorySolo,
     InTurns<Declaration> initialState)
   {
@@ -23,7 +22,8 @@ internal sealed record Auction : IAuction
     _state = initialState;
   }
 
-  public Auction(ICardsByPlayer cards, AvailableContracts contracts, IByPlayer<bool> needsCompulsorySolo)
+  public Auction(ICardsByPlayer cards, IReadOnlyCollection<IDeclarableContract> contracts,
+    IByPlayer<bool> needsCompulsorySolo)
       : this(cards, contracts, needsCompulsorySolo, InitialState)
   { }
 
@@ -31,7 +31,7 @@ internal sealed record Auction : IAuction
 
   public void DeclareReservation(Player player, IDeclarableContract contract)
   {
-    if (!_contracts.DeclarableContracts.Contains(contract))
+    if (!_contracts.Contains(contract))
     {
       ErrorCodes.ContractNotAvailable.Throw();
     }
@@ -57,28 +57,23 @@ internal sealed record Auction : IAuction
 
     if (_state.All(d => d.IsHealthy))
     {
-      return new(_contracts.NormalGame, null, null);
+      return new(null, null, null);
     }
-    var (winner, declaration) = _state.Items.MaxBy(t => Score(t.item, t.player));
+    var (winner, declaration) = _state.Items.MaxBy(t => Priority(t.item, t.player));
     var declaredContract = declaration.Contract!;
     return new(
       declaredContract,
       winner,
-      declaredContract.Type == ContractType.Solo ? _needsCompulsorySolo[winner] : null);
+      declaredContract.IsSolo ? _needsCompulsorySolo[winner] : null);
   }
 
-  private int Score(Declaration declaration, Player player) =>
-      declaration.Contract switch
-      {
-        null => 0,
-        { Type: ContractType.Poverty } => 1,
-        { Type: ContractType.Marriage } => 2,
-        { Type: ContractType.Solo } when !_needsCompulsorySolo[player] => 3,
-        { Type: ContractType.Solo } when _needsCompulsorySolo[player] => 4,
-        _
-            => throw new ArgumentOutOfRangeException(
-              nameof(declaration),
-              "unsupported declaration type"
-            )
-      };
+  private int Priority(Declaration declaration, Player player)
+  {
+    if (declaration.Contract is not { } contract)
+    {
+      return DeclarationPriority.Healthy;
+    }
+    var (defaultPrio, compulsorySoloPrio) = contract.Priority;
+    return _needsCompulsorySolo[player] && contract.IsSolo ? compulsorySoloPrio : defaultPrio;
+  }
 }

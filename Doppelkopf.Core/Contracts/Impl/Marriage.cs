@@ -1,3 +1,4 @@
+using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Scoring;
 using Doppelkopf.Core.Scoring.Impl;

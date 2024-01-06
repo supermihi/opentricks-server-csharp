@@ -60,7 +60,8 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
       throw new InvalidOperationException("valid only after a trick has been completed");
     }
     var previousTrick = _state.CompleteTricks[^1];
-    if (previousTrick.Remaining == 0) {
+    if (previousTrick.Remaining == 0)
+    {
       return false;
     }
     var nextTrick = new Trick(previousTrick.Winner, previousTrick.Index + 1, previousTrick.Remaining - 1);
@@ -89,5 +90,6 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
   }
 
   private bool FollowsSuit(Card card) =>
-      _cardTraitsProvider.GetTraits(card) == _cardTraitsProvider.GetTraits(CurrentTrick!.Cards.First());
+      _cardTraitsProvider.GetTraits(card).TrickSuit
+      == _cardTraitsProvider.GetTraits(CurrentTrick!.Cards.First()).TrickSuit;
 }

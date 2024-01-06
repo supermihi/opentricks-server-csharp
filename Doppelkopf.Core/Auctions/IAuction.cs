@@ -1,5 +1,3 @@
-using Doppelkopf.Core.Contracts;
-
 namespace Doppelkopf.Core.Auctions;
 
 public interface IAuction

@@ -19,7 +19,7 @@ public class AuctionTests
 
   private static IByPlayer<bool> NoCompulsorySolos => Mock.Of<IByPlayer<bool>>(MockBehavior.Loose);
   private static ICardsByPlayer MockCards => Mock.Of<ICardsByPlayer>();
-  private static AvailableContracts MockContracts => new(Mock.Of<IContract>());
+  private static IReadOnlyList<IDeclarableContract> NoContracts => Array.Empty<IDeclarableContract>();
 
   private static IDeclarableContract DeclarableSolo
   {
@@ -35,7 +35,7 @@ public class AuctionTests
   [Fact]
   public void PlayerOneHasFirstTurn()
   {
-    var auction = new Auction(MockCards, MockContracts, NoCompulsorySolos);
+    var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos);
     Assert.Equal(Player.One, auction.Turn);
   }
 
@@ -47,7 +47,7 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new AvailableContracts(Mock.Of<IContract>(), allowingContract),
+      new[]{allowingContract},
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.NotYourTurn,
@@ -64,7 +64,7 @@ public class AuctionTests
     );
     var auction = new Auction(
       MockCards,
-      new AvailableContracts(Mock.Of<IContract>(), contract),
+      new[]{contract},
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.ContractNotAllowed,
@@ -77,7 +77,7 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new AvailableContracts(Mock.Of<IContract>(), allowingContract),
+      new[]{allowingContract},
       NoCompulsorySolos);
     auction.DeclareReservation(Player.One, allowingContract);
     Assert.Equal(Player.Two, auction.Turn);
@@ -99,7 +99,7 @@ public class AuctionTests
       Declaration.Ok,
       Declaration.Ok
     );
-    var auction = new Auction(MockCards, MockContracts, NoCompulsorySolos, state);
+    var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     Assert.Null(auction.Turn);
     Asserts.ThrowsErrorCode(ErrorCodes.InvalidPhase, () => auction.DeclareOk(Player.One));
   }
@@ -115,7 +115,7 @@ public class AuctionTests
       Player.One,
       Enumerable.Repeat(Declaration.Ok, numPlayersDeclared)
     );
-    var auction = new Auction(MockCards, MockContracts, NoCompulsorySolos, state);
+    var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     Assert.Null(auction.Evaluate());
   }
 
@@ -123,9 +123,7 @@ public class AuctionTests
   public void EvaluatesNormalGameIfAllOk()
   {
     var state = new InTurns<Declaration>(Player.One, Enumerable.Repeat(Declaration.Ok, 4));
-    var normalGame = Mock.Of<IContract>();
-    var contracts = new AvailableContracts(normalGame);
-    var auction = new Auction(MockCards, contracts, NoCompulsorySolos, state);
+    var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
 
     var expected = new AuctionResult(normalGame, null, null);
@@ -142,7 +140,7 @@ public class AuctionTests
       Declaration.Ok,
       Declaration.FromContract(DeclarableSolo)
     );
-    var auction = new Auction(MockCards, MockContracts, NoCompulsorySolos, state);
+    var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
     Assert.NotNull(result);
     Assert.Equal(Player.Two, result.Declarer);
@@ -159,7 +157,7 @@ public class AuctionTests
       Declaration.FromContract(DeclarableSolo)
     );
     var compulsorySolos = new ByPlayer<bool>(false, false, true, true);
-    var auction = new Auction(MockCards, MockContracts, compulsorySolos, state);
+    var auction = new Auction(MockCards, NoContracts, compulsorySolos, state);
     var result = auction.Evaluate();
     Assert.NotNull(result);
     Assert.Equal(Player.Four, result.Declarer);

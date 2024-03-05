@@ -14,8 +14,8 @@ public class NormalGameTests
   [InlineData(TieBreakingMode.SecondWinsInLastTrick)]
   public void NormalGameRespectsHeartsTenTieBrakingMode(TieBreakingMode mode)
   {
-    var normalGame = new NormalGame(mode);
-    var heartsTenTraits = normalGame.CardTraits.GetTraits(Card.HeartsTen);
+    var normalGame = new NormalGameContract(mode, null, CardFactory.PlayersCards(true, seed: 1435));
+    var heartsTenTraits = normalGame.GetTraits(Card.HeartsTen);
     Assert.Equal(mode, heartsTenTraits.TieBreaking);
   }
 }

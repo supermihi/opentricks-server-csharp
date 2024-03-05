@@ -13,7 +13,7 @@ public class PlayCardTests
   public void PlayInitialCardSuccess()
   {
     var provider = Mock.Of<ICardTraitsProvider>();
-    var cards = CardFactory.PlayersCards(cardsPerPlayer: 3, seed: 1245);
+    var cards = CardFactory.PlayersCards(true, seed: 1245).Reduce(cardsPerPlayer: 3);
     var state = TrickTakingState.Initial(cards);
     var trickTaking = new TrickTaking(provider, state);
 
@@ -31,7 +31,7 @@ public class PlayCardTests
     var traits = new Mock<ICardTraitsProvider>();
     traits.Setup(t => t.GetTraits(It.IsAny<Card>()))
         .Returns(new CardTraits(TrickSuit.Trump, 1, TieBreakingMode.SecondWins));
-    var cards = CardFactory.PlayersCards(cardsPerPlayer: isLastTrick ? 1 : 2, seed: 1234);
+    var cards = CardFactory.PlayersCards(withNines: true, seed: 1234).Reduce(cardsPerPlayer: isLastTrick ? 1 : 2);
     var state = TrickTakingState.Initial(cards);
 
     var trickTaking = new TrickTaking(traits.Object, state);

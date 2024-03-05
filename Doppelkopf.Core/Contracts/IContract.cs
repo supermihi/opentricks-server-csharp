@@ -3,10 +3,7 @@ using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts;
 
-public interface IContract
+public interface IContract : ICardTraitsProvider, IPartyProvider
 {
-  ICardTraitsProvider CardTraits { get; }
-  IPartyProvider CreatePartyProvider(Player? declarer, ICardsByPlayer initialCards);
-  IReadOnlyList<IExtraPointRule> ExtraPointRules { get; }
-  ContractType Type { get; }
+  void OnTrickFinished(CompleteTrick trick);
 }

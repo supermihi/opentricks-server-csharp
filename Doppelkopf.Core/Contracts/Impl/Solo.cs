@@ -1,41 +1,33 @@
-using System.Collections.Immutable;
-using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Scoring;
-using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;
 
-public class Solo : IDeclarableContract
+internal record Solo(string Id, ICardTraitsProvider Traits) : IHold
 {
-  public Solo(ICardTraitsProvider cardTraits, string id)
-  {
-    CardTraits = cardTraits;
-    Id = id;
-  }
+  public bool IsSolo => true;
+  public bool IsAllowed(IEnumerable<Card> playerCards) => true;
 
-  public static Solo MeatFree =>
-      new(
-        CardTraitsProvider.ForTrumpWithDefaultSides(
-          Enumerable.Empty<Card>()), "meat_free");
+  public DeclarationPriority Priority { get; } = new(
+    DeclarationPriority.Solo,
+    DeclarationPriority.CompulsorySolo);
 
-  public static Solo JackSolo => new(CardTraitsProvider.ForTrumpWithDefaultSides(Card.Jacks), "jack_solo");
-  public static Solo QueenSolo => new(CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens), "queen_solo");
+  public IContract CreateContract(Player declarer, ICardsByPlayer initialCards) =>
+    new SoloContract(Traits, declarer, Id);
+
+  public static readonly Solo Fleshless = new(
+    HoldIds.FleshlessSolo,
+    CardTraitsProvider.ForTrumpWithDefaultSides(Enumerable.Empty<Card>()));
+
+  public static readonly Solo JackSolo = new(
+    HoldIds.JackSolo,
+    CardTraitsProvider.ForTrumpWithDefaultSides(Card.Jacks));
+
+  public static Solo QueenSolo => new(HoldIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens));
 
   public static Solo SuitSolo(Suit trump, TieBreakingMode heartTenTieBreaking) =>
-      new(CardTraitsProvider.SuitSolo(trump, heartTenTieBreaking), $"{trump.ToString().ToLowerInvariant()}_solo");
-
-  public ICardTraitsProvider CardTraits { get; }
-  public string Id { get; }
-
-  public IPartyProvider CreatePartyProvider(Player declarer, ICardsByPlayer initialCards)
-  {
-    return PartyProvider.Solo(declarer ?? throw new ArgumentNullException(nameof(declarer)));
-  }
-
-  public IReadOnlyList<IExtraPointRule> ExtraPointRules => ImmutableArray<IExtraPointRule>.Empty;
-
-  public ContractType Type => ContractType.Solo;
-  public bool IsAllowed(IEnumerable<Card> playerCards) => true;
+    new(
+      HoldIds.SuitSolo(trump),
+      CardTraitsProvider.SuitSolo(trump, heartTenTieBreaking)
+    );
 }

@@ -1,3 +1,5 @@
+using Doppelkopf.Core.Contracts;
+
 namespace Doppelkopf.Core.Auctions;
 
 public interface IAuction
@@ -7,7 +9,7 @@ public interface IAuction
   /// </summary>
   Player? Turn { get; }
 
-  void DeclareReservation(Player player, IDeclarableContract contract);
+  void DeclareReservation(Player player, IHold contract);
   void DeclareOk(Player player);
   AuctionResult? Evaluate();
 }

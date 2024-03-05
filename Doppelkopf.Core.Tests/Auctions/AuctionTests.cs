@@ -11,22 +11,23 @@ namespace Doppelkopf.Core.Tests.Auctions;
 
 public class AuctionTests
 {
-  private static readonly IDeclarableContract allowingContract =
-      Mock.Of<IDeclarableContract>(
-        c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == true,
-        MockBehavior.Strict
-      );
+  private static readonly IHold _allowingContract =
+    Mock.Of<IHold>(
+      c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == true,
+      MockBehavior.Strict
+    );
 
   private static IByPlayer<bool> NoCompulsorySolos => Mock.Of<IByPlayer<bool>>(MockBehavior.Loose);
   private static ICardsByPlayer MockCards => Mock.Of<ICardsByPlayer>();
-  private static IReadOnlyList<IDeclarableContract> NoContracts => Array.Empty<IDeclarableContract>();
+  private static IReadOnlyList<IHold> NoContracts => Array.Empty<IHold>();
 
-  private static IDeclarableContract DeclarableSolo
+  private static IHold DeclarableSolo
   {
     get
     {
-      var declarableSolo = new Mock<IDeclarableContract>();
-      declarableSolo.Setup(s => s.Type).Returns(ContractType.Solo);
+      var declarableSolo = new Mock<IHold>();
+      declarableSolo.Setup(s => s.IsSolo).Returns(true);
+      declarableSolo.Setup(s => s.Priority).Returns(new DeclarationPriority(2, 3));
       declarableSolo.Setup(s => s.IsAllowed(It.IsAny<IEnumerable<Card>>())).Returns(true);
       return declarableSolo.Object;
     }
@@ -47,24 +48,24 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new[]{allowingContract},
+      new[] { _allowingContract },
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.NotYourTurn,
-      () => auction.DeclareReservation(player, allowingContract)
+      () => auction.DeclareReservation(player, _allowingContract)
     );
   }
 
   [Fact]
   public void ThrowsIfContractNotAllowed()
   {
-    var contract = Mock.Of<IDeclarableContract>(
+    var contract = Mock.Of<IHold>(
       c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == false,
       MockBehavior.Strict
     );
     var auction = new Auction(
       MockCards,
-      new[]{contract},
+      new[] { contract },
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.ContractNotAllowed,
@@ -77,9 +78,9 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new[]{allowingContract},
+      new[] { _allowingContract },
       NoCompulsorySolos);
-    auction.DeclareReservation(Player.One, allowingContract);
+    auction.DeclareReservation(Player.One, _allowingContract);
     Assert.Equal(Player.Two, auction.Turn);
     auction.DeclareOk(Player.Two);
     Assert.Equal(Player.Three, auction.Turn);
@@ -126,7 +127,7 @@ public class AuctionTests
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
 
-    var expected = new AuctionResult(normalGame, null, null);
+    var expected = new AuctionResult(null, null, null);
     Assert.Equal(expected, result);
   }
 

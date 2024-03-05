@@ -5,11 +5,12 @@ namespace Doppelkopf.TestUtils;
 
 public static class CardFactory
 {
-    public static CardsByPlayer PlayersCards(int cardsPerPlayer, int seed)
-    {
-        var random = new Random(seed);
-        var deck = random.Shuffle(Decks.WithNines);
-        var reduced = deck.Cards.Apply(cards => cards[..cardsPerPlayer]);
-        return new(reduced);
-    }
+  public static CardsByPlayer PlayersCards(bool withNines, int seed)
+  {
+    var random = new Random(seed);
+    return random.Shuffle(Decks.WithNines);
+  }
+
+  public static CardsByPlayer Reduce(this CardsByPlayer cards, int cardsPerPlayer) =>
+    new(cards.Cards.Apply(c => c[..cardsPerPlayer]));
 }

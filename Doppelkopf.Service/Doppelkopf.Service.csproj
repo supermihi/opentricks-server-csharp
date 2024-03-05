@@ -1,15 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
     <ItemGroup>
       <ProjectReference Include="..\Doppelkopf.Errors\Doppelkopf.Errors.csproj" />
       <ProjectReference Include="..\Doppelkopf.Sessions\Doppelkopf.Sessions.csproj" />
       <ProjectReference Include="..\Doppelkopf.Users.API\Doppelkopf.Users.API.csproj" />
     </ItemGroup>
-
 </Project>

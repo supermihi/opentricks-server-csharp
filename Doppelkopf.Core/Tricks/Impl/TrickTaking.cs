@@ -4,13 +4,14 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Tricks.Impl;
 
-internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
+internal class TrickTaking : ITrickTakingProgress
 {
   private readonly ICardTraitsProvider _cardTraitsProvider;
   private TrickTakingState _state;
   public Trick? CurrentTrick => _state.CurrentTrick;
   public IReadOnlyList<CompleteTrick> CompleteTricks => _state.CompleteTricks;
-  public ICardsByPlayer RemainingCards => _state.RemainingCards;
+  public CardsByPlayer RemainingCards => _state.RemainingCards;
+  public Player? Turn => CurrentTrick?.Cards.Next;
 
   public TrickTaking(ICardTraitsProvider cardTraitsProvider, TrickTakingState state)
   {
@@ -19,8 +20,9 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
   }
 
   public TrickTaking(ICardTraitsProvider cardTraitsProvider, CardsByPlayer givenCards)
-      : this(cardTraitsProvider, TrickTakingState.Initial(givenCards))
-  { }
+    : this(cardTraitsProvider, TrickTakingState.Initial(givenCards))
+  {
+  }
 
   /// <summary>
   ///
@@ -34,6 +36,7 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
     {
       ErrorCodes.InvalidPhase.Throw();
     }
+
     CurrentTrick.Cards.CheckIsTurn(player);
     CheckPlayerHasCard(player, card);
     CheckIsAllowedCard(_state.RemainingCards[player], card);
@@ -44,11 +47,12 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
     {
       var completedTrick = updatedCurrentTrick.Complete(_cardTraitsProvider);
       _state = new TrickTakingState(
-        RemainingCards: remainingCards,
+        remainingCards,
         CurrentTrick: null,
         CompleteTricks: _state.CompleteTricks.Add(completedTrick));
       return completedTrick;
     }
+
     _state = _state with { RemainingCards = remainingCards, CurrentTrick = updatedCurrentTrick };
     return null;
   }
@@ -59,11 +63,13 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
     {
       throw new InvalidOperationException("valid only after a trick has been completed");
     }
+
     var previousTrick = _state.CompleteTricks[^1];
     if (previousTrick.Remaining == 0)
     {
       return false;
     }
+
     var nextTrick = new Trick(previousTrick.Winner, previousTrick.Index + 1, previousTrick.Remaining - 1);
     _state = _state with { CurrentTrick = nextTrick };
     return true;
@@ -83,6 +89,7 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
     {
       return;
     }
+
     if (!FollowsSuit(card) && playerCards.Any(FollowsSuit))
     {
       ErrorCodes.CardNotAllowed.Throw();
@@ -90,6 +97,6 @@ internal class TrickTaking : ITrickTakingInteractor, ITrickTakingProgress
   }
 
   private bool FollowsSuit(Card card) =>
-      _cardTraitsProvider.GetTraits(card).TrickSuit
-      == _cardTraitsProvider.GetTraits(CurrentTrick!.Cards.First()).TrickSuit;
+    _cardTraitsProvider.GetTraits(card).TrickSuit
+    == _cardTraitsProvider.GetTraits(CurrentTrick!.Cards.First()).TrickSuit;
 }

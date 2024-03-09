@@ -1,4 +1,5 @@
-using Doppelkopf.Core;
+global using CardsByPlayer =
+  Doppelkopf.Core.Utils.ByPlayer<System.Collections.Immutable.ImmutableArray<Doppelkopf.Core.Cards.Card>>;
 using Doppelkopf.Core.Cards;
 
 namespace Doppelkopf.TestUtils;
@@ -12,5 +13,5 @@ public static class CardFactory
   }
 
   public static CardsByPlayer Reduce(this CardsByPlayer cards, int cardsPerPlayer) =>
-    new(cards.Cards.Apply(c => c[..cardsPerPlayer]));
+    cards.Apply(c => c[..cardsPerPlayer]);
 }

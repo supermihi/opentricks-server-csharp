@@ -8,7 +8,7 @@ internal static class TrickExtensions
   public static CompleteTrick Complete(this Trick trick, ICardTraitsProvider traits)
   {
     var winner = trick.GetWinner(traits);
-    return new CompleteTrick(winner, ByPlayer.Init(p => trick.Cards[p]), trick.Index, trick.Remaining);
+    return new CompleteTrick(trick.Leader, winner, ByPlayer.Init(p => trick.Cards[p]), trick.Index, trick.Remaining);
   }
 
   public static Player GetWinner(this Trick trick, ICardTraitsProvider traits)
@@ -18,13 +18,14 @@ internal static class TrickExtensions
     foreach (var player in trick.Cards.Players.Skip(1))
     {
       var card = trick.Cards[player];
-      var takesTrick = card.TakesFrickFrom(bestCard, traits, isLastTrick: trick.Remaining == 0);
+      var takesTrick = card.TakesFrickFrom(bestCard, traits, trick.Remaining == 0);
       if (takesTrick)
       {
         winner = player;
         bestCard = card;
       }
     }
+
     return winner;
   }
 

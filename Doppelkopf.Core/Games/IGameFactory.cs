@@ -4,5 +4,5 @@ namespace Doppelkopf.Core.Games;
 
 public interface IGameFactory
 {
-  IGame CreateGame(IByPlayer<bool> needsCompulsorySolo);
+  IGame CreateGame(ByPlayer<bool> needsCompulsorySolo);
 }

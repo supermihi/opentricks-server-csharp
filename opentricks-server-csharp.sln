@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server", "Doppel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server.Tests", "Doppelkopf.Server.Tests\Doppelkopf.Server.Tests.csproj", "{3987A11E-6E46-44C2-88D2-28BAE079E59E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Client.CLI", "Doppelkopf.Client.CLI\Doppelkopf.Client.CLI.csproj", "{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Cli", "Doppelkopf.Cli\Doppelkopf.Cli.csproj", "{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.API", "Doppelkopf.API\Doppelkopf.API.csproj", "{1679DC2B-2070-4915-BE46-507432538744}"
 EndProject
@@ -32,6 +32,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Users.API", "Doppelkopf.Users.API\Doppelkopf.Users.API.csproj", "{A0EB84FA-642A-4078-ADDB-DBCEE8AE62EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Notifications", "Doppelkopf.Notifications\Doppelkopf.Notifications.csproj", "{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Bot", "Doppelkopf.Bot\Doppelkopf.Bot.csproj", "{83C3624B-77ED-4D75-9520-D7D90AB3EA52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Proto", "Doppelkopf.Proto\Doppelkopf.Proto.csproj", "{861BE29C-E151-427C-A7CE-E8663ABB78E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +102,14 @@ Global
 		{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83C3624B-77ED-4D75-9520-D7D90AB3EA52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83C3624B-77ED-4D75-9520-D7D90AB3EA52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83C3624B-77ED-4D75-9520-D7D90AB3EA52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83C3624B-77ED-4D75-9520-D7D90AB3EA52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FE6E6EA8-9527-4196-A025-F842B4EB1F17} = {D7DCCB6C-731D-4A37-851A-DB8CCAE833AE}

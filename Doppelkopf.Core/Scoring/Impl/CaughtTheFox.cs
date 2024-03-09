@@ -13,10 +13,11 @@ public class CaughtTheFox : IExtraPointRule
     {
       return Enumerable.Empty<ExtraPoint>();
     }
+
     var winnerParty = parties.GetParty(trick.Winner)!.Value;
     var caughtFoxes = trick.Cards.Items
-        .Where(t => t.item == Fox && t.player != trick.Winner)
-        .Count(t => parties.GetParty(t.player) != winnerParty);
+      .Where(t => t.value == Fox && t.player != trick.Winner)
+      .Count(t => parties.GetParty(t.player) != winnerParty);
     return Enumerable.Repeat(new ExtraPoint(ExtraPointKind.CaughtTheFox, winnerParty, trick.Index), caughtFoxes);
   }
 }

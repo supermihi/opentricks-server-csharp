@@ -4,17 +4,8 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Scoring.Impl;
 
-public class Bids : IBids
+public class Bids(IPartyProvider parties, ITrickTakingProgress trickTaking) : IBids
 {
-  private readonly IPartyProvider _parties;
-  private readonly ITrickTakingProgress _trickTaking;
-
-  public Bids(IPartyProvider parties, ITrickTakingProgress trickTaking)
-  {
-    _parties = parties;
-    _trickTaking = trickTaking;
-  }
-
   public void PlaceBid(Player player, Bid bid)
   {
     var definingTrick = EnsureDefiningTrickSet();
@@ -22,11 +13,11 @@ public class Bids : IBids
     EnsureBidCompatibleWithParty(bid, party);
     EnsureBidNotRedundant(bid, party);
     var maxPlayedCards = bid.MaximumPlayedCards() + definingTrick;
-    if (_trickTaking.NumCardsPlayed(player) > maxPlayedCards)
+    if (trickTaking.NumCardsPlayed(player) > maxPlayedCards)
     {
       throw ErrorCodes.BidToLate.ToException();
     }
-    _placedBids.Add(new PlacedBid(player, party, bid, _trickTaking.CurrentTrick!.Index));
+    _placedBids.Add(new PlacedBid(party, bid));
   }
 
   public Bid? MaxBidOf(Party party)
@@ -44,7 +35,7 @@ public class Bids : IBids
 
   private int EnsureDefiningTrickSet()
   {
-    if (_parties.DefiningTrick is { } definingTrick)
+    if (parties.DefiningTrick is { } definingTrick)
     {
       return definingTrick;
     }
@@ -53,7 +44,7 @@ public class Bids : IBids
 
   private Party EnsurePartyIsDefined(Player player)
   {
-    if (_parties.GetParty(player) is { } party)
+    if (parties.GetParty(player) is { } party)
     {
       return party;
     }
@@ -68,7 +59,7 @@ public class Bids : IBids
     }
   }
 
-  private sealed record PlacedBid(Player Player, Party Party, Bid Bid, int Trick);
+  private sealed record PlacedBid(Party Party, Bid Bid);
 
-  private readonly List<PlacedBid> _placedBids = new();
+  private readonly List<PlacedBid> _placedBids = [];
 }

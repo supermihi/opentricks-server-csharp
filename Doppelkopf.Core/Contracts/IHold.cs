@@ -9,5 +9,5 @@ public interface IHold
   bool IsSolo { get; }
   DeclarationPriority Priority { get; }
 
-  IContract CreateContract(Player declarer, ICardsByPlayer initialCards);
+  IContract CreateContract(Player declarer, CardsByPlayer initialCards);
 }

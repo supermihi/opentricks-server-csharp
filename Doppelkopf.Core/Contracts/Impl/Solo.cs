@@ -12,7 +12,7 @@ internal record Solo(string Id, ICardTraitsProvider Traits) : IHold
     DeclarationPriority.Solo,
     DeclarationPriority.CompulsorySolo);
 
-  public IContract CreateContract(Player declarer, ICardsByPlayer initialCards) =>
+  public IContract CreateContract(Player declarer, CardsByPlayer initialCards) =>
     new SoloContract(Traits, declarer, Id);
 
   public static readonly Solo Fleshless = new(

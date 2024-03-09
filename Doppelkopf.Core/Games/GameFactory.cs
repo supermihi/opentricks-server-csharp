@@ -18,6 +18,6 @@ public class GameFactory : IGameFactory
     _timesDealt = 0;
   }
 
-  public IGame CreateGame(IByPlayer<bool> needsCompulsorySolo) =>
+  public IGame CreateGame(ByPlayer<bool> needsCompulsorySolo) =>
     new Game(_dealer.ShuffleCards(_timesDealt++), needsCompulsorySolo, _modes);
 }

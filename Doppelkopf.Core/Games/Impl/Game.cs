@@ -1,9 +1,11 @@
+using System.Collections.Immutable;
 using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Auctions.Impl;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Scoring;
 using Doppelkopf.Core.Scoring.Impl;
+using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Tricks.Impl;
 using Doppelkopf.Core.Utils;
 using Doppelkopf.Errors;
@@ -14,7 +16,7 @@ internal class Game : IGame
 {
   public GamePhase Phase { get; private set; } = GamePhase.Auction;
 
-  public Game(CardsByPlayer cards, IByPlayer<bool> needCompulsorySolo, Modes modes)
+  public Game(CardsByPlayer cards, ByPlayer<bool> needCompulsorySolo, Modes modes)
   {
     _dealtCards = cards;
     Modes = modes;
@@ -29,7 +31,7 @@ internal class Game : IGame
   private IBids? _bids;
   private TrickTaking? _trickTaking;
   private readonly CardsByPlayer _dealtCards;
-  private IContract? _contract;
+  public IContract? Contract { get; private set; }
 
   public void DeclareHold(Player player, IHold hold)
   {
@@ -57,7 +59,7 @@ internal class Game : IGame
       return new PlayCardResult(finishedTrick, evaluation);
     }
 
-    _contract!.OnTrickFinished(finishedTrick);
+    Contract!.OnTrickFinished(finishedTrick);
     if (_trickTaking.TryStartNextTrick())
     {
       return new PlayCardResult(finishedTrick, evaluation);
@@ -86,7 +88,7 @@ internal class Game : IGame
       throw ErrorCodes.InvalidPhase.ToException();
     }
 
-    var parties = ByPlayer.Init(p => _contract!.GetParty(p)!.Value);
+    var parties = ByPlayer.Init(p => Contract!.GetParty(p)!.Value);
     var (winner, score) = Evaluation.Evaluate(
       _trickTaking!.CompleteTricks,
       parties,
@@ -102,16 +104,28 @@ internal class Game : IGame
     }
   }
 
+  public AuctionResult? AuctionResult { get; private set; }
+
   private void StartTrickTaking(AuctionResult auctionResult)
   {
-    if (Phase != GamePhase.Auction)
-    {
-      throw new InvalidOperationException("can only start trick taking when in auction phase");
-    }
-
-    _contract = Modes.CreateContract(auctionResult, _dealtCards);
-    _trickTaking = new TrickTaking(_contract, _dealtCards);
-    _bids = new Bids(_contract, _trickTaking);
+    Contract = Modes.CreateContract(auctionResult, _dealtCards);
+    AuctionResult = auctionResult;
+    _trickTaking = new TrickTaking(Contract, _dealtCards);
+    _bids = new Bids(Contract, _trickTaking);
     Phase = GamePhase.TrickTaking;
   }
+
+  public ByPlayer<ImmutableArray<Card>> Cards => _trickTaking?.RemainingCards ?? _dealtCards;
+
+  public Player? Turn =>
+    Phase switch
+    {
+      GamePhase.Auction => _auction.Turn,
+      GamePhase.TrickTaking => _trickTaking!.Turn,
+      _ => null
+    };
+
+  public IEnumerable<Declaration> Declarations => _auction.Declarations;
+  public Trick? CurrentTrick => _trickTaking?.CurrentTrick;
+  public IReadOnlyList<CompleteTrick> CompleteTricks => _trickTaking?.CompleteTricks ?? Array.Empty<CompleteTrick>();
 }

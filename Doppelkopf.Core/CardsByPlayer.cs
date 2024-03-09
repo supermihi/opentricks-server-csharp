@@ -1,17 +1,11 @@
-using System.Collections.Immutable;
+global using CardsByPlayer =
+  Doppelkopf.Core.Utils.ByPlayer<System.Collections.Immutable.ImmutableArray<Doppelkopf.Core.Cards.Card>>;
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core;
 
-public record CardsByPlayer(ByPlayer<ImmutableArray<Card>> Cards) : ICardsByPlayer
+public static class Extensions
 {
-    public ImmutableArray<Card> this[Player p] => Cards[p];
-
-    public IReadOnlyCollection<Card> GetCards(Player p) => this[p];
-
-    public CardsByPlayer Remove(Player player, Card card)
-    {
-        return new(Cards.Replace(player, Cards[player].Remove(card)));
-    }
+  public static CardsByPlayer Remove(this CardsByPlayer self, Player player, Card card) =>
+    self.Replace(player, self[player].Remove(card));
 }

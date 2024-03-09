@@ -3,16 +3,12 @@ using Doppelkopf.Core.Cards;
 
 namespace Doppelkopf.Core.Tricks;
 
-public sealed class CardTraitsProvider : ICardTraitsProvider
+internal sealed class CardTraitsProvider(IReadOnlyDictionary<Card, CardTraits> traits) : ICardTraitsProvider
 {
-  private readonly IReadOnlyDictionary<Card, CardTraits> _traits;
-
-  public CardTraitsProvider(IReadOnlyDictionary<Card, CardTraits> traits) => _traits = traits;
-
-  public static readonly ImmutableArray<Card> HigherTrump =
+  private static readonly ImmutableArray<Card> _higherTrump =
     Card.Jacks.ToImmutableArray().AddRange(Card.Queens).Add(Card.HeartsTen);
 
-  public static readonly ImmutableArray<Rank> SideSuitRanks = ImmutableArray.Create(
+  private static readonly ImmutableArray<Rank> _sideSuitRanks = ImmutableArray.Create(
     Rank.Nine,
     Rank.Jack,
     Rank.Queen,
@@ -23,10 +19,10 @@ public sealed class CardTraitsProvider : ICardTraitsProvider
 
   public static ICardTraitsProvider SuitSolo(Suit trumpSuit, TieBreakingMode heartsTenTieBreaking)
   {
-    var lowerTrump = SideSuitRanks
+    var lowerTrump = _sideSuitRanks
       .Select(r => new Card(trumpSuit, r))
-      .Where(card => !HigherTrump.Contains(card));
-    return ForTrumpWithDefaultSides(lowerTrump.Concat(HigherTrump), heartsTenTieBreaking);
+      .Where(card => !_higherTrump.Contains(card));
+    return ForTrumpWithDefaultSides(lowerTrump.Concat(_higherTrump), heartsTenTieBreaking);
   }
 
   public static CardTraitsProvider ForTrumpWithDefaultSides(IEnumerable<Card> trumpInOrder,
@@ -55,5 +51,5 @@ public sealed class CardTraitsProvider : ICardTraitsProvider
     return new CardTraitsProvider(traits);
   }
 
-  public CardTraits GetTraits(Card card) => _traits[card];
+  public CardTraits GetTraits(Card card) => traits[card];
 }

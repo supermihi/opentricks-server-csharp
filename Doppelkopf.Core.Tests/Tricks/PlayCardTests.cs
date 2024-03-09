@@ -13,14 +13,15 @@ public class PlayCardTests
   public void PlayInitialCardSuccess()
   {
     var provider = Mock.Of<ICardTraitsProvider>();
-    var cards = CardFactory.PlayersCards(true, seed: 1245).Reduce(cardsPerPlayer: 3);
+    var cards = CardFactory.PlayersCards(true, 1245).Reduce(3);
     var state = TrickTakingState.Initial(cards);
     var trickTaking = new TrickTaking(provider, state);
 
     var card = cards[Player.One][0];
     trickTaking.PlayCard(Player.One, card);
     Assert.Equal(card, trickTaking.CurrentTrick!.Cards[0]);
-    Assert.Equal(cards[Player.One][1..], trickTaking.RemainingCards.GetCards(Player.One));
+    var expected = cards[Player.One][1..];
+    Assert.Equal(expected.ToList(), trickTaking.RemainingCards[Player.One]);
   }
 
   [Theory]
@@ -30,16 +31,16 @@ public class PlayCardTests
   {
     var traits = new Mock<ICardTraitsProvider>();
     traits.Setup(t => t.GetTraits(It.IsAny<Card>()))
-        .Returns(new CardTraits(TrickSuit.Trump, 1, TieBreakingMode.SecondWins));
-    var cards = CardFactory.PlayersCards(withNines: true, seed: 1234).Reduce(cardsPerPlayer: isLastTrick ? 1 : 2);
+      .Returns(new CardTraits(TrickSuit.Trump, 1, TieBreakingMode.SecondWins));
+    var cards = CardFactory.PlayersCards(true, 1234).Reduce(isLastTrick ? 1 : 2);
     var state = TrickTakingState.Initial(cards);
 
     var trickTaking = new TrickTaking(traits.Object, state);
 
-    Assert.Null(trickTaking.PlayCard(Player.One, trickTaking.RemainingCards.GetCards(Player.One).First()));
-    Assert.Null(trickTaking.PlayCard(Player.Two, trickTaking.RemainingCards.GetCards(Player.Two).First()));
-    Assert.Null(trickTaking.PlayCard(Player.Three, trickTaking.RemainingCards.GetCards(Player.Three).First()));
-    var trick = trickTaking.PlayCard(Player.Four, trickTaking.RemainingCards.GetCards(Player.Four).First());
+    Assert.Null(trickTaking.PlayCard(Player.One, trickTaking.RemainingCards[Player.One].First()));
+    Assert.Null(trickTaking.PlayCard(Player.Two, trickTaking.RemainingCards[Player.Two].First()));
+    Assert.Null(trickTaking.PlayCard(Player.Three, trickTaking.RemainingCards[Player.Three].First()));
+    var trick = trickTaking.PlayCard(Player.Four, trickTaking.RemainingCards[Player.Four].First());
     Assert.NotNull(trick);
     Assert.Equal(Player.Four, trick.Winner);
     Assert.Null(trickTaking.CurrentTrick);

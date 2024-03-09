@@ -9,8 +9,8 @@ internal record Wedding(TieBreakingMode HeartTenTieBreaking) : IHold
 
   public bool IsSolo => false;
   public string Id => HoldIds.Wedding;
-  public DeclarationPriority Priority { get; } = DeclarationPriority.NoSolo(DeclarationPriority.Wedding);
+  public DeclarationPriority Priority { get; } = new(DeclarationPriority.Wedding);
 
-  public IContract CreateContract(Player declarer, ICardsByPlayer initialCards) =>
-    new NormalGameContract(HeartTenTieBreaking, declarer, initialCards);
+  public IContract CreateContract(Player declarer, CardsByPlayer initialCards) =>
+    new WeddingContract(HeartTenTieBreaking, declarer, true);
 }

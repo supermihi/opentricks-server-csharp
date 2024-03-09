@@ -4,7 +4,7 @@ namespace Doppelkopf.Core.Contracts;
 
 public static class ModesExtensions
 {
-  public static IContract CreateContract(this Modes modes, AuctionResult result, ICardsByPlayer dealtCards)
+  public static IContract CreateContract(this Modes modes, AuctionResult result, CardsByPlayer dealtCards)
   {
     if (result.Hold is { } hold)
     {

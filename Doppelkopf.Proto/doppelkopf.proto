@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+option csharp_namespace = "Doppelkopf.Proto";
+
+enum Suit {
+  DIAMONDS = 0;
+  HEARTS = 1;
+  SPADES = 2;
+  CLUBS = 3;
+}
+
+enum Rank {
+  NINE = 0;
+  JACK = 1;
+  QUEEN = 2;
+  KING = 3;
+  TEN = 4;
+  ACE = 5;
+}
+
+message Card {
+  Suit suit = 1;
+  Rank rank = 2;
+}
+
+enum Player {
+  PLAYER_1 = 0;
+  PLAYER_2 = 1;
+  PLAYER_3 = 2;
+  PLAYER_4 = 3;
+}
+
+message Trick {
+  Player forehand = 1;
+  repeated Card cards = 2;
+  optional Player winner = 3;
+  int32 index = 4;
+}
+
+message Hold {
+  // id of the hold
+  string id = 1;
+}
+message Auction {
+  repeated bool has_hold = 1;
+}
+
+message Contract {
+  string id = 1;
+  // undefined for normal game; otherwise the declarer who
+  // won the auction (suitor or soloist)
+  optional Player declarer = 2;
+}
+
+enum Party {
+  PARTY_UNKNOWN = 0;
+  PARTY_RE = 1;
+  PARTY_CONTRA = 2;
+}
+
+message Parties {
+  Party player_1 = 1;
+  Party player_2 = 2;
+  Party player_3 = 3;
+  Party player_4 = 4;
+}
+
+enum BidType {
+  Re = 0;
+  Contra = 1;
+  NoNinety = 2;
+  NoSixty = 3;
+  NoThirty = 4;
+  Schwarz = 5;
+}
+
+message PlacedBid {
+  Player player = 1;
+  BidType type = 2;
+}
+
+message Tricks {
+  Contract contract = 1;
+  Trick current_trick = 2;
+  optional Trick previous_trick = 3;
+  Parties parties = 4;
+  repeated PlacedBid bids = 5;
+}
+
+message PlayerState {
+  // the player who this state view applies to
+  Player player = 1;
+  repeated Card own_cards = 2;
+  // whose turn it is (unset if game finished)
+  optional Player turn = 3;
+  oneof details {
+    Auction details_auction = 4;
+    Tricks details_tricks = 5;
+  }
+}
+
+message Declaration {
+  // if unset, declares "gesund"
+  optional string hold_id = 1;
+}
+message PlayerAction {
+  oneof action {
+    Card play_card = 1;
+    Declaration declare = 2;
+    BidType place_bid = 3;
+  }
+}

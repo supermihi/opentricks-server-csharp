@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
 using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Auctions.Impl;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Utils;
+using Doppelkopf.Errors;
 using Doppelkopf.TestUtils;
 using Moq;
 using Xunit;
@@ -11,14 +13,14 @@ namespace Doppelkopf.Core.Tests.Auctions;
 
 public class AuctionTests
 {
-  private static readonly IHold _allowingContract =
+  private static readonly IHold _allowingHold =
     Mock.Of<IHold>(
       c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == true,
       MockBehavior.Strict
     );
 
-  private static IByPlayer<bool> NoCompulsorySolos => Mock.Of<IByPlayer<bool>>(MockBehavior.Loose);
-  private static ICardsByPlayer MockCards => Mock.Of<ICardsByPlayer>();
+  private static ByPlayer<bool> NoCompulsorySolos => ByPlayer.Init(false);
+  private static ByPlayer<ImmutableArray<Card>> MockCards => ByPlayer.Init(ImmutableArray<Card>.Empty);
   private static IReadOnlyList<IHold> NoContracts => Array.Empty<IHold>();
 
   private static IHold DeclarableSolo
@@ -44,20 +46,20 @@ public class AuctionTests
   [InlineData(Player.Two)]
   [InlineData(Player.Three)]
   [InlineData(Player.Four)]
-  public void ThrowsIfNotTurn(Player player)
+  public void DeclareReservationThrowsIfNotTurn(Player player)
   {
     var auction = new Auction(
       MockCards,
-      new[] { _allowingContract },
+      new[] { _allowingHold },
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.NotYourTurn,
-      () => auction.DeclareReservation(player, _allowingContract)
+      () => auction.DeclareReservation(player, _allowingHold)
     );
   }
 
   [Fact]
-  public void ThrowsIfContractNotAllowed()
+  public void DeclareReservationThrowsIfContractNotAllowed()
   {
     var contract = Mock.Of<IHold>(
       c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == false,
@@ -74,13 +76,13 @@ public class AuctionTests
   }
 
   [Fact]
-  public void UpdatesTurn()
+  public void DeclareUpdatesTurn()
   {
     var auction = new Auction(
       MockCards,
-      new[] { _allowingContract },
+      new[] { _allowingHold },
       NoCompulsorySolos);
-    auction.DeclareReservation(Player.One, _allowingContract);
+    auction.DeclareReservation(Player.One, _allowingHold);
     Assert.Equal(Player.Two, auction.Turn);
     auction.DeclareOk(Player.Two);
     Assert.Equal(Player.Three, auction.Turn);
@@ -91,7 +93,7 @@ public class AuctionTests
   }
 
   [Fact]
-  public void ThrowsIfFinished()
+  public void DeclareThrowsIfFinished()
   {
     var state = new InTurns<Declaration>(
       Player.One,
@@ -127,7 +129,7 @@ public class AuctionTests
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
 
-    var expected = new AuctionResult(null, null, null);
+    var expected = new AuctionResult(null, null, false);
     Assert.Equal(expected, result);
   }
 
@@ -137,9 +139,9 @@ public class AuctionTests
     var state = new InTurns<Declaration>(
       Player.One,
       Declaration.Ok,
-      Declaration.FromContract(DeclarableSolo),
+      Declaration.FromHold(DeclarableSolo),
       Declaration.Ok,
-      Declaration.FromContract(DeclarableSolo)
+      Declaration.FromHold(DeclarableSolo)
     );
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
@@ -153,9 +155,9 @@ public class AuctionTests
     var state = new InTurns<Declaration>(
       Player.One,
       Declaration.Ok,
-      Declaration.FromContract(DeclarableSolo),
+      Declaration.FromHold(DeclarableSolo),
       Declaration.Ok,
-      Declaration.FromContract(DeclarableSolo)
+      Declaration.FromHold(DeclarableSolo)
     );
     var compulsorySolos = new ByPlayer<bool>(false, false, true, true);
     var auction = new Auction(MockCards, NoContracts, compulsorySolos, state);

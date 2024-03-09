@@ -57,6 +57,6 @@ internal sealed class Session : ISession
       throw ErrorCodes.InvalidSeat.ToException();
     }
 
-    return Players.Items.FirstOrDefault(t => t.item == seat).player;
+    return Players.Items.FirstOrDefault(t => t.value == seat).player;
   }
 }

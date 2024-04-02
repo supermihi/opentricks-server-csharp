@@ -56,7 +56,15 @@ public class SingleGameHost(IGameFactory gameFactory)
         }
       }
     }
-    Console.WriteLine("finished");
+    var result = _game.Evaluate();
+    Console.WriteLine(
+      $"finished! winner: {result.Winner}; mode: {_game.AuctionResult!.Hold?.Id}, {result.ScoreByParty()}");
+    Console.WriteLine($"base: {result.BaseScore}");
+    foreach (var ep in result.ExtraPoints)
+    {
+      Console.WriteLine($"extra point: {ep}");
+    }
+    Console.WriteLine(result.Parties);
   }
 }
 
@@ -77,7 +85,7 @@ public static class GameExtensions
             game.AuctionResult!.Hold?.Id,
             game.AuctionResult!.Declarer,
             game.AuctionResult!.IsCompulsorySolo),
-          game.CurrentTrick!.ToTrickView(),
+          game.CurrentTrick?.ToTrickView(),
           game.CompleteTricks.Any() ? game.CompleteTricks[^1].ToTrickView() : null,
           Array.Empty<BidView>() // tODO
         )

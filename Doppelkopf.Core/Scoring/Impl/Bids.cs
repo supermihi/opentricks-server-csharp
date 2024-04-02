@@ -44,7 +44,7 @@ public class Bids(IPartyProvider parties, ITrickTakingProgress trickTaking) : IB
 
   private Party EnsurePartyIsDefined(Player player)
   {
-    if (parties.GetParty(player) is { } party)
+    if (parties.Get(player) is { } party)
     {
       return party;
     }

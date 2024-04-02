@@ -1,3 +1,3 @@
 namespace Doppelkopf.Core.Scoring;
 
-public sealed record ExtraPoint(ExtraPointKind Kind, Party Party, int? Trick);
+public sealed record ExtraPoint(string Id, Player? Player, Party Party, int? Trick);

@@ -85,15 +85,10 @@ internal class Game : IGame
   {
     if (Phase != GamePhase.Finished)
     {
-      throw ErrorCodes.InvalidPhase.ToException();
+      ErrorCodes.InvalidPhase.Throw();
     }
-
-    var parties = ByPlayer.Init(p => Contract!.GetParty(p)!.Value);
-    var (winner, score) = Evaluation.Evaluate(
-      _trickTaking!.CompleteTricks,
-      parties,
-      new ByParty<Bid?>(_bids!.MaxBidOf(Party.Re), _bids!.MaxBidOf(Party.Contra)));
-    throw new NotImplementedException();
+    var maxBids = ByParty.Init(party => _bids!.MaxBidOf(party)!);
+    return Contract!.Evaluate(_trickTaking!.CompleteTricks, maxBids);
   }
 
   private void TryFinishAuction()
@@ -110,8 +105,8 @@ internal class Game : IGame
   {
     Contract = Modes.CreateContract(auctionResult, _dealtCards);
     AuctionResult = auctionResult;
-    _trickTaking = new TrickTaking(Contract, _dealtCards);
-    _bids = new Bids(Contract, _trickTaking);
+    _trickTaking = new TrickTaking(Contract.Traits, _dealtCards);
+    _bids = new Bids(Contract.Parties, _trickTaking);
     Phase = GamePhase.TrickTaking;
   }
 

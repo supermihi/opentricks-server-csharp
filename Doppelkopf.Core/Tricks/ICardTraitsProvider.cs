@@ -4,5 +4,5 @@ namespace Doppelkopf.Core.Tricks;
 
 public interface ICardTraitsProvider
 {
-  CardTraits GetTraits(Card card);
+  CardTraits Get(Card card);
 }

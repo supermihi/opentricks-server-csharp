@@ -45,4 +45,7 @@ public record ByPlayer<T> : IReadOnlyDictionary<Player, T>
 
   public ByPlayer<TResult> Apply<TResult>(Func<T, TResult> map) => ByPlayer.Init(p => map(this[p]));
   public int Count => Rules.NumPlayers;
+
+  public override string ToString() =>
+    string.Join(", ", Enum.GetValues<Player>().Select(player => $"{player}:{this[player]}"));
 }

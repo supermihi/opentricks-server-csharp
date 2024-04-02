@@ -2,6 +2,6 @@ namespace Doppelkopf.Core.Scoring;
 
 public interface IPartyProvider
 {
-  Party? GetParty(Player player);
+  Party? Get(Player player);
   int? DefiningTrick { get; }
 }

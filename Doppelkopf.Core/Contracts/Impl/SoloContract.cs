@@ -1,27 +1,31 @@
-using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Scoring;
+using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
+using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Contracts.Impl;
 
-internal class SoloContract : IContract
+internal record SoloContract : IContract
 {
-  internal SoloContract(ICardTraitsProvider cardTraits, Player soloist, string id)
+  private readonly IEvaluator _evaluator;
+
+  public SoloContract(ICardTraitsProvider traits, Player soloist, string id, IEvaluator evaluator)
   {
-    CardTraits = cardTraits;
-    Soloist = soloist;
+    _evaluator = evaluator;
+    Traits = traits;
     Id = id;
+    Parties = new StaticPartyProvider(ByPlayer.Init(p => p == soloist ? Party.Re : Party.Contra));
   }
 
-  public ICardTraitsProvider CardTraits { get; }
-  public Player Soloist { get; }
+  public IPartyProvider Parties { get; }
+
+  public GameEvaluation Evaluate(IReadOnlyList<CompleteTrick> tricks, ByParty<Bid?> maxBids) =>
+    _evaluator.Evaluate(tricks, maxBids, Parties.GetAll());
+
+  public ICardTraitsProvider Traits { get; }
   public string Id { get; }
-  public CardTraits GetTraits(Card card) => CardTraits.GetTraits(card);
-
-  public Party? GetParty(Player player) => player == Soloist ? Party.Re : Party.Contra;
-
-  public int? DefiningTrick => 0;
 
   public void OnTrickFinished(CompleteTrick trick)
-  { }
+  {
+  }
 }

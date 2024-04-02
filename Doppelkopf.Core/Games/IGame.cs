@@ -20,4 +20,5 @@ public interface IGame
   AuctionResult? AuctionResult { get; }
   IReadOnlyList<CompleteTrick> CompleteTricks { get; }
   Trick? CurrentTrick { get; }
+  GameEvaluation Evaluate();
 }

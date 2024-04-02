@@ -1,5 +1,6 @@
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
+using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Scoring.Impl;
 
@@ -7,12 +8,21 @@ public class CharlieMiller : IExtraPointRule
 {
   private static readonly Card Charlie = new(Suit.Clubs, Rank.Jack);
 
-  public IEnumerable<ExtraPoint> Evaluate(CompleteTrick trick, IPartyProvider parties)
+  public IEnumerable<ExtraPoint> Evaluate(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
+    Party? winnerOfGame)
   {
-    if (trick.Remaining == 0 && parties.GetParty(trick.Winner) is { } party && trick.WinningCard == Charlie)
+    if (parties.Soloist() is not null)
     {
-      return new[] { new ExtraPoint(ExtraPointKind.CharlieMiller, party, trick.Index) };
+      yield break;
     }
-    return Enumerable.Empty<ExtraPoint>();
+    var lastTrick = tricks[^1];
+    if (lastTrick.WinningCard == Charlie)
+    {
+      yield return new ExtraPoint(
+        ExtraPointIds.CharlieMiller,
+        lastTrick.Winner,
+        parties[lastTrick.Winner],
+        lastTrick.Index);
+    }
   }
 }

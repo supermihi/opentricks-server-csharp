@@ -1,6 +1,7 @@
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts.Impl;
 using Doppelkopf.Core.Scoring;
+using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Utils;
 using Xunit;
@@ -18,10 +19,10 @@ public class WeddingTests
   private static void AssertUndecided(IPartyProvider wedding, Player suitor)
   {
     Assert.Null(wedding.DefiningTrick);
-    Assert.Equal(Party.Re, wedding.GetParty(suitor));
+    Assert.Equal(Party.Re, wedding.Get(suitor));
     foreach (var player in Enum.GetValues<Player>().Where(p => p != suitor))
     {
-      Assert.Null(wedding.GetParty(player));
+      Assert.Null(wedding.Get(player));
     }
   }
 
@@ -29,7 +30,7 @@ public class WeddingTests
   public void AnnouncedWeddingTurnsIntoSoloAfterThreeTricks()
   {
     const Player suitor = Player.Three;
-    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true);
+    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true, new DdkvEvaluator());
     Assert.Null(wedding.DefiningTrick);
     // 1st trick
     wedding.OnTrickFinished(CreateTrick(suitor, 0));
@@ -48,7 +49,7 @@ public class WeddingTests
   public void AnnouncedWeddingDefinesSpouseWhenTrickWon(int firstForeignTrick, Player winner)
   {
     const Player suitor = Player.Four;
-    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true);
+    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true, new DdkvEvaluator());
     AssertUndecided(wedding, suitor);
     for (var trick = 0; trick < firstForeignTrick; ++trick)
     {
@@ -58,10 +59,10 @@ public class WeddingTests
 
     wedding.OnTrickFinished(CreateTrick(winner, firstForeignTrick));
     Assert.Equal(firstForeignTrick, wedding.DefiningTrick);
-    Assert.Equal(Party.Re, wedding.GetParty(winner));
+    Assert.Equal(Party.Re, wedding.Get(winner));
     foreach (var other in Enum.GetValues<Player>().Except(new[] { winner, suitor }))
     {
-      Assert.Equal(Party.Contra, wedding.GetParty(other));
+      Assert.Equal(Party.Contra, wedding.Get(other));
     }
   }
 
@@ -69,11 +70,11 @@ public class WeddingTests
   public void SilentSoloIsDefinedFromStart()
   {
     const Player suitor = Player.One;
-    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, false);
+    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, false, new DdkvEvaluator());
     Assert.Equal(0, wedding.DefiningTrick);
-    Assert.Equal(Party.Re, wedding.GetParty(Player.One));
-    Assert.Equal(Party.Contra, wedding.GetParty(Player.Two));
-    Assert.Equal(Party.Contra, wedding.GetParty(Player.Three));
-    Assert.Equal(Party.Contra, wedding.GetParty(Player.Four));
+    Assert.Equal(Party.Re, wedding.Get(Player.One));
+    Assert.Equal(Party.Contra, wedding.Get(Player.Two));
+    Assert.Equal(Party.Contra, wedding.Get(Player.Three));
+    Assert.Equal(Party.Contra, wedding.Get(Player.Four));
   }
 }

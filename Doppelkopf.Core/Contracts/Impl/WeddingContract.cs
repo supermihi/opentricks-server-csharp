@@ -1,5 +1,6 @@
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Scoring;
+using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;
@@ -7,14 +8,17 @@ namespace Doppelkopf.Core.Contracts.Impl;
 /// <summary>
 /// Normal game contract, including all kinds of wedding (announced and silent).
 /// </summary>
-internal class WeddingContract(TieBreakingMode heartsTenTieBreaking, Player suitor, bool isAnnouncedWedding)
-  : IContract
+internal class WeddingContract(
+  TieBreakingMode heartsTenTieBreaking,
+  Player suitor,
+  bool isAnnouncedWedding,
+  IEvaluator evaluator)
+  : IContract, IPartyProvider
 {
-  private readonly ICardTraitsProvider _cardTraits = CardTraitsProvider.SuitSolo(Suit.Diamonds, heartsTenTieBreaking);
+  public ICardTraitsProvider Traits { get; } = CardTraitsProvider.SuitSolo(Suit.Diamonds, heartsTenTieBreaking);
   private Player? _spouse;
-  public CardTraits GetTraits(Card card) => _cardTraits.GetTraits(card);
 
-  public Party? GetParty(Player player)
+  public Party? Get(Player player)
   {
     if (player == suitor || player == _spouse)
     {
@@ -23,6 +27,11 @@ internal class WeddingContract(TieBreakingMode heartsTenTieBreaking, Player suit
 
     return DefiningTrick == null ? null : Party.Contra;
   }
+
+  public IPartyProvider Parties => this;
+
+  public GameEvaluation Evaluate(IReadOnlyList<CompleteTrick> tricks, ByParty<Bid?> maxBids) =>
+    evaluator.Evaluate(tricks, maxBids, Parties.GetAll());
 
   public int? DefiningTrick { get; private set; } = isAnnouncedWedding ? null : 0;
 

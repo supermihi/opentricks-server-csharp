@@ -1,4 +1,5 @@
 using Doppelkopf.Core.Cards;
+using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;
@@ -13,7 +14,7 @@ internal record Solo(string Id, ICardTraitsProvider Traits) : IHold
     DeclarationPriority.CompulsorySolo);
 
   public IContract CreateContract(Player declarer, CardsByPlayer initialCards) =>
-    new SoloContract(Traits, declarer, Id);
+    new SoloContract(Traits, declarer, Id, new DdkvEvaluator());
 
   public static readonly Solo Fleshless = new(
     HoldIds.FleshlessSolo,

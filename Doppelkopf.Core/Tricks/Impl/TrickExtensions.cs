@@ -31,8 +31,8 @@ internal static class TrickExtensions
 
   private static bool TakesFrickFrom(this Card next, Card previousBest, ICardTraitsProvider traits, bool isLastTrick)
   {
-    var previousTraits = traits.GetTraits(previousBest);
-    var nextTraits = traits.GetTraits(next);
+    var previousTraits = traits.Get(previousBest);
+    var nextTraits = traits.Get(next);
     return (previousTraits.TrickSuit, nextTraits.TrickSuit) switch
     {
       (TrickSuit.Trump, not TrickSuit.Trump) => false,

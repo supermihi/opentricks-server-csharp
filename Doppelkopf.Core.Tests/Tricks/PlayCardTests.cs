@@ -30,7 +30,7 @@ public class PlayCardTests
   public void CompletesTrick(bool isLastTrick)
   {
     var traits = new Mock<ICardTraitsProvider>();
-    traits.Setup(t => t.GetTraits(It.IsAny<Card>()))
+    traits.Setup(t => t.Get(It.IsAny<Card>()))
       .Returns(new CardTraits(TrickSuit.Trump, 1, TieBreakingMode.SecondWins));
     var cards = CardFactory.PlayersCards(true, 1234).Reduce(isLastTrick ? 1 : 2);
     var state = TrickTakingState.Initial(cards);

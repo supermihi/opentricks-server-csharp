@@ -97,6 +97,6 @@ internal class TrickTaking : ITrickTakingProgress
   }
 
   private bool FollowsSuit(Card card) =>
-    _cardTraitsProvider.GetTraits(card).TrickSuit
-    == _cardTraitsProvider.GetTraits(CurrentTrick!.Cards.First()).TrickSuit;
+    _cardTraitsProvider.Get(card).TrickSuit
+    == _cardTraitsProvider.Get(CurrentTrick!.Cards.First()).TrickSuit;
 }

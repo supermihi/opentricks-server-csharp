@@ -51,5 +51,5 @@ internal sealed class CardTraitsProvider(IReadOnlyDictionary<Card, CardTraits> t
     return new CardTraitsProvider(traits);
   }
 
-  public CardTraits GetTraits(Card card) => traits[card];
+  public CardTraits Get(Card card) => traits[card];
 }

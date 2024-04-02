@@ -37,8 +37,8 @@ public class GameEvaluatorTests
   [Fact]
   public void NormalGameNoWinner()
   {
-    var result = Evaluate(121, 119, Bid.NoNinety, Bid.NoNinety);
-    Assert.Equal((null, 2), result);
+    var result = Evaluate(121, 119, Bid.No90, Bid.No90);
+    Assert.Equal((null, 1), result);
   }
 
   [Fact]
@@ -62,7 +62,8 @@ public class GameEvaluatorTests
     Assert.Equal((Party.Contra, 3), result);
   }
 
-  private static (Party? winner, int score) Evaluate(int rePoints, int contraPoints, Bid? maxReBid = null,
+  private static (Party? winner, int score) Evaluate(int rePoints, int contraPoints,
+    Bid? maxReBid = null,
     Bid? maxContraBid = null,
     bool reSchwarz = false, bool contraSchwarz = false)
   {
@@ -70,7 +71,7 @@ public class GameEvaluatorTests
     var contraTotals = new PartyTotals(contraPoints, contraSchwarz, maxContraBid);
     var totals = ByParty.New(reTotals, contraTotals);
     var winner = DdkvEvaluator.GetWinner(totals);
-    var baseScore = DdkvEvaluator.GetBaseScore(totals, winner == null);
-    return (winner, baseScore);
+    var baseScore = DdkvEvaluator.GetBaseScore(totals, winner);
+    return (winner, baseScore.Sum(s => s.Amount));
   }
 }

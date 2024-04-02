@@ -3,14 +3,14 @@ using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Scoring.Impl;
 
-public class AgainstTheElders : IExtraPointRule
+public class AgainstTheElders : IExtraScoreRule
 {
-  public IEnumerable<ExtraPoint> Evaluate(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
+  public IEnumerable<Score> Evaluate(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
     Party? winnerOfGame)
   {
     if (winnerOfGame == Party.Contra && parties.Soloist() is null)
     {
-      yield return new ExtraPoint(ExtraPointIds.AgainstTheElders, null, Party.Contra, null);
+      yield return new Score(ScoreIds.AgainstTheElders, Party.Contra);
     }
   }
 }

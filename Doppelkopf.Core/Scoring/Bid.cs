@@ -4,8 +4,8 @@ public enum Bid
 {
   Re,
   Contra,
-  NoNinety,
-  NoSixty,
-  NoThirty,
+  No90,
+  No60,
+  No30,
   Schwarz
 }

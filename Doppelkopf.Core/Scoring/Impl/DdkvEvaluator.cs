@@ -5,7 +5,7 @@ namespace Doppelkopf.Core.Scoring.Impl;
 
 public class DdkvEvaluator : IEvaluator
 {
-  private static IEnumerable<IExtraPointRule> ExtraPointRules { get; } =
+  private static IEnumerable<IExtraScoreRule> ExtraScoreRules { get; } =
   [
     new CharlieMiller(),
     new Doppelkopf(),
@@ -17,15 +17,15 @@ public class DdkvEvaluator : IEvaluator
   {
     var totals = PartyTotals.ComputeBoth(tricks, maxBids, parties);
     var winner = GetWinner(totals);
-    var baseScore = GetBaseScore(totals, winner == null);
+    var baseScore = GetBaseScore(totals, winner);
     var extraPoints = GetExtraPoints(tricks, parties, winner);
 
-    return new GameEvaluation(winner, parties, baseScore, extraPoints.ToList());
+    return new GameEvaluation(winner, parties, baseScore.Concat(extraPoints).ToList());
   }
 
-  private static IEnumerable<ExtraPoint> GetExtraPoints(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
+  private static IEnumerable<Score> GetExtraPoints(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
     Party? winner) =>
-    ExtraPointRules.SelectMany(r => r.Evaluate(tricks, parties, winner));
+    ExtraScoreRules.SelectMany(r => r.Evaluate(tricks, parties, winner));
 
   public static Party? GetWinner(ByParty<PartyTotals> totals)
   {
@@ -52,13 +52,13 @@ public class DdkvEvaluator : IEvaluator
       (null, null, >= 121) => true, // 1.
       (Bid.Re, null or Bid.Contra, >= 121) => true, // 2. & 3.
       (null, Bid.Contra, >= 120) => true, // 4.
-      (Bid.NoNinety, _, >= 151) => true, // 5.
-      (Bid.NoSixty, _, >= 181) => true, // 5.
-      (Bid.NoThirty, _, >= 211) => true, // 5.
+      (Bid.No90, _, >= 151) => true, // 5.
+      (Bid.No60, _, >= 181) => true, // 5.
+      (Bid.No30, _, >= 211) => true, // 5.
       (Bid.Schwarz, _, _) when contra.Schwarz => true, // 6.
-      (null or Bid.Re, Bid.NoNinety, >= 90) => true, // 7.
-      (null or Bid.Re, Bid.NoSixty, >= 60) => true, // 7.
-      (null or Bid.Re, Bid.NoThirty, >= 30) => true, // 7.
+      (null or Bid.Re, Bid.No90, >= 90) => true, // 7.
+      (null or Bid.Re, Bid.No60, >= 60) => true, // 7.
+      (null or Bid.Re, Bid.No30, >= 30) => true, // 7.
       (null or Bid.Re, Bid.Schwarz, _) when !re.Schwarz => true, // 8.
       _ => false
     };
@@ -76,58 +76,136 @@ public class DdkvEvaluator : IEvaluator
       (null, null or Bid.Re, >= 120) => true, // 1. & 2.
       (Bid.Contra, Bid.Re, >= 120) => true, // 3.
       (Bid.Contra, null, >= 121) => true, // 4.
-      (Bid.NoNinety, _, >= 151) => true, // 5.
-      (Bid.NoSixty, _, >= 181) => true, // 5.
-      (Bid.NoThirty, _, >= 211) => true, // 5.
+      (Bid.No90, _, >= 151) => true, // 5.
+      (Bid.No60, _, >= 181) => true, // 5.
+      (Bid.No30, _, >= 211) => true, // 5.
       (Bid.Schwarz, _, _) when re.Schwarz => true, // 6.
-      (null or Bid.Contra, Bid.NoNinety, >= 90) => true, // 7.
-      (null or Bid.Contra, Bid.NoSixty, >= 60) => true, // 7.
-      (null or Bid.Contra, Bid.NoThirty, >= 30) => true, // 7.
+      (null or Bid.Contra, Bid.No90, >= 90) => true, // 7.
+      (null or Bid.Contra, Bid.No60, >= 60) => true, // 7.
+      (null or Bid.Contra, Bid.No30, >= 30) => true, // 7.
       (null or Bid.Contra, Bid.Schwarz, _) when !contra.Schwarz => true, // 8.
       _ => false
     };
   }
 
-  public static int GetBaseScore(ByParty<PartyTotals> totals, bool noWinner) =>
-    1 // 7.2.2 (a) 1. "Grundwert"
-    + (noWinner ? 0 : BidScore(totals))
-    + ExtraScoreBasedOnOpponentPoints(totals)
-    + ExtraPointsForDistanceToRefusal(Party.Re, totals)
-    + ExtraPointsForDistanceToRefusal(Party.Contra, totals);
+  public static IEnumerable<Score> GetBaseScore(ByParty<PartyTotals> totals, Party? winner)
+  {
+    // 7.2.2 (a) 1. "Grundwert"
+    var won = winner is { } w ? new[] { new Score(ScoreIds.Won, w) } : [];
+
+    return won.Concat(BidScore(totals, winner))
+      .Concat(ExtraScoreBasedOnOpponentPoints(totals, winner))
+      .Concat(ExtraPointsForDistanceToRefusal(Party.Re, totals, winner))
+      .Concat(ExtraPointsForDistanceToRefusal(Party.Contra, totals, winner));
+  }
 
   /// <summary>
   /// DDKV rules, 7.2.2 (b) to (d)
   /// </summary>
-  private static int BidScore(ByParty<PartyTotals> totals) =>
-    (totals.Re.MaxBid?.ExtraScore() ?? 0) // 7.2.2 (b) 1. and (c)
-    + (totals.Contra.MaxBid?.ExtraScore() ?? 0); // 7.2.2 (b) 1. and (d)
+  private static IEnumerable<Score> BidScore(ByParty<PartyTotals> totals, Party? winner)
+  {
+    if (winner is null)
+    {
+      yield break;
+    }
+
+    if (totals.Re.MaxBid is { } reBid)
+    {
+      yield return new Score(ScoreIds.AnnouncedRe, winner.Value, 2);
+      if (reBid.IsOrImplies(Bid.No90))
+      {
+        yield return new Score(ScoreIds.AnnouncedNo90, winner.Value);
+      }
+      if (reBid.IsOrImplies(Bid.No60))
+      {
+        yield return new Score(ScoreIds.AnnouncedNo60, winner.Value);
+      }
+      if (reBid.IsOrImplies(Bid.No30))
+      {
+        yield return new Score(ScoreIds.AnnouncedNo30, winner.Value);
+      }
+      if (reBid == Bid.Schwarz)
+      {
+        yield return new Score(ScoreIds.AnnouncedSchwarz, winner.Value);
+      }
+    }
+    if (totals.Contra.MaxBid is { } contraBid)
+    {
+      yield return new Score(ScoreIds.AnnouncedContra, winner.Value, 2);
+      if (contraBid.IsOrImplies(Bid.No90))
+      {
+        yield return new Score(ScoreIds.AnnouncedNo90, winner.Value);
+      }
+      if (contraBid.IsOrImplies(Bid.No60))
+      {
+        yield return new Score(ScoreIds.AnnouncedNo60, winner.Value);
+      }
+      if (contraBid.IsOrImplies(Bid.No30))
+      {
+        yield return new Score(ScoreIds.AnnouncedNo30, winner.Value);
+      }
+      if (contraBid == Bid.Schwarz)
+      {
+        yield return new Score(ScoreIds.AnnouncedSchwarz, winner.Value);
+      }
+    }
+  }
 
   /// <summary>
   /// DDKV rules, 7.2.2 (a) from line 2
   /// </summary>
-  private static int ExtraScoreBasedOnOpponentPoints(ByParty<PartyTotals> results)
+  private static IEnumerable<Score> ExtraScoreBasedOnOpponentPoints(ByParty<PartyTotals> results, Party? winner)
   {
-    var minPoints = Math.Min(results.Re.Points, results.Contra.Points);
-    return (minPoints < 90 ? 1 : 0) // 7.2.2 (a) 2.
-      + (minPoints < 60 ? 1 : 0) // 7.2.2 (a) 3.
-      + (minPoints < 30 ? 1 : 0) // 7.2.2 (a) 4.
-      + (results.Any(r => r.Schwarz) ? 1 : 0); // 7.2.2 (a) 5.
+    foreach (var party in Enum.GetValues<Party>())
+    {
+      var scoringParty = winner ?? party; // TODO clarify if this is correct for winner == null
+      if (results[party].Points < 90)
+      {
+        yield return new Score(ScoreIds.GotNo90, scoringParty);
+      }
+      if (results[party].Points < 60)
+      {
+        yield return new Score(ScoreIds.GotNo60, scoringParty);
+      }
+      if (results[party].Points < 30)
+      {
+        yield return new Score(ScoreIds.GotNo30, scoringParty);
+      }
+      if (results[party].Schwarz)
+      {
+        yield return new Score(ScoreIds.GotSchwarz, scoringParty);
+      }
+    }
   }
 
 
   /// <summary>
   /// DDKV rules, 7.2.2 (e) and (f)
   /// </summary>
-  private static int ExtraPointsForDistanceToRefusal(Party party, ByParty<PartyTotals> results)
+  private static IEnumerable<Score> ExtraPointsForDistanceToRefusal(Party party, ByParty<PartyTotals> results,
+    Party? winner)
   {
-    var maxOpponentBid = results.GetValue(party.Other()).MaxBid;
-    return (maxOpponentBid, results.GetValue(party).Points) switch
+    if (results[party.Other()].MaxBid is not { } maxOpponentBid)
     {
-      (Bid.NoNinety, >= 120) => 1,
-      (Bid.NoSixty, >= 90) => 2,
-      (Bid.NoThirty, >= 60) => 3,
-      (Bid.Schwarz, >= 30) => 4,
-      _ => 0
-    };
+      yield break;
+    }
+    var scoringParty = winner ?? party; // TODO clarify if this is correct for winner == null
+    var ownPoints = results[party].Points;
+    if (ownPoints >= 120 && maxOpponentBid.IsOrImplies(Bid.No90))
+    {
+      yield return new Score(ScoreIds.Got120AgainstNo90, scoringParty);
+    }
+    if (ownPoints >= 90 && maxOpponentBid.IsOrImplies(Bid.No60))
+    {
+      yield return new Score(ScoreIds.Got90AgainstNo60, scoringParty);
+    }
+    if (ownPoints >= 60 && maxOpponentBid.IsOrImplies(Bid.No30))
+    {
+      yield return new Score(ScoreIds.Got60AgainstNo30, scoringParty);
+    }
+    if (ownPoints >= 30 && maxOpponentBid == Bid.Schwarz)
+    {
+      yield return new Score(ScoreIds.Got30AgainstSchwarz, scoringParty);
+    }
   }
 }

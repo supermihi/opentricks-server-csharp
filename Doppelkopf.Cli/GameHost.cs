@@ -58,13 +58,12 @@ public class SingleGameHost(IGameFactory gameFactory)
     }
     var result = _game.Evaluate();
     Console.WriteLine(
-      $"finished! winner: {result.Winner}; mode: {_game.AuctionResult!.Hold?.Id}, {result.ScoreByParty()}");
-    Console.WriteLine($"base: {result.BaseScore}");
-    foreach (var ep in result.ExtraPoints)
-    {
-      Console.WriteLine($"extra point: {ep}");
-    }
+      $"finished! winner: {result.Winner}; hold: {_game.AuctionResult!.Hold?.Id}, {result.ScoreByParty()}");
     Console.WriteLine(result.Parties);
+    foreach (var score in result.Scores)
+    {
+      Console.WriteLine($"{score.Id} for {score.Party}");
+    }
   }
 }
 

@@ -3,23 +3,24 @@ using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Scoring.Impl;
 
-public class Doppelkopf : IExtraPointRule
+public class Doppelkopf : IExtraScoreRule
 {
   private const int MinScore = 40;
 
-  public IEnumerable<ExtraPoint>
+  public IEnumerable<Score>
     Evaluate(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties, Party? winnerOfGame)
   {
     if (parties.Soloist() is not null)
     {
-      return Enumerable.Empty<ExtraPoint>();
+      return Enumerable.Empty<Score>();
     }
     return tricks.Where(trick => trick.Points() >= MinScore)
       .Select(
-        trick => new ExtraPoint(
-          ExtraPointIds.Doppelkopf,
-          trick.Winner,
+        trick => new Score(
+          ScoreIds.Doppelkopf,
           parties[trick.Winner],
+          1,
+          trick.Winner,
           trick.Index));
   }
 }

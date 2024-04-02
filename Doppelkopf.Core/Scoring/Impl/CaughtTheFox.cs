@@ -4,11 +4,11 @@ using Doppelkopf.Core.Utils;
 
 namespace Doppelkopf.Core.Scoring.Impl;
 
-public class CaughtTheFox : IExtraPointRule
+public class CaughtTheFox : IExtraScoreRule
 {
   private static readonly Card Fox = new(Suit.Diamonds, Rank.Ace);
 
-  public IEnumerable<ExtraPoint> Evaluate(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
+  public IEnumerable<Score> Evaluate(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,
     Party? winnerOfGame)
   {
     if (parties.Soloist() is not null)
@@ -21,7 +21,7 @@ public class CaughtTheFox : IExtraPointRule
       var caughtFoxes = trick.Cards.Items.Count(t => t.value == Fox && parties[t.player] != winnerParty);
       for (var i = 0; i < caughtFoxes; ++i)
       {
-        yield return new ExtraPoint(ExtraPointIds.CaughtTheFox, trick.Winner, winnerParty, trick.Index);
+        yield return new Score(ScoreIds.CaughtTheFox, winnerParty, 1, trick.Winner, trick.Index);
       }
     }
   }

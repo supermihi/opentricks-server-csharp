@@ -8,9 +8,9 @@ public static class BidExtensions
     bid switch
     {
       Bid.Re or Bid.Contra => 1,
-      Bid.NoNinety => 2,
-      Bid.NoSixty => 3,
-      Bid.NoThirty => 4,
+      Bid.No90 => 2,
+      Bid.No60 => 3,
+      Bid.No30 => 4,
       Bid.Schwarz => 5,
       _ => throw new ArgumentOutOfRangeException(nameof(bid), bid, null)
     };

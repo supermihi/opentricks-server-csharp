@@ -25,6 +25,9 @@ internal sealed class CardTraitsProvider(IReadOnlyDictionary<Card, CardTraits> t
     return ForTrumpWithDefaultSides(lowerTrump.Concat(_higherTrump), heartsTenTieBreaking);
   }
 
+  public static ICardTraitsProvider NormalGame(TieBreakingMode heartsTenTieBreaking) =>
+    SuitSolo(Suit.Diamonds, heartsTenTieBreaking);
+
   public static CardTraitsProvider ForTrumpWithDefaultSides(IEnumerable<Card> trumpInOrder,
     TieBreakingMode heartsTenTieBreaking = TieBreakingMode.FirstWins)
   {

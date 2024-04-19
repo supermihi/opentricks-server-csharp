@@ -1,5 +1,4 @@
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;
@@ -13,22 +12,21 @@ internal record Solo(string Id, ICardTraitsProvider Traits) : IHold
     DeclarationPriority.Solo,
     DeclarationPriority.CompulsorySolo);
 
-  public IContract CreateContract(Player declarer, CardsByPlayer initialCards) =>
-    new SoloContract(Traits, declarer, Id, new DdkvEvaluator());
+  public IContract CreateContract(Player declarer) => new SoloContract(Traits, declarer);
 
   public static readonly Solo Fleshless = new(
-    HoldIds.FleshlessSolo,
+    ContractIds.FleshlessSolo,
     CardTraitsProvider.ForTrumpWithDefaultSides(Enumerable.Empty<Card>()));
 
   public static readonly Solo JackSolo = new(
-    HoldIds.JackSolo,
+    ContractIds.JackSolo,
     CardTraitsProvider.ForTrumpWithDefaultSides(Card.Jacks));
 
-  public static Solo QueenSolo => new(HoldIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens));
+  public static Solo QueenSolo => new(ContractIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens));
 
   public static Solo SuitSolo(Suit trump, TieBreakingMode heartTenTieBreaking) =>
     new(
-      HoldIds.SuitSolo(trump),
+      ContractIds.SuitSolo(trump),
       CardTraitsProvider.SuitSolo(trump, heartTenTieBreaking)
     );
 }

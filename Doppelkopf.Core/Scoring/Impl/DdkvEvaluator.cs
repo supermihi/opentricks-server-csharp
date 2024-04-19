@@ -20,7 +20,7 @@ public class DdkvEvaluator : IEvaluator
     var baseScore = GetBaseScore(totals, winner);
     var extraPoints = GetExtraPoints(tricks, parties, winner);
 
-    return new GameEvaluation(winner, parties, baseScore.Concat(extraPoints).ToList());
+    return new GameEvaluation(winner, totals, parties, baseScore.Concat(extraPoints).ToList());
   }
 
   private static IEnumerable<Score> GetExtraPoints(IReadOnlyList<CompleteTrick> tricks, ByPlayer<Party> parties,

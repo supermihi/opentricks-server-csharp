@@ -1,4 +1,3 @@
-using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Scoring;
 using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
@@ -9,12 +8,10 @@ namespace Doppelkopf.Core.Contracts.Impl;
 /// <summary>
 /// Normal game contract (no wedding).
 /// </summary>
-internal class NormalGameContract(
-  TieBreakingMode heartsTenTieBreaking,
-  IReadOnlyDictionary<Player, bool> hasClubQueen,
-  IEvaluator evaluator) : IContract
+internal class NormalGameContract(TieBreakingMode heartsTenTieBreaking, IReadOnlyDictionary<Player, bool> hasClubQueen)
+  : IContract
 {
-  public ICardTraitsProvider Traits { get; } = CardTraitsProvider.SuitSolo(Suit.Diamonds, heartsTenTieBreaking);
+  public ICardTraitsProvider Traits { get; } = CardTraitsProvider.NormalGame(heartsTenTieBreaking);
 
   public IPartyProvider Parties { get; } =
     new StaticPartyProvider(ByPlayer.Init(p => hasClubQueen[p] ? Party.Re : Party.Contra));
@@ -22,7 +19,4 @@ internal class NormalGameContract(
   public void OnTrickFinished(CompleteTrick trick)
   {
   }
-
-  public GameEvaluation Evaluate(IReadOnlyList<CompleteTrick> tricks, ByParty<Bid?> maxBids) =>
-    evaluator.Evaluate(tricks, maxBids, Parties.GetAll());
 }

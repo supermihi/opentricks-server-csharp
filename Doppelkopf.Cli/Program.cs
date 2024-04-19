@@ -2,8 +2,6 @@
 using Doppelkopf.Bot;
 using Doppelkopf.Cli;
 using Doppelkopf.Core;
-using Doppelkopf.Core.Scoring.Impl;
-using Doppelkopf.Core.Tricks;
 
 
 var rootCommand = new RootCommand("Doppelkopf client application");
@@ -11,14 +9,18 @@ var rootCommand = new RootCommand("Doppelkopf client application");
 rootCommand.SetHandler(
   async () =>
   {
-    var conf = new GameConfiguration(new RuleOptions(TieBreakingMode.FirstWins, true), new DdkvEvaluator());
-    var host = new SingleGameHost(conf.CreateGameFactory(1234));
-    host.AddBot(Player.One, new SimpleBot(Player.One));
+    var conf = GameConfiguration.Default();
+    var host = new SingleGameHost(conf.CreateGameFactory(12434));
+    var cli = new HumanPlayerCli(Player.One);
+    host.AddInteractiveClient(Player.One, cli);
+    host.AddBot(Player.Four, new SimpleBot(Player.Four));
     host.AddBot(Player.Two, new SimpleBot(Player.Two));
     host.AddBot(Player.Three, new SimpleBot(Player.Three));
-    host.AddBot(Player.Four, new SimpleBot(Player.Four));
-    await host.RunToCompletion();
+
+
+    var cliTask = Task.Run(() => cli.Run(CancellationToken.None));
+    await Task.WhenAny(host.RunToCompletion(CancellationToken.None), cliTask);
+    Console.WriteLine("done");
   });
 
 return await rootCommand.InvokeAsync(args);
-

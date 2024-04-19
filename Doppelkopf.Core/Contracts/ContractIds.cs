@@ -2,8 +2,9 @@ using Doppelkopf.Core.Cards;
 
 namespace Doppelkopf.Core.Contracts;
 
-public static class HoldIds
+public static class ContractIds
 {
+  public const string NormalGame = "normal_game";
   public const string Wedding = "wedding";
   public const string JackSolo = "jack_solo";
   public const string QueenSolo = "queen_solo";

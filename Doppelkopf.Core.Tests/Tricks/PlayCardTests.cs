@@ -1,6 +1,9 @@
+using System.Collections.Immutable;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Tricks.Impl;
+using Doppelkopf.Core.Utils;
+using Doppelkopf.Errors;
 using Doppelkopf.TestUtils;
 using Moq;
 using Xunit;
@@ -9,6 +12,16 @@ namespace Doppelkopf.Core.Tests.Tricks;
 
 public class PlayCardTests
 {
+  [Fact]
+  public void InitialState()
+  {
+    var state = TrickTakingState.Initial(CardFactory.PlayersCards(true, 3847));
+    Assert.NotNull(state.CurrentTrick);
+    Assert.Empty(state.CompleteTricks);
+    Assert.Equal(Player.One, state.CurrentTrick!.Leader);
+    Assert.Empty(state.CurrentTrick.Cards);
+  }
+
   [Fact]
   public void PlayInitialCardSuccess()
   {
@@ -55,5 +68,60 @@ public class PlayCardTests
       Assert.Equal(Player.Four, trickTaking.CurrentTrick!.Leader);
       Assert.Empty(trickTaking.CurrentTrick.Cards);
     }
+  }
+
+
+  [Theory]
+  [InlineData(Player.Two)]
+  [InlineData(Player.Three)]
+  [InlineData(Player.Four)]
+  public void ErrorWhenNotPlayersTurn(Player player)
+  {
+    var trickTaking = new TrickTaking(Mock.Of<ICardTraitsProvider>(), CardFactory.PlayersCards(true, 4783));
+    Assert.Equal(Player.One, trickTaking.CurrentTrick!.Cards.Next);
+    Asserts.ThrowsErrorCode(
+      ErrorCodes.NotYourTurn,
+      () => trickTaking.PlayCard(player, trickTaking.RemainingCards[player].First()));
+  }
+
+  [Fact]
+  public void ErrorWhenDoesNotHaveCard()
+  {
+    var trickTaking = new TrickTaking(Mock.Of<ICardTraitsProvider>(), CardFactory.PlayersCards(true, 4783));
+    var cardNotInPlayersHand = Decks.WithNines.First(c => !trickTaking.RemainingCards[Player.One].Contains(c));
+    Asserts.ThrowsErrorCode(
+      ErrorCodes.CardNotOwned,
+      () => trickTaking.PlayCard(Player.One, cardNotInPlayersHand)
+    );
+  }
+
+  [Fact]
+  public void ErrorWhenCardNotValid()
+  {
+    var trickTaking = new TrickTaking(
+      CardTraitsProvider.NormalGame(TieBreakingMode.FirstWins),
+      new ByPlayer<ImmutableArray<Card>>(
+        [
+          new Card(Suit.Spades, Rank.Ace),
+          new Card(Suit.Spades, Rank.Nine)
+        ],
+        [
+          new Card(Suit.Spades, Rank.Ace),
+          new Card(Suit.Spades, Rank.Nine)
+        ],
+        [
+          new Card(Suit.Spades, Rank.Ten),
+          new Card(Suit.Hearts, Rank.Nine)
+        ],
+        [
+          new Card(Suit.Spades, Rank.Ace),
+          new Card(Suit.Spades, Rank.Nine)
+        ]
+      ));
+    trickTaking.PlayCard(Player.One, new(Suit.Spades, Rank.Ace));
+    trickTaking.PlayCard(Player.Two, new(Suit.Spades, Rank.Nine));
+    Asserts.ThrowsErrorCode(ErrorCodes.CardNotAllowed,
+      () => trickTaking.PlayCard(Player.Three, new(Suit.Hearts, Rank.Nine))
+    );
   }
 }

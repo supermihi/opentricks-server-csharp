@@ -5,7 +5,7 @@ using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;
 
-public class NormalGameProvider(TieBreakingMode heartTenTieBreaking, IEvaluator evaluator) : INormalGameProvider
+public class NormalGameProvider(TieBreakingMode heartTenTieBreaking) : INormalGameProvider
 {
   public IContract CreateNormalGame(CardsByPlayer initialCards)
   {
@@ -20,6 +20,6 @@ public class NormalGameProvider(TieBreakingMode heartTenTieBreaking, IEvaluator 
         new DdkvEvaluator());
     }
 
-    return new NormalGameContract(heartTenTieBreaking, hasClubQueen, evaluator);
+    return new NormalGameContract(heartTenTieBreaking, hasClubQueen);
   }
 }

@@ -39,12 +39,12 @@ internal sealed class Session : ISession
 
   public void PlayCard(Seat seat, Card card)
   {
-    var result = CurrentGame.PlayCard(ActivePlayer(seat), card);
-    if (result.CompletedGame is not { } evaluation)
+    CurrentGame.PlayCard(ActivePlayer(seat), card);
+    if (CurrentGame.Phase != GamePhase.Finished)
     {
       return;
     }
-
+    var evaluation = CurrentGame.Evaluate();
     _completeGames.Add(evaluation);
   }
 

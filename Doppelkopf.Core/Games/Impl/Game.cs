@@ -16,16 +16,16 @@ internal class Game : IGame
 {
   public GamePhase Phase { get; private set; } = GamePhase.Auction;
 
-  public Game(CardsByPlayer cards, ByPlayer<bool> needCompulsorySolo, Modes modes)
+  public Game(CardsByPlayer cards, ByPlayer<bool> needCompulsorySolo, GameConfiguration configuration)
   {
     _dealtCards = cards;
-    Modes = modes;
-    _auction = new Auction(_dealtCards, modes.Holds, needCompulsorySolo);
+    Configuration = configuration;
+    _auction = new Auction(_dealtCards, Configuration.GameModes.Holds, needCompulsorySolo);
     _bids = null;
     _trickTaking = null;
   }
 
-  public Modes Modes { get; }
+  public GameConfiguration Configuration { get; }
 
   private readonly IAuction _auction;
   private IBids? _bids;
@@ -45,7 +45,7 @@ internal class Game : IGame
     TryFinishAuction();
   }
 
-  public PlayCardResult PlayCard(Player player, Card card)
+  public void PlayCard(Player player, Card card)
   {
     if (_trickTaking is null)
     {
@@ -53,22 +53,18 @@ internal class Game : IGame
     }
 
     var finishedTrick = _trickTaking.PlayCard(player, card);
-    GameEvaluation? evaluation = null;
     if (finishedTrick == null)
     {
-      return new PlayCardResult(finishedTrick, evaluation);
+      return;
     }
 
     Contract!.OnTrickFinished(finishedTrick);
     if (_trickTaking.TryStartNextTrick())
     {
-      return new PlayCardResult(finishedTrick, evaluation);
+      return;
     }
 
     Phase = GamePhase.Finished;
-    evaluation = Evaluate();
-
-    return new PlayCardResult(finishedTrick, evaluation);
   }
 
   public void PlaceBid(Player player, Bid bid)
@@ -88,7 +84,7 @@ internal class Game : IGame
       ErrorCodes.InvalidPhase.Throw();
     }
     var maxBids = ByParty.Init(party => _bids!.MaxBidOf(party)!);
-    return Contract!.Evaluate(_trickTaking!.CompleteTricks, maxBids);
+    return Configuration.Evaluator.Evaluate(_trickTaking!.CompleteTricks, maxBids, Contract!.Parties.GetAll());
   }
 
   private void TryFinishAuction()
@@ -103,7 +99,7 @@ internal class Game : IGame
 
   private void StartTrickTaking(AuctionResult auctionResult)
   {
-    Contract = Modes.CreateContract(auctionResult, _dealtCards);
+    Contract = Configuration.GameModes.CreateContract(auctionResult, _dealtCards);
     AuctionResult = auctionResult;
     _trickTaking = new TrickTaking(Contract.Traits, _dealtCards);
     _bids = new Bids(Contract.Parties, _trickTaking);
@@ -112,7 +108,7 @@ internal class Game : IGame
 
   public ByPlayer<ImmutableArray<Card>> Cards => _trickTaking?.RemainingCards ?? _dealtCards;
 
-  public Player? Turn =>
+  public Player? GetTurn() =>
     Phase switch
     {
       GamePhase.Auction => _auction.Turn,
@@ -123,4 +119,19 @@ internal class Game : IGame
   public IEnumerable<Declaration> Declarations => _auction.Declarations;
   public Trick? CurrentTrick => _trickTaking?.CurrentTrick;
   public IReadOnlyList<CompleteTrick> CompleteTricks => _trickTaking?.CompleteTricks ?? Array.Empty<CompleteTrick>();
+
+  public int Age
+  {
+    get
+    {
+      var auctionAge = _auction.Declarations.Count;
+      if (Phase == GamePhase.Auction)
+      {
+        return auctionAge;
+      }
+      var gameAge = _bids!.PlacedBids.Count + _trickTaking!.CompleteTricks.Count * Rules.NumPlayers
+        + (_trickTaking.CurrentTrick?.Cards.Count ?? 0);
+      return auctionAge + gameAge;
+    }
+  }
 }

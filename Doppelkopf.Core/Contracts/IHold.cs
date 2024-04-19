@@ -8,6 +8,5 @@ public interface IHold
   bool IsAllowed(IEnumerable<Card> playerCards);
   bool IsSolo { get; }
   DeclarationPriority Priority { get; }
-
-  IContract CreateContract(Player declarer, CardsByPlayer initialCards);
+  IContract CreateContract(Player declarer);
 }

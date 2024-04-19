@@ -15,7 +15,7 @@ internal class WeddingContract(
   IEvaluator evaluator)
   : IContract, IPartyProvider
 {
-  public ICardTraitsProvider Traits { get; } = CardTraitsProvider.SuitSolo(Suit.Diamonds, heartsTenTieBreaking);
+  public ICardTraitsProvider Traits { get; } = CardTraitsProvider.NormalGame(heartsTenTieBreaking);
   private Player? _spouse;
 
   public Party? Get(Player player)

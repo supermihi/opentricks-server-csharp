@@ -1,4 +1,5 @@
 using Doppelkopf.Core.Scoring;
+using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Utils;
 using Xunit;
 
@@ -6,6 +7,8 @@ namespace Doppelkopf.Core.Tests.Scoring;
 
 public class GameEvaluationTests
 {
+  private static readonly ByParty<PartyTotals> DummyTotals = ByParty.Init(p => new PartyTotals(120, false, null));
+
   [Theory]
   [InlineData(Party.Re)]
   [InlineData(Party.Contra)]
@@ -14,6 +17,7 @@ public class GameEvaluationTests
     var parties = new ByPlayer<Party>(Party.Re, Party.Re, Party.Contra, Party.Contra);
     var evaluation = new GameEvaluation(
       winner,
+      DummyTotals,
       parties,
       [
         new Score("won", winner),
@@ -32,6 +36,7 @@ public class GameEvaluationTests
     var parties = new ByPlayer<Party>(Party.Re, Party.Re, Party.Contra, Party.Contra);
     var evaluation = new GameEvaluation(
       Party.Re,
+      DummyTotals,
       parties,
       [
         new Score("won", Party.Re),
@@ -49,6 +54,7 @@ public class GameEvaluationTests
     var parties = new ByPlayer<Party>(Party.Re, Party.Contra, Party.Contra, Party.Contra);
     var evaluation = new GameEvaluation(
       Party.Contra,
+      DummyTotals,
       parties,
       [
         new Score("won", Party.Re),

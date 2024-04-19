@@ -5,6 +5,7 @@ namespace Doppelkopf.Core.Scoring;
 
 public sealed record GameEvaluation(
   Party? Winner,
+  ByParty<PartyTotals> Totals,
   ByPlayer<Party> Parties,
   IReadOnlyList<Score> Scores)
 {

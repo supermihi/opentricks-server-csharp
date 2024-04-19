@@ -3,7 +3,7 @@ using Doppelkopf.Core.Scoring;
 
 namespace Doppelkopf.API;
 
-public interface IGameForPlayer
+public interface IPlayerClient
 {
   Task PlayCard(Card card);
   Task DeclareHold(string? holdId);

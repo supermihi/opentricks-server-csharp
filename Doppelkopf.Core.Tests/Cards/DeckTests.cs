@@ -1,6 +1,7 @@
-using Doppelkopf.Cards;
+using Doppelkopf.Core.Cards;
+using Xunit;
 
-namespace Doppelkopf.Tests.Cards;
+namespace Doppelkopf.Core.Tests.Cards;
 
 public class TestDecks
 {

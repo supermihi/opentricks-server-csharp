@@ -14,4 +14,7 @@ public static class BidExtensions
       Bid.Schwarz => 5,
       _ => throw new ArgumentOutOfRangeException(nameof(bid), bid, null)
     };
+
+  public static Bid? MaxBidOf(this IBids bids, Party party) =>
+    bids.PlacedBids.LastOrDefault(p => p.Party == party)?.Bid;
 }

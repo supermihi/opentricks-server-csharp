@@ -20,14 +20,11 @@ public class Bids(IPartyProvider parties, ITrickTakingProgress trickTaking) : IB
     _placedBids.Add(new PlacedBid(party, bid));
   }
 
-  public Bid? MaxBidOf(Party party)
-  {
-    return _placedBids.LastOrDefault(p => p.Party == party)?.Bid;
-  }
+  public IReadOnlyList<PlacedBid> PlacedBids => _placedBids;
 
   private void EnsureBidNotRedundant(Bid bid, Party party)
   {
-    if (MaxBidOf(party)?.IsOrImplies(bid) ?? false)
+    if (this.MaxBidOf(party)?.IsOrImplies(bid) ?? false)
     {
       throw ErrorCodes.RedundantBid.ToException();
     }
@@ -58,8 +55,6 @@ public class Bids(IPartyProvider parties, ITrickTakingProgress trickTaking) : IB
       throw ErrorCodes.WrongParty.ToException();
     }
   }
-
-  private sealed record PlacedBid(Party Party, Bid Bid);
 
   private readonly List<PlacedBid> _placedBids = [];
 }

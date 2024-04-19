@@ -5,7 +5,8 @@ namespace Doppelkopf.Core;
 
 public sealed record RuleOptions(
   TieBreakingMode HeartTenTieBreaking,
-  bool IncludeNines)
+  int NumberOfGames,
+  bool CompulsorySolos)
 {
-  public IReadOnlyList<Card> Deck => IncludeNines ? Decks.WithNines : Decks.WithoutNines;
+  public static readonly RuleOptions Default = new(TieBreakingMode.FirstWins, 20, true);
 }

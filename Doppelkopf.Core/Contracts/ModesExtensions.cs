@@ -8,7 +8,7 @@ public static class ModesExtensions
   {
     if (result.Hold is { } hold)
     {
-      return hold.CreateContract(result.Declarer!.Value, dealtCards);
+      return hold.CreateContract(result.Declarer!.Value);
     }
 
     return modes.NormalGame.CreateNormalGame(dealtCards);

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using Doppelkopf.Users.API;
 
 namespace Doppelkopf.Service;
 

@@ -2,9 +2,11 @@ using Doppelkopf.Core.Cards;
 
 namespace Doppelkopf.Core.Contracts;
 
-public static class ContractIds
+/// <summary>
+/// Built-in hold IDs.
+/// </summary>
+public static class HoldIds
 {
-  public const string NormalGame = "normal_game";
   public const string Wedding = "wedding";
   public const string JackSolo = "jack_solo";
   public const string QueenSolo = "queen_solo";

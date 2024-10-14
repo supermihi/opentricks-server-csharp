@@ -18,7 +18,8 @@ internal static class TrickExtensions
     foreach (var player in trick.Cards.Players.Skip(1))
     {
       var card = trick.Cards[player];
-      var takesTrick = card.TakesFrickFrom(bestCard, traits, trick.Remaining == 0);
+      var isLastTrick = trick.Remaining == 0;
+      var takesTrick = card.TakesFrickFrom(bestCard, traits, isLastTrick);
       if (takesTrick)
       {
         winner = player;

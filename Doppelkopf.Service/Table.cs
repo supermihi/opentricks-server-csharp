@@ -1,10 +1,8 @@
 ﻿using System.Collections.Immutable;
 using Doppelkopf.Core;
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Games;
 using Doppelkopf.Errors;
 using Doppelkopf.Sessions;
-using Doppelkopf.Users.API;
 
 namespace Doppelkopf.Service;
 
@@ -20,7 +18,7 @@ internal sealed class Table : ITable
     SessionConfig = initialSessionConfig;
     GameConfig = initialGameConfig;
     _sessionFactory = sessionFactory;
-    AdditionalMembers = ImmutableArray<UserId>.Empty;
+    AdditionalMembers = [];
     SetReady(Data.Owner, true);
   }
   public ImmutableArray<UserId> AdditionalMembers { get; private set; }

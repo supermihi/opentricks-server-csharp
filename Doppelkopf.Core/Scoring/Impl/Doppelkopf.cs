@@ -12,7 +12,7 @@ public class Doppelkopf : IExtraScoreRule
   {
     if (parties.Soloist() is not null)
     {
-      return Enumerable.Empty<Score>();
+      return [];
     }
     return tricks.Where(trick => trick.Points() >= MinScore)
       .Select(

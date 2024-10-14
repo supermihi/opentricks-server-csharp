@@ -10,10 +10,6 @@ public sealed record InTurns<T> : IEnumerable<T>
   private readonly ImmutableList<T> _values;
   public bool IsFull => Count == Rules.NumPlayers;
 
-  public InTurns(Player start) : this(start, ImmutableList.Create<T>())
-  {
-  }
-
   public InTurns(Player start, params T[] values) : this(start, values.ToImmutableList())
   {
   }
@@ -49,18 +45,6 @@ public sealed record InTurns<T> : IEnumerable<T>
 
   public T this[Player p] => this[p.DistanceFrom(Start)];
   public T this[int index] => index < Count ? _values[index] : throw new KeyNotFoundException();
-
-  public bool TryGet(Player p, out T value)
-  {
-    if (Contains(p))
-    {
-      value = this[p];
-      return true;
-    }
-
-    value = default!;
-    return false;
-  }
 
   public IEnumerable<(Player player, T item)> Items => _values.Select((v, i) => ((Player)i, v));
   public IEnumerable<Player> Players => Start.Cycle().Take(Count);

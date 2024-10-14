@@ -1,4 +1,3 @@
-using Doppelkopf.API;
 using Doppelkopf.Bot;
 using Doppelkopf.Core;
 using Doppelkopf.Core.Games;

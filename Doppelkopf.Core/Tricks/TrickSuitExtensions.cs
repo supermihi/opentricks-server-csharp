@@ -5,7 +5,7 @@ namespace Doppelkopf.Core.Tricks;
 public static class TrickSuitExtensions
 
 {
-  internal static TrickSuit AsTrickSuit(this Suit suit) =>
+  public static TrickSuit AsTrickSuit(this Suit suit) =>
       suit switch
       {
         Suit.Diamonds => TrickSuit.Diamonds,

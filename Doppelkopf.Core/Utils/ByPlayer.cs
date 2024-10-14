@@ -16,7 +16,7 @@ public record ByPlayer<T> : IReadOnlyDictionary<Player, T>
   private readonly ImmutableArray<T> _values;
 
   public ByPlayer(T player1, T player2, T player3, T player4)
-    : this(ImmutableArray.Create(player1, player2, player3, player4))
+    : this([player1, player2, player3, player4])
   {
   }
 

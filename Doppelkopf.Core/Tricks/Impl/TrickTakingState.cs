@@ -8,7 +8,7 @@ internal sealed record TrickTakingState(CardsByPlayer RemainingCards, ImmutableA
   public static TrickTakingState Initial(CardsByPlayer initialCards) =>
       new(
         initialCards,
-        ImmutableArray.Create<CompleteTrick>(),
+        [],
         new Trick(Player.One, 0, initialCards[Player.One].Length - 1)
       );
 }

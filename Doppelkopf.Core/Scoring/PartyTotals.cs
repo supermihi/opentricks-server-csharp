@@ -16,5 +16,5 @@ public sealed record PartyTotals(int Points, bool Schwarz, Bid? MaxBid)
 
   public static ByParty<PartyTotals> ComputeBoth(IReadOnlyCollection<CompleteTrick> tricks, ByParty<Bid?> maxBids,
     ByPlayer<Party> parties) =>
-    ByParty.Init<PartyTotals>(p => Compute(p, tricks, parties, maxBids[p]));
+    ByParty.Init(p => Compute(p, tricks, parties, maxBids[p]));
 }

@@ -1,6 +1,4 @@
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Games;
-using Doppelkopf.Users.API;
 
 namespace Doppelkopf.Service;
 
@@ -31,5 +29,6 @@ public sealed record TableEvent
       new(
         table,
         player,
-        TableEventType.PlayCard) { CardPlayed = new(card, result) };
+        TableEventType.PlayCard)
+      { CardPlayed = new(card, result) };
 }

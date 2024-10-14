@@ -1,6 +1,5 @@
 using Doppelkopf.Core;
 using Doppelkopf.Core.Utils;
-using Microsoft.VisualBasic;
 
 namespace Doppelkopf.Sessions;
 

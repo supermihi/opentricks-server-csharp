@@ -1,7 +1,6 @@
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts.Impl;
 using Doppelkopf.Core.Scoring;
-using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Utils;
 using Xunit;
@@ -30,7 +29,7 @@ public class WeddingTests
   public void AnnouncedWeddingTurnsIntoSoloAfterThreeTricks()
   {
     const Player suitor = Player.Three;
-    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true, new DdkvEvaluator());
+    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true);
     Assert.Null(wedding.DefiningTrick);
     // 1st trick
     wedding.OnTrickFinished(CreateTrick(suitor, 0));
@@ -49,7 +48,7 @@ public class WeddingTests
   public void AnnouncedWeddingDefinesSpouseWhenTrickWon(int firstForeignTrick, Player winner)
   {
     const Player suitor = Player.Four;
-    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true, new DdkvEvaluator());
+    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, true);
     AssertUndecided(wedding, suitor);
     for (var trick = 0; trick < firstForeignTrick; ++trick)
     {
@@ -67,10 +66,10 @@ public class WeddingTests
   }
 
   [Fact]
-  public void SilentSoloIsDefinedFromStart()
+  public void NotAnnouncedWeddingIsSilentSolo()
   {
     const Player suitor = Player.One;
-    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, false, new DdkvEvaluator());
+    var wedding = new WeddingContract(TieBreakingMode.FirstWins, suitor, false);
     Assert.Equal(0, wedding.DefiningTrick);
     Assert.Equal(Party.Re, wedding.Get(Player.One));
     Assert.Equal(Party.Contra, wedding.Get(Player.Two));

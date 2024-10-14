@@ -15,18 +15,18 @@ internal record Solo(string Id, ICardTraitsProvider Traits) : IHold
   public IContract CreateContract(Player declarer) => new SoloContract(Traits, declarer);
 
   public static readonly Solo Fleshless = new(
-    ContractIds.FleshlessSolo,
-    CardTraitsProvider.ForTrumpWithDefaultSides(Enumerable.Empty<Card>()));
+    HoldIds.FleshlessSolo,
+    CardTraitsProvider.ForTrumpWithDefaultSides([]));
 
   public static readonly Solo JackSolo = new(
-    ContractIds.JackSolo,
+    HoldIds.JackSolo,
     CardTraitsProvider.ForTrumpWithDefaultSides(Card.Jacks));
 
-  public static Solo QueenSolo => new(ContractIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens));
+  public static Solo QueenSolo => new(HoldIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens));
 
   public static Solo SuitSolo(Suit trump, TieBreakingMode heartTenTieBreaking) =>
     new(
-      ContractIds.SuitSolo(trump),
+      HoldIds.SuitSolo(trump),
       CardTraitsProvider.SuitSolo(trump, heartTenTieBreaking)
     );
 }

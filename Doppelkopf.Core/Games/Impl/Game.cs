@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Auctions.Impl;
 using Doppelkopf.Core.Cards;
@@ -106,7 +105,7 @@ internal class Game : IGame
     Phase = GamePhase.TrickTaking;
   }
 
-  public ByPlayer<ImmutableArray<Card>> Cards => _trickTaking?.RemainingCards ?? _dealtCards;
+  public CardsByPlayer Cards => _trickTaking?.RemainingCards ?? _dealtCards;
 
   public Player? GetTurn() =>
     Phase switch

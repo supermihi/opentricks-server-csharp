@@ -1,6 +1,4 @@
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Games;
-using Doppelkopf.Users.API;
 
 namespace Doppelkopf.Service;
 

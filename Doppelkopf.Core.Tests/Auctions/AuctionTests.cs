@@ -13,7 +13,7 @@ namespace Doppelkopf.Core.Tests.Auctions;
 
 public class AuctionTests
 {
-  private static readonly IHold _allowingHold =
+  private static readonly IHold AllowingHold =
     Mock.Of<IHold>(
       c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == true,
       MockBehavior.Strict
@@ -50,11 +50,11 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new[] { _allowingHold },
+      new[] { AllowingHold },
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.NotYourTurn,
-      () => auction.DeclareReservation(player, _allowingHold)
+      () => auction.DeclareReservation(player, AllowingHold)
     );
   }
 
@@ -76,13 +76,21 @@ public class AuctionTests
   }
 
   [Fact]
+  public void DeclareReservationThrowsIfContractDoesNotExist()
+  {
+    var auction = new Auction(MockCards, [], NoCompulsorySolos);
+    Asserts.ThrowsErrorCode(ErrorCodes.ContractNotAvailable,
+    () => auction.DeclareReservation(auction.Turn!.Value, AllowingHold));
+  }
+
+  [Fact]
   public void DeclareUpdatesTurn()
   {
     var auction = new Auction(
       MockCards,
-      new[] { _allowingHold },
+      new[] { AllowingHold },
       NoCompulsorySolos);
-    auction.DeclareReservation(Player.One, _allowingHold);
+    auction.DeclareReservation(Player.One, AllowingHold);
     Assert.Equal(Player.Two, auction.Turn);
     auction.DeclareOk(Player.Two);
     Assert.Equal(Player.Three, auction.Turn);

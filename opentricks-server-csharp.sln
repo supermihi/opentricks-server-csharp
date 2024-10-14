@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf", "Doppelkopf\Doppelkopf.csproj", "{0F55ACD1-1DC6-47C8-91FC-9B7E56ECD3D2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server", "Doppelkopf.Server\Doppelkopf.Server.csproj", "{FE6E6EA8-9527-4196-A025-F842B4EB1F17}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Server.Tests", "Doppelkopf.Server.Tests\Doppelkopf.Server.Tests.csproj", "{3987A11E-6E46-44C2-88D2-28BAE079E59E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Cli", "Doppelkopf.Cli\Doppelkopf.Cli.csproj", "{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.API", "Doppelkopf.API\Doppelkopf.API.csproj", "{1679DC2B-2070-4915-BE46-507432538744}"
@@ -23,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.TestUtils", "Dop
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Sessions", "Doppelkopf.Sessions\Doppelkopf.Sessions.csproj", "{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Old", "Old", "{D7DCCB6C-731D-4A37-851A-DB8CCAE833AE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Service", "Doppelkopf.Service\Doppelkopf.Service.csproj", "{3134A205-A730-4FEF-927D-8CDC0F95C16B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Notifications", "Doppelkopf.Notifications\Doppelkopf.Notifications.csproj", "{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}"
@@ -33,27 +25,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Bot", "Doppelkop
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Proto", "Doppelkopf.Proto\Doppelkopf.Proto.csproj", "{861BE29C-E151-427C-A7CE-E8663ABB78E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Extensions", "Doppelkopf.Extensions\Doppelkopf.Extensions.csproj", "{B0DD35DE-AAC3-4200-8EB7-FACD9D49CD0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0F55ACD1-1DC6-47C8-91FC-9B7E56ECD3D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F55ACD1-1DC6-47C8-91FC-9B7E56ECD3D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F55ACD1-1DC6-47C8-91FC-9B7E56ECD3D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F55ACD1-1DC6-47C8-91FC-9B7E56ECD3D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE6E6EA8-9527-4196-A025-F842B4EB1F17}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3987A11E-6E46-44C2-88D2-28BAE079E59E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AE08A55-C2FE-465C-89B0-4F10983AF6B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -98,10 +77,12 @@ Global
 		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{861BE29C-E151-427C-A7CE-E8663ABB78E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0DD35DE-AAC3-4200-8EB7-FACD9D49CD0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0DD35DE-AAC3-4200-8EB7-FACD9D49CD0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0DD35DE-AAC3-4200-8EB7-FACD9D49CD0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0DD35DE-AAC3-4200-8EB7-FACD9D49CD0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{FE6E6EA8-9527-4196-A025-F842B4EB1F17} = {D7DCCB6C-731D-4A37-851A-DB8CCAE833AE}
-		{0F55ACD1-1DC6-47C8-91FC-9B7E56ECD3D2} = {D7DCCB6C-731D-4A37-851A-DB8CCAE833AE}
-		{3987A11E-6E46-44C2-88D2-28BAE079E59E} = {D7DCCB6C-731D-4A37-851A-DB8CCAE833AE}
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

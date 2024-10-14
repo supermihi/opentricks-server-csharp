@@ -41,7 +41,7 @@ public class GetWinnerTests
         new(Suit.Hearts, Rank.Ten),
         new(Suit.Spades, Rank.Ace)),
       10,
-      isLastTrick ? 0 : 2);
+      Remaining: isLastTrick ? 0 : 2);
     var winner = trick.GetWinner(CardTraitsProvider.NormalGame(heartsTen));
     var expectedWinner =
       heartsTen == TieBreakingMode.SecondWins || (heartsTen == TieBreakingMode.SecondWinsInLastTrick && isLastTrick)

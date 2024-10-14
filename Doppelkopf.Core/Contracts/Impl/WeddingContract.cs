@@ -1,18 +1,15 @@
-using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Scoring;
-using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;
 
 /// <summary>
-/// Normal game contract, including all kinds of wedding (announced and silent).
+/// Contract for all kinds of wedding (announced and silent).
 /// </summary>
 internal class WeddingContract(
   TieBreakingMode heartsTenTieBreaking,
   Player suitor,
-  bool isAnnouncedWedding,
-  IEvaluator evaluator)
+  bool isAnnouncedWedding)
   : IContract, IPartyProvider
 {
   public ICardTraitsProvider Traits { get; } = CardTraitsProvider.NormalGame(heartsTenTieBreaking);
@@ -29,9 +26,6 @@ internal class WeddingContract(
   }
 
   public IPartyProvider Parties => this;
-
-  public GameEvaluation Evaluate(IReadOnlyList<CompleteTrick> tricks, ByParty<Bid?> maxBids) =>
-    evaluator.Evaluate(tricks, maxBids, Parties.GetAll());
 
   public int? DefiningTrick { get; private set; } = isAnnouncedWedding ? null : 0;
 

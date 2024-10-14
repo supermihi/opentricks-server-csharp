@@ -89,7 +89,7 @@ public class HumanPlayerCli(Player self) : IInteractiveClient
               await _game.DeclareHold(null);
               break;
             case 'w' or 'W':
-              await _game.DeclareHold(ContractIds.Wedding);
+              await _game.DeclareHold(HoldIds.Wedding);
               break;
             case >= '0' and <= '9':
               await PlayCardAt(int.Parse(key.KeyChar.ToString(), CultureInfo.CurrentCulture));

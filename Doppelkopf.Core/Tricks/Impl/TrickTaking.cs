@@ -4,20 +4,12 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Tricks.Impl;
 
-internal class TrickTaking : ITrickTakingProgress
+internal class TrickTaking(ICardTraitsProvider cardTraitsProvider, TrickTakingState state) : ITrickTakingProgress
 {
-  private readonly ICardTraitsProvider _cardTraitsProvider;
-  private TrickTakingState _state;
-  public Trick? CurrentTrick => _state.CurrentTrick;
-  public IReadOnlyList<CompleteTrick> CompleteTricks => _state.CompleteTricks;
-  public CardsByPlayer RemainingCards => _state.RemainingCards;
+  public Trick? CurrentTrick => state.CurrentTrick;
+  public IReadOnlyList<CompleteTrick> CompleteTricks => state.CompleteTricks;
+  public CardsByPlayer RemainingCards => state.RemainingCards;
   public Player? Turn => CurrentTrick?.Cards.Next;
-
-  public TrickTaking(ICardTraitsProvider cardTraitsProvider, TrickTakingState state)
-  {
-    _cardTraitsProvider = cardTraitsProvider;
-    _state = state;
-  }
 
   public TrickTaking(ICardTraitsProvider cardTraitsProvider, CardsByPlayer givenCards)
     : this(cardTraitsProvider, TrickTakingState.Initial(givenCards))
@@ -39,21 +31,21 @@ internal class TrickTaking : ITrickTakingProgress
 
     CurrentTrick.Cards.CheckIsTurn(player);
     CheckPlayerHasCard(player, card);
-    CheckIsAllowedCard(_state.RemainingCards[player], card);
+    CheckIsAllowedCard(state.RemainingCards[player], card);
 
-    var remainingCards = _state.RemainingCards.Remove(player, card);
+    var remainingCards = state.RemainingCards.Remove(player, card);
     var updatedCurrentTrick = CurrentTrick.AddCard(card);
     if (updatedCurrentTrick.Cards.IsFull)
     {
-      var completedTrick = updatedCurrentTrick.Complete(_cardTraitsProvider);
-      _state = new TrickTakingState(
+      var completedTrick = updatedCurrentTrick.Complete(cardTraitsProvider);
+      state = new TrickTakingState(
         remainingCards,
         CurrentTrick: null,
-        CompleteTricks: _state.CompleteTricks.Add(completedTrick));
+        CompleteTricks: state.CompleteTricks.Add(completedTrick));
       return completedTrick;
     }
 
-    _state = _state with { RemainingCards = remainingCards, CurrentTrick = updatedCurrentTrick };
+    state = state with { RemainingCards = remainingCards, CurrentTrick = updatedCurrentTrick };
     return null;
   }
 
@@ -64,20 +56,20 @@ internal class TrickTaking : ITrickTakingProgress
       throw new InvalidOperationException("valid only after a trick has been completed");
     }
 
-    var previousTrick = _state.CompleteTricks[^1];
+    var previousTrick = state.CompleteTricks[^1];
     if (previousTrick.Remaining == 0)
     {
       return false;
     }
 
     var nextTrick = new Trick(previousTrick.Winner, previousTrick.Index + 1, previousTrick.Remaining - 1);
-    _state = _state with { CurrentTrick = nextTrick };
+    state = state with { CurrentTrick = nextTrick };
     return true;
   }
 
   private void CheckPlayerHasCard(Player player, Card card)
   {
-    if (!_state.RemainingCards[player].Contains(card))
+    if (!state.RemainingCards[player].Contains(card))
     {
       ErrorCodes.CardNotOwned.Throw();
     }
@@ -97,6 +89,6 @@ internal class TrickTaking : ITrickTakingProgress
   }
 
   private bool FollowsSuit(Card card) =>
-    _cardTraitsProvider.Get(card).TrickSuit
-    == _cardTraitsProvider.Get(CurrentTrick!.Cards.First()).TrickSuit;
+    cardTraitsProvider.Get(card).TrickSuit
+    == cardTraitsProvider.Get(CurrentTrick!.Cards.First()).TrickSuit;
 }

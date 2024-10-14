@@ -9,7 +9,6 @@ public sealed record Declaration
   public static Declaration FromHold(IHold hold) => new(hold);
 
   private Declaration(IHold? hold) => Hold = hold;
-
   public bool IsHealthy => Hold == null;
   public IHold? Hold { get; }
 }

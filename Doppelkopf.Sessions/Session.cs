@@ -1,4 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using Doppelkopf.Core;
+using Doppelkopf.Core.Auctions;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Games;
@@ -8,12 +10,12 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Sessions;
 
+internal sealed record CompleteGame(GameEvaluation Evaluation, AuctionResult AuctionResult);
 internal sealed class Session : ISession
 {
   private readonly SessionConfiguration _configuration;
-  private ByPlayer<bool> _needsCompulsorySolo;
   private readonly IGameFactory _gameFactory;
-  private readonly List<GameEvaluation> _completeGames = [];
+  private readonly List<CompleteGame> _completeGames = [];
 
   public Session(SessionConfiguration configuration, IGameFactory gameFactory)
   {
@@ -25,15 +27,29 @@ internal sealed class Session : ISession
     _gameFactory = gameFactory;
 
     _configuration = configuration;
-    _needsCompulsorySolo = ByPlayer.Init(configuration.CompulsorySolos);
-    Players = Seats.GetActiveSeats(configuration.NumberOfSeats, 0, 0);
-    CurrentGame = gameFactory.CreateGame(_needsCompulsorySolo);
+    StartNextGame();
+  }
+
+  private ByPlayer<bool> NeedCompulsorySolos()
+  {
+    return ByPlayer.Init(p =>
+      _configuration.CompulsorySolos &&
+      !_completeGames.Any(game => game.AuctionResult is { IsCompulsorySolo: true, Declarer: { } declarer } && declarer == p));
   }
 
   public IGame CurrentGame { get; set; }
   public ByPlayer<Seat> Players { get; set; }
 
-  public void DeclareOk(Seat seat) => CurrentGame.DeclareOk(ActivePlayer(seat));
+  public void Declare(Seat seat, Declaration declaration)
+  {
+    if (declaration.IsHealthy)
+    {
+      CurrentGame.DeclareOk(ActivePlayer(seat));
+    } else {
+      CurrentGame.DeclareHold(ActivePlayer(seat), declaration.Hold!);
+    }
+
+  }
 
   public void DeclareHold(Seat seat, IHold hold) => CurrentGame.DeclareHold(ActivePlayer(seat), hold);
 
@@ -45,7 +61,19 @@ internal sealed class Session : ISession
       return;
     }
     var evaluation = CurrentGame.Evaluate();
-    _completeGames.Add(evaluation);
+    _completeGames.Add(new(evaluation, CurrentGame.AuctionResult!));
+    if (_completeGames.Count < _configuration.NumberOfGames)
+    {
+      StartNextGame();
+    }
+  }
+
+  [MemberNotNull(nameof(Players))]
+  [MemberNotNull(nameof(CurrentGame))]
+  private void StartNextGame()
+  {
+    Players = Seats.GetActiveSeats(_configuration.NumberOfSeats, _completeGames.Count, 0 /* TODO */);
+    CurrentGame = _gameFactory.CreateGame(NeedCompulsorySolos());
   }
 
   public Player ActivePlayer(Seat seat) => AtSeat(seat) ?? throw ErrorCodes.SeatPaused.ToException();

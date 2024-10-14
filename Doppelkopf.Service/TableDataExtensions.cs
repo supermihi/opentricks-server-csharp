@@ -1,5 +1,4 @@
 using Doppelkopf.Sessions;
-using Doppelkopf.Users.API;
 
 namespace Doppelkopf.Service;
 

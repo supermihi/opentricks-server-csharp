@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Utils;

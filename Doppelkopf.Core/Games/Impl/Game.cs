@@ -13,8 +13,6 @@ namespace Doppelkopf.Core.Games.Impl;
 
 internal class Game : IGame
 {
-  public GamePhase Phase { get; private set; } = GamePhase.Auction;
-
   public Game(CardsByPlayer cards, ByPlayer<bool> needCompulsorySolo, GameConfiguration configuration)
   {
     _dealtCards = cards;
@@ -25,7 +23,7 @@ internal class Game : IGame
   }
 
   public GameConfiguration Configuration { get; }
-
+  public GamePhase Phase { get; private set; } = GamePhase.Auction;
   private readonly IAuction _auction;
   private IBids? _bids;
   private TrickTaking? _trickTaking;
@@ -34,25 +32,17 @@ internal class Game : IGame
 
   public void Play(Player player, PlayerAction action)
   {
-    if (action.DeclareOrHealthy is { } declareAction)
+    if (action.Declaration is { } declaration)
     {
-      if (declareAction.HoldId is { } holdId)
-      {
-        var hold = Configuration.GameModes.Holds.Single(h => h.Id == holdId);
-        DeclareHold(player, hold);
-      }
-      else
-      {
-        DeclareOk(player);
-      }
+      Declare(player, declaration);
     }
-    else if (action.PlayCard is { } cardAction)
+    else if (action.PlayedCard is { } card)
     {
-      PlayCard(player, cardAction.Card);
+      PlayCard(player, card);
     }
-    else if (action.Bid is { } bidAction)
+    else if (action.Bid is { } bid)
     {
-      PlaceBid(player, bidAction.Bid);
+      PlaceBid(player, bid);
     }
     else
     {
@@ -60,15 +50,9 @@ internal class Game : IGame
     }
   }
 
-  public void DeclareHold(Player player, IHold hold)
+  private void Declare(Player player, Declaration declaration)
   {
-    _auction.DeclareReservation(player, hold);
-    TryFinishAuction();
-  }
-
-  public void DeclareOk(Player player)
-  {
-    _auction.DeclareOk(player);
+    _auction.Declare(player, declaration);
     TryFinishAuction();
   }
 

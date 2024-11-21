@@ -2,4 +2,4 @@ using Doppelkopf.Core;
 
 namespace Doppelkopf.API;
 
-public record AuctionView(Player Leader, IReadOnlyList<bool> Holds);
+public sealed record AuctionView(Player Leader, IReadOnlyList<bool> Holds);

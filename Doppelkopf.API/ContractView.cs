@@ -2,4 +2,4 @@ using Doppelkopf.Core;
 
 namespace Doppelkopf.API;
 
-public record ContractView(string? HoldId, Player? Declarer, bool IsCompulsorySolo);
+public sealed record ContractView(string? HoldId, Player? Declarer, bool IsCompulsorySolo);

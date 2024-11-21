@@ -59,7 +59,7 @@ public class WeddingTests
     wedding.OnTrickFinished(CreateTrick(winner, firstForeignTrick));
     Assert.Equal(firstForeignTrick, wedding.DefiningTrick);
     Assert.Equal(Party.Re, wedding.Get(winner));
-    foreach (var other in Enum.GetValues<Player>().Except(new[] { winner, suitor }))
+    foreach (var other in Enum.GetValues<Player>().Except([winner, suitor]))
     {
       Assert.Equal(Party.Contra, wedding.Get(other));
     }

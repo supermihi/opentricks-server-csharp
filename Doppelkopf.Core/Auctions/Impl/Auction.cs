@@ -1,4 +1,5 @@
 using Doppelkopf.Core.Contracts;
+using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Utils;
 using Doppelkopf.Errors;
 
@@ -31,23 +32,33 @@ internal sealed record Auction : IAuction
 
   public Player? Turn => Declarations.Next;
 
-  public void DeclareReservation(Player player, IHold contract)
+  public void Declare(Player player, Declaration declaration)
   {
-    if (!_holds.Contains(contract))
+    if (!declaration.IsFine)
     {
-      ErrorCodes.ContractNotAvailable.Throw();
+      CheckHold(player, declaration.HoldId);
     }
-
-    if (!contract.IsAllowed(_cards[player]))
-    {
-      ErrorCodes.ContractNotAllowed.Throw();
-    }
-
-    var declaration = Declaration.FromHold(contract);
     Declarations = Declarations.AddChecked(player, declaration);
   }
 
-  public void DeclareOk(Player player) => Declarations = Declarations.AddChecked(player, Declaration.Ok);
+  private IHold GetHoldChecked(string holdId)
+  {
+    var hold = _holds.FirstOrDefault(h => h.Id == holdId);
+    if (hold is null)
+    {
+      ErrorCodes.ContractNotAvailable.Throw();
+    }
+    return hold;
+  }
+
+  private void CheckHold(Player player, string holdId)
+  {
+    var hold = GetHoldChecked(holdId);
+    if (!hold.IsAllowed(_cards[player]))
+    {
+      ErrorCodes.ContractNotAllowed.Throw();
+    }
+  }
 
   public AuctionResult? Evaluate()
   {
@@ -56,27 +67,28 @@ internal sealed record Auction : IAuction
       return null;
     }
 
-    if (Declarations.All(d => d.IsHealthy))
+    if (Declarations.All(d => d.IsFine))
     {
       return new AuctionResult(null, null, false);
     }
 
     var (winner, declaration) = Declarations.Items.MaxBy(t => Priority(t.item, t.player));
-    var declaredContract = declaration.Hold!;
+    var winningHoldId = declaration.HoldId!;
+    var winningHold = GetHoldChecked(winningHoldId);
     return new AuctionResult(
-      declaredContract,
+      winningHold,
       winner,
-      declaredContract.IsSolo && _needsCompulsorySolo[winner]);
+      winningHold.IsSolo && _needsCompulsorySolo[winner]);
   }
 
   private int Priority(Declaration declaration, Player player)
   {
-    if (declaration.Hold is not { } contract)
+    if (declaration.HoldId is not { } holdId)
     {
-      return DeclarationPriority.Healthy;
+      return DeclarationPriority.Fine;
     }
-
-    var isCompulsorySolo = _needsCompulsorySolo[player] && contract.IsSolo;
-    return contract.Priority.GetForCompulsorySolo(isCompulsorySolo);
+    var hold = GetHoldChecked(holdId);
+    var isCompulsorySolo = _needsCompulsorySolo[player] && hold.IsSolo;
+    return hold.Priority.GetForCompulsorySolo(isCompulsorySolo);
   }
 }

@@ -5,7 +5,7 @@ using Doppelkopf.Errors;
 
 namespace Doppelkopf.Cli;
 
-internal sealed class LockingSynchronousClient(IGame game, Player player) : IPlayerClient
+internal sealed class LockingSynchronousClient(IGame game, Player player) : IDoppelkopfApi
 {
   public Task<ErrorCode?> Play(PlayerAction action)
   {

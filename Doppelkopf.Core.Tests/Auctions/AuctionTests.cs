@@ -50,11 +50,11 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new[] { AllowingHold },
+      [AllowingHold],
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.NotYourTurn,
-      () => auction.DeclareReservation(player, AllowingHold)
+      () => auction.Declare(player, AllowingHold.Id)
     );
   }
 
@@ -67,11 +67,11 @@ public class AuctionTests
     );
     var auction = new Auction(
       MockCards,
-      new[] { contract },
+      [contract],
       NoCompulsorySolos);
     Asserts.ThrowsErrorCode(
       ErrorCodes.ContractNotAllowed,
-      () => auction.DeclareReservation(auction.Turn!.Value, contract)
+      () => auction.Declare(auction.Turn!.Value, contract.Id)
     );
   }
 
@@ -80,7 +80,7 @@ public class AuctionTests
   {
     var auction = new Auction(MockCards, [], NoCompulsorySolos);
     Asserts.ThrowsErrorCode(ErrorCodes.ContractNotAvailable,
-    () => auction.DeclareReservation(auction.Turn!.Value, AllowingHold));
+    () => auction.Declare(auction.Turn!.Value, AllowingHold.Id));
   }
 
   [Fact]
@@ -88,15 +88,15 @@ public class AuctionTests
   {
     var auction = new Auction(
       MockCards,
-      new[] { AllowingHold },
+      [AllowingHold],
       NoCompulsorySolos);
-    auction.DeclareReservation(Player.One, AllowingHold);
+    auction.Declare(Player.One, AllowingHold.Id);
     Assert.Equal(Player.Two, auction.Turn);
-    auction.DeclareOk(Player.Two);
+    auction.Declare(Player.Two, Declaration.Fine);
     Assert.Equal(Player.Three, auction.Turn);
-    auction.DeclareOk(Player.Three);
+    auction.Declare(Player.Three, Declaration.Fine);
     Assert.Equal(Player.Four, auction.Turn);
-    auction.DeclareOk(Player.Four);
+    auction.Declare(Player.Four, Declaration.Fine);
     Assert.Null(auction.Turn);
   }
 
@@ -105,14 +105,14 @@ public class AuctionTests
   {
     var state = new InTurns<Declaration>(
       Player.One,
-      Declaration.Ok,
-      Declaration.Ok,
-      Declaration.Ok,
-      Declaration.Ok
+      Declaration.Fine,
+      Declaration.Fine,
+      Declaration.Fine,
+      Declaration.Fine
     );
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     Assert.Null(auction.Turn);
-    Asserts.ThrowsErrorCode(ErrorCodes.InvalidPhase, () => auction.DeclareOk(Player.One));
+    Asserts.ThrowsErrorCode(ErrorCodes.InvalidPhase, () => auction.Declare(Player.One, Declaration.Fine));
   }
 
   [Theory]
@@ -124,7 +124,7 @@ public class AuctionTests
   {
     var state = new InTurns<Declaration>(
       Player.One,
-      Enumerable.Repeat(Declaration.Ok, numPlayersDeclared)
+      Enumerable.Repeat(Declaration.Fine, numPlayersDeclared)
     );
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     Assert.Null(auction.Evaluate());
@@ -133,7 +133,7 @@ public class AuctionTests
   [Fact]
   public void EvaluatesNormalGameIfAllOk()
   {
-    var state = new InTurns<Declaration>(Player.One, Enumerable.Repeat(Declaration.Ok, 4));
+    var state = new InTurns<Declaration>(Player.One, Enumerable.Repeat(Declaration.Fine, 4));
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
 
@@ -146,10 +146,10 @@ public class AuctionTests
   {
     var state = new InTurns<Declaration>(
       Player.One,
-      Declaration.Ok,
-      Declaration.FromHold(DeclarableSolo),
-      Declaration.Ok,
-      Declaration.FromHold(DeclarableSolo)
+      Declaration.Fine,
+      DeclarableSolo.Id,
+      Declaration.Fine,
+      DeclarableSolo.Id
     );
     var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
     var result = auction.Evaluate();
@@ -162,10 +162,10 @@ public class AuctionTests
   {
     var state = new InTurns<Declaration>(
       Player.One,
-      Declaration.Ok,
-      Declaration.FromHold(DeclarableSolo),
-      Declaration.Ok,
-      Declaration.FromHold(DeclarableSolo)
+      Declaration.Fine,
+      DeclarableSolo.Id,
+      Declaration.Fine,
+      DeclarableSolo.Id
     );
     var compulsorySolos = new ByPlayer<bool>(false, false, true, true);
     var auction = new Auction(MockCards, NoContracts, compulsorySolos, state);

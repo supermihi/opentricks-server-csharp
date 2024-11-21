@@ -12,10 +12,10 @@ namespace Doppelkopf.Cli;
 
 public class HumanPlayerCli(Player self) : IUnmanagedPlayer
 {
-  public void StartGame(IPlayerClient player) => _game = player;
+  public void StartGame(IDoppelkopfApi player) => _game = player;
 
   private GameView? _view;
-  private IPlayerClient? _game;
+  private IDoppelkopfApi? _game;
   private bool _contractPrinted;
   private int _maxPrintedTrick = -1;
 
@@ -53,7 +53,7 @@ public class HumanPlayerCli(Player self) : IUnmanagedPlayer
     Console.WriteLine($"auction! {AuctionToString(auction)}");
     if (turn == self)
     {
-      Console.WriteLine("  (o) declare OK");
+      Console.WriteLine("  (f) declare fine");
       Console.WriteLine("  (w) declare wedding");
     }
   }
@@ -123,9 +123,9 @@ public class HumanPlayerCli(Player self) : IUnmanagedPlayer
         {
           switch (key.KeyChar)
           {
-            case 'o' or 'O':
-              Console.WriteLine("declaring healthy");
-              await Play(PlayerAction.Declare.Healthy());
+            case 'f' or 'F':
+              Console.WriteLine("declaring fine ('gesund')");
+              await Play(PlayerAction.Declare.Fine());
               break;
             case 'w' or 'W':
               Console.WriteLine("Declaring wedding");
@@ -169,7 +169,7 @@ public class HumanPlayerCli(Player self) : IUnmanagedPlayer
       return Task.CompletedTask;
     }
     var card = _view!.OwnCards[index];
-    return Play(PlayerAction.Card(card));
+    return Play(card);
   }
 
   private async Task Play(PlayerAction action)

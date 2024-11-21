@@ -1,14 +1,16 @@
-using Doppelkopf.Core.Contracts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Doppelkopf.Core.Auctions;
 
 public sealed record Declaration
 {
-  public static readonly Declaration Ok = new((IHold?)null);
+  public static readonly Declaration Fine = new(null);
 
-  public static Declaration FromHold(IHold hold) => new(hold);
+  public static Declaration FromHold(string holdId) => new(holdId);
 
-  private Declaration(IHold? hold) => Hold = hold;
-  public bool IsHealthy => Hold == null;
-  public IHold? Hold { get; }
+  private Declaration(string? holdId) => HoldId = holdId;
+  [MemberNotNullWhen(returnValue: false, member: nameof(HoldId))]
+  public bool IsFine => HoldId == null;
+  public string? HoldId { get; }
+  public static implicit operator Declaration(string holdId) => FromHold(holdId);
 }

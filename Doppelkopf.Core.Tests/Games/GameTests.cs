@@ -49,10 +49,10 @@ public class GameTests
     );
     var game = new Game(cards, new ByPlayer<bool>(true, false, false, false), Configurations.Minikopf);
 
-    game.DeclareOk(Player.One);
-    game.DeclareOk(Player.Two);
-    game.DeclareOk(Player.Three);
-    game.DeclareOk(Player.Four);
+    game.Play(Player.One, Declaration.Fine);
+    game.Play(Player.Two, Declaration.Fine);
+    game.Play(Player.Three, Declaration.Fine);
+    game.Play(Player.Four, Declaration.Fine);
 
     Assert.NotNull(game.CurrentTrick);
     Assert.Equal(GamePhase.TrickTaking, game.Phase);

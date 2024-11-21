@@ -15,7 +15,7 @@ public class TestDecks
 
     foreach (var suit in Enum.GetValues<Suit>())
     {
-      foreach (var rank in Enum.GetValues<Rank>().Except(new[] { Rank.Nine }))
+      foreach (var rank in Enum.GetValues<Rank>().Except([Rank.Nine]))
       {
         Assert.Contains(new Card(suit, rank), Decks.WithoutNines);
       }

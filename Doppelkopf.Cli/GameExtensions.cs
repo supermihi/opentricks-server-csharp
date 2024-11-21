@@ -16,7 +16,7 @@ public static class GameExtensions
       game.Phase,
       game.GetTurn(),
       game.Phase == GamePhase.Auction
-        ? new AuctionView(Player.One, game.Declarations.Select(d => d.Hold is not null).ToArray())
+        ? new AuctionView(Player.One, game.Declarations.Select(d => d.HoldId is not null).ToArray())
         : null,
       game.Phase == GamePhase.Auction
         ? null

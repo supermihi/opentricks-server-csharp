@@ -1,5 +1,5 @@
 using System.Threading.Channels;
-using Doppelkopf.Bot;
+using Doppelkopf.API;
 using Doppelkopf.Core;
 using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Utils;

@@ -40,26 +40,17 @@ internal sealed class Session : ISession
   public IGame CurrentGame { get; set; }
   public ByPlayer<Seat> Players { get; set; }
 
-  public void Declare(Seat seat, Declaration declaration)
+  public void Play(Seat seat, PlayerAction action)
   {
-    if (declaration.IsHealthy)
+    CurrentGame.Play(ActivePlayer(seat), action);
+    if (CurrentGame.Phase == GamePhase.Finished)
     {
-      CurrentGame.DeclareOk(ActivePlayer(seat));
-    } else {
-      CurrentGame.DeclareHold(ActivePlayer(seat), declaration.Hold!);
+      CompleteGame();
     }
-
   }
 
-  public void DeclareHold(Seat seat, IHold hold) => CurrentGame.DeclareHold(ActivePlayer(seat), hold);
-
-  public void PlayCard(Seat seat, Card card)
+  private void CompleteGame()
   {
-    CurrentGame.PlayCard(ActivePlayer(seat), card);
-    if (CurrentGame.Phase != GamePhase.Finished)
-    {
-      return;
-    }
     var evaluation = CurrentGame.Evaluate();
     _completeGames.Add(new(evaluation, CurrentGame.AuctionResult!));
     if (_completeGames.Count < _configuration.NumberOfGames)

@@ -1,54 +1,69 @@
+using System.Threading.Channels;
 using Doppelkopf.Bot;
 using Doppelkopf.Core;
 using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Utils;
+using Doppelkopf.Errors;
 
 namespace Doppelkopf.Cli;
 
-public sealed class SingleGameHost(IGameFactory gameFactory) : IDisposable
+public sealed class SingleGameHost(IGameFactory gameFactory)
 {
   private readonly IGame _game = gameFactory.CreateGame(ByPlayer.Init(false));
   private readonly Dictionary<Player, IBot> _bots = [];
-  private readonly Dictionary<Player, IInteractiveClient> _interactiveClients = [];
+  private readonly Channel<(Player, PlayerAction)> _interactiveActions = Channel.CreateBounded<(Player, PlayerAction)>(100);
+  private readonly Dictionary<Player, IUnmanagedPlayer> _interactiveClients = [];
   public void AddBot(Player player, IBot bot) => _bots[player] = bot;
-  private readonly ManualResetEventSlim _mre = new();
 
-  public void AddInteractiveClient(Player player, IInteractiveClient client)
+  public void AddInteractiveClient(Player player, IUnmanagedPlayer client)
   {
     _interactiveClients[player] = client;
-    client.StartGame(new PlayerClient(_game, player, () => _mre.Set()));
+    //var playerClient = new ChannelPlayerClient(player, _interactiveActions);
+    var playerClient = new LockingSynchronousClient(_game, player);
+    client.StartGame(playerClient);
   }
 
-  private void NotifyInteractiveClients()
+  private async Task NotifyInteractiveClients()
   {
     foreach (var (player, interactiveClient) in _interactiveClients)
     {
-      interactiveClient.OnStateChanged(_game.ToPlayerGameView(player));
+      await interactiveClient.OnStateChanged(_game.ToPlayerGameView(player));
     }
   }
 
-  public Task RunToCompletion(CancellationToken cancellationToken)
+  public async Task RunToCompletion(CancellationToken cancellationToken)
   {
-    while (true)
+    try
     {
-      var turn = _game.GetTurn();
-      if (turn is not { } player)
-      {
-        break;
-      }
-      var view = _game.ToPlayerGameView(player);
+      await NotifyInteractiveClients();
+      await Run(cancellationToken);
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e);
+    }
+  }
 
-
-      if (_bots.TryGetValue(player, out var bot))
+  private async Task Run(CancellationToken cancellationToken)
+  {
+    while (_game.GetTurn() is { } turn)
+    {
+      await Task.Delay(100, cancellationToken);
+      if (_bots.TryGetValue(turn, out var bot))
       {
-        bot.OnGameStateChanged(view, new PlayerClient(_game, player, null)).GetAwaiter().GetResult();
+        var view = _game.ToPlayerGameView(turn);
+        await bot.OnGameStateChanged(view, new LockingSynchronousClient(_game, turn));
+        await NotifyInteractiveClients();
       }
-      else
+      /*var timeout = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+      var cancel = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, cancellationToken);
+      try
       {
-        _mre.Wait(cancellationToken);
-        _mre.Reset();
+        await ExecutePlayerAction(turn, cancel.Token);
       }
-      NotifyInteractiveClients();
+      catch (OperationCanceledException)
+      {
+      }*/
     }
     var result = _game.Evaluate();
     var type = _game.AuctionResult!.Hold?.Id ?? "normal game";
@@ -60,8 +75,19 @@ public sealed class SingleGameHost(IGameFactory gameFactory) : IDisposable
     {
       Console.WriteLine($"{score.Id} for {score.Party}");
     }
-    return Task.CompletedTask;
   }
 
-  public void Dispose() => _mre.Dispose();
+  private async Task ExecutePlayerAction(Player turn, CancellationToken cancellationToken)
+  {
+    var (player, action) = await _interactiveActions.Reader.ReadAsync(cancellationToken);
+    try
+    {
+      _game.Play(player, action);
+    }
+    catch (InvalidMoveException ime)
+    {
+      Console.WriteLine($"{ime.Code}");
+    }
+  }
 }
+

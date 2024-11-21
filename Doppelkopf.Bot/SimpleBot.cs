@@ -1,5 +1,6 @@
 using Doppelkopf.API;
 using Doppelkopf.Core;
+using Doppelkopf.Core.Games;
 using Doppelkopf.Errors;
 
 namespace Doppelkopf.Bot;
@@ -12,25 +13,27 @@ public class SimpleBot(Player me) : IBot
     {
       return;
     }
-
-    if (state.TrickTaking is not null)
+    switch (state.Phase)
     {
-      foreach (var card in state.OwnCards)
-      {
-        try
-        {
-          await player.PlayCard(card);
-          return;
-        }
-        catch (InvalidMoveException e) when (e.Code == ErrorCodes.CardNotAllowed.Code)
-        {
-          // continue
-        }
-      }
-
-      throw new InvalidOperationException("should not be here");
+      case GamePhase.Finished:
+        return;
+      case GamePhase.Auction:
+        await player.Play(PlayerAction.Declare.Healthy());
+        break;
+      case GamePhase.TrickTaking:
+        await PlayFirstValidCard(state, player);
+        break;
     }
-
-    await player.DeclareHold(null);
+  }
+  private static async Task PlayFirstValidCard(GameView state, IPlayerClient player)
+  {
+    foreach (var card in state.OwnCards)
+    {
+      var error = await player.Play(new PlayerAction(PlayCard: new PlayCardAction(card)));
+      if (error is null || error.Value.Code != ErrorCodes.CardNotAllowed.Code)
+      {
+        return;
+      }
+    }
   }
 }

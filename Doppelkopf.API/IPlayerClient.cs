@@ -1,11 +1,9 @@
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Scoring;
+using Doppelkopf.Core.Games;
+using Doppelkopf.Errors;
 
 namespace Doppelkopf.API;
 
 public interface IPlayerClient
 {
-  Task PlayCard(Card card);
-  Task DeclareHold(string? holdId);
-  Task PlaceBid(Bid bid);
+  Task<ErrorCode?> Play(PlayerAction action);
 }

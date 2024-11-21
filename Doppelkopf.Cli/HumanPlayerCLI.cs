@@ -1,13 +1,16 @@
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Doppelkopf.API;
 using Doppelkopf.Core;
+using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
+using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Utils;
 using Doppelkopf.Errors;
 
 namespace Doppelkopf.Cli;
 
-public class HumanPlayerCli(Player self) : IInteractiveClient
+public class HumanPlayerCli(Player self) : IUnmanagedPlayer
 {
   public void StartGame(IPlayerClient player) => _game = player;
 
@@ -16,56 +19,91 @@ public class HumanPlayerCli(Player self) : IInteractiveClient
   private bool _contractPrinted;
   private int _maxPrintedTrick = -1;
 
-  private static string OwnCardsToString(GameView view) =>
-    string.Join("  ", view.OwnCards.Select((c, i) => $"({i}) {c.Display()}"));
+  private static string OwnCardsToString(IReadOnlyList<Card> cards) =>
+    string.Join("  ", cards.Select((c, i) => $"({i}) {c.Display()}"));
 
   public Task OnStateChanged(GameView view)
   {
     if (_view is null)
     {
-      Console.WriteLine("new game started");
-      Console.WriteLine("your cards:");
-      Console.WriteLine($"  {OwnCardsToString(view)}");
+      Console.WriteLine("New game started. Your cards:");
+      Console.WriteLine($"  {OwnCardsToString(view.OwnCards)}");
     }
     _view = view;
-    if (!_contractPrinted && _view.TrickTaking is { Contract: var contract })
+    switch (view.Phase)
     {
-      Console.WriteLine(contract.HoldId is null ? "normal game!" : $"{contract.Declarer} declares {contract.HoldId}");
-      _contractPrinted = true;
+      case GamePhase.Auction:
+        OnChangeInAuction(view.Auction!, view.Turn!.Value);
+        break;
+      case GamePhase.TrickTaking:
+        OnChangeInTrickTaking(view.TrickTaking!, view.OwnCards, view.Turn!.Value);
+        break;
+      case GamePhase.Finished:
+        OnFinish();
+        break;
+      default:
+        break;
     }
-    if (_view.TrickTaking is { PreviousTrick: { } previousTrick } && previousTrick.Index > _maxPrintedTrick)
-    {
-      Console.WriteLine($"trick finished: {TrickToString(previousTrick)}; winner: {previousTrick.Winner}");
-      _maxPrintedTrick = previousTrick.Index;
-    }
-    if (_view.Turn != self)
-    {
-      return Task.CompletedTask;
-    }
-    Console.WriteLine("it's your turn");
-
-    if (_view.TrickTaking is not { } trickTaking)
-    {
-      Console.WriteLine($"auction! {AuctionToString(_view.Auction!)}");
-      Console.WriteLine("please choose");
-      Console.WriteLine("  (o) declare OK");
-      Console.WriteLine("  (w) declare wedding");
-    }
-    else if (trickTaking.CurrentTrick is { } trick)
-    {
-      Console.WriteLine($"current trick: {TrickToString(trick)}");
-      Console.WriteLine($"  {OwnCardsToString(view)}");
-      Console.WriteLine("your options:");
-      Console.WriteLine("  (#) play card at position # (a number)");
-    }
+    Console.Out.Flush();
     return Task.CompletedTask;
   }
 
-  private static string TrickToString(TrickView trickView) =>
-    string.Join(
+  private void OnChangeInAuction(AuctionView auction, Player turn)
+  {
+    Console.WriteLine($"auction! {AuctionToString(auction)}");
+    if (turn == self)
+    {
+      Console.WriteLine("  (o) declare OK");
+      Console.WriteLine("  (w) declare wedding");
+    }
+  }
+
+  private void OnChangeInTrickTaking(TrickTakingView trickTaking, IReadOnlyList<Card> cards, Player turn)
+  {
+    if (!_contractPrinted && trickTaking is { Contract: var contract })
+    {
+      Console.WriteLine(contract.HoldId is null ? "It's a normal game!" : $"{contract.Declarer} declares {contract.HoldId}");
+      _contractPrinted = true;
+    }
+    if (trickTaking is { PreviousTrick: { } previousTrick } && previousTrick.Index > _maxPrintedTrick)
+    {
+      Console.WriteLine($"trick finished: {TrickToString(previousTrick)}; winner: {PlayerName(previousTrick.Winner!.Value)}");
+      _maxPrintedTrick = previousTrick.Index;
+    }
+    if (trickTaking.CurrentTrick is { } trick)
+    {
+      Console.WriteLine(TrickToString(trick));
+    }
+    if (turn == self)
+    {
+      Console.WriteLine($"  {OwnCardsToString(cards)}");
+      Console.WriteLine("your options:");
+      Console.WriteLine("  (#) play card at position # (a number)");
+    }
+  }
+
+  private static void OnFinish() { }
+
+  private string TrickToString(TrickView trickView)
+  {
+    if (!trickView.Cards.Any())
+    {
+      return $"{PlayerName(trickView.Leader)} open(s)";
+    }
+    return string.Join(
       "  ",
       trickView.Cards.Zip(trickView.Leader.Cycle())
-        .Select(cardAndPlayer => $"{cardAndPlayer.Second}: {cardAndPlayer.First.Display()}"));
+        .Select(cardAndPlayer => $"{PlayerName(cardAndPlayer.Second)}: {cardAndPlayer.First.Display()}"));
+  }
+
+  private string PlayerName(Player player)
+  {
+    if (player == self)
+    {
+      return "you";
+    }
+    return $"Player {player}";
+  }
 
   private static string AuctionToString(AuctionView auction) =>
     string.Join("  ", auction.Holds.Zip(auction.Leader.Cycle()).Select(t => $"{t.Second}: {t.First}"));
@@ -86,10 +124,12 @@ public class HumanPlayerCli(Player self) : IInteractiveClient
           switch (key.KeyChar)
           {
             case 'o' or 'O':
-              await _game.DeclareHold(null);
+              Console.WriteLine("declaring healthy");
+              await Play(PlayerAction.Declare.Healthy());
               break;
             case 'w' or 'W':
-              await _game.DeclareHold(HoldIds.Wedding);
+              Console.WriteLine("Declaring wedding");
+              await Play(PlayerAction.Declare.Hold(HoldIds.Wedding));
               break;
             case >= '0' and <= '9':
               await PlayCardAt(int.Parse(key.KeyChar.ToString(), CultureInfo.CurrentCulture));
@@ -109,11 +149,11 @@ public class HumanPlayerCli(Player self) : IInteractiveClient
         {
           Console.WriteLine($"{e.Code}: {e.Message}");
         }
-        catch (Exception f)
-        {
-          Console.WriteLine(f);
-        }
       }
+    }
+    catch (Exception f)
+    {
+      Console.WriteLine(f);
     }
     finally
     {
@@ -129,7 +169,16 @@ public class HumanPlayerCli(Player self) : IInteractiveClient
       return Task.CompletedTask;
     }
     var card = _view!.OwnCards[index];
-    Console.WriteLine($"trying to play {card.Display()} ...");
-    return _game!.PlayCard(card);
+    return Play(PlayerAction.Card(card));
+  }
+
+  private async Task Play(PlayerAction action)
+  {
+    var result = await _game!.Play(action);
+    if (result is not { } error)
+    {
+      return;
+    }
+    Console.WriteLine($"invalid move: {error.Code} ({error.Message})");
   }
 }

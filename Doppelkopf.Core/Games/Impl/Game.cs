@@ -32,6 +32,34 @@ internal class Game : IGame
   private readonly CardsByPlayer _dealtCards;
   public IContract? Contract { get; private set; }
 
+  public void Play(Player player, PlayerAction action)
+  {
+    if (action.DeclareOrHealthy is { } declareAction)
+    {
+      if (declareAction.HoldId is { } holdId)
+      {
+        var hold = Configuration.GameModes.Holds.Single(h => h.Id == holdId);
+        DeclareHold(player, hold);
+      }
+      else
+      {
+        DeclareOk(player);
+      }
+    }
+    else if (action.PlayCard is { } cardAction)
+    {
+      PlayCard(player, cardAction.Card);
+    }
+    else if (action.Bid is { } bidAction)
+    {
+      PlaceBid(player, bidAction.Bid);
+    }
+    else
+    {
+      throw new ArgumentOutOfRangeException(nameof(action), "undefined action");
+    }
+  }
+
   public void DeclareHold(Player player, IHold hold)
   {
     _auction.DeclareReservation(player, hold);

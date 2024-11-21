@@ -2,7 +2,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Doppelkopf.Core\Doppelkopf.Core.csproj" />
-      <ProjectReference Include="..\Doppelkopf.Errors\Doppelkopf.Errors.csproj" />
     </ItemGroup>
 
     <ItemGroup>

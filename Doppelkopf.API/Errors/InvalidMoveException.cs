@@ -1,4 +1,4 @@
-﻿namespace Doppelkopf.Errors;
+﻿namespace Doppelkopf.API.Errors;
 
 public class InvalidMoveException(string code, string message) : Exception(message)
 {

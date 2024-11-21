@@ -1,4 +1,4 @@
-using Doppelkopf.Errors;
+using Doppelkopf.API.Errors;
 
 namespace Doppelkopf.Service;
 

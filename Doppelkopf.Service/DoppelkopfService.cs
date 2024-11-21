@@ -1,6 +1,3 @@
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Errors;
-
 namespace Doppelkopf.Service;
 
 internal sealed class DoppelkopfService

@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
 using Doppelkopf.Core.Auctions;
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Games.Impl;
 using Doppelkopf.Core.Utils;
 using Doppelkopf.TestUtils;

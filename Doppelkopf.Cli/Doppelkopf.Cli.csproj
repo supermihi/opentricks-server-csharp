@@ -4,13 +4,14 @@
     <OutputType>exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Sharprompt" Version="2.4.5"/>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
+    <PackageReference Include="Sharprompt" Version="2.4.5" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Doppelkopf.API\Doppelkopf.API.csproj"/>
-    <ProjectReference Include="..\Doppelkopf.Bot\Doppelkopf.Bot.csproj"/>
+    <ProjectReference Include="../Doppelkopf.Core/Doppelkopf.Core.csproj" />
+    <ProjectReference Include="..\Doppelkopf.API\Doppelkopf.API.csproj" />
+    <ProjectReference Include="..\Doppelkopf.Bot\Doppelkopf.Bot.csproj" />
   </ItemGroup>
 
 </Project>

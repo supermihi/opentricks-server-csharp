@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Doppelkopf.Core.Auctions;
+namespace Doppelkopf.API;
 
 public sealed record Declaration
 {

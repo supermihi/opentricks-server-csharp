@@ -1,5 +1,5 @@
+global using Doppelkopf.API;
 using System.Runtime.CompilerServices;
-
 [assembly: InternalsVisibleTo("Doppelkopf.Core.Tests")]
 
 namespace Doppelkopf.Core;

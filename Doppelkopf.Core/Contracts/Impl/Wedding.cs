@@ -1,4 +1,3 @@
-using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
 
 namespace Doppelkopf.Core.Contracts.Impl;

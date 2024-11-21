@@ -1,6 +1,4 @@
-using Doppelkopf.Core.Cards;
-
-namespace Doppelkopf.Core.Contracts;
+namespace Doppelkopf.API;
 
 /// <summary>
 /// Built-in hold IDs.

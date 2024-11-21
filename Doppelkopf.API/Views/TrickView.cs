@@ -1,7 +1,4 @@
-using Doppelkopf.Core;
-using Doppelkopf.Core.Cards;
-
-namespace Doppelkopf.API;
+namespace Doppelkopf.API.Views;
 
 /// <summary>
 /// View of a single trick.

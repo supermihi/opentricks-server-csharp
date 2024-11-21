@@ -1,5 +1,3 @@
-using Doppelkopf.Core;
-
-namespace Doppelkopf.API;
+namespace Doppelkopf.API.Views;
 
 public sealed record AuctionView(Player Leader, IReadOnlyList<bool> Holds);

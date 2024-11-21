@@ -4,7 +4,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Doppelkopf.Errors\Doppelkopf.Errors.csproj" />
+    <ProjectReference Include="../Doppelkopf.API/Doppelkopf.API.csproj" />
+  
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-namespace Doppelkopf.Core;
+namespace Doppelkopf.API;
 
 public enum Player
 {

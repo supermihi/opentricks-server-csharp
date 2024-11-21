@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Tricks.Impl;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 using Doppelkopf.TestUtils;
 using Moq;
 using Xunit;

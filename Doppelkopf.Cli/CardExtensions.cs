@@ -1,4 +1,4 @@
-using Doppelkopf.Core.Cards;
+using Doppelkopf.API;
 
 namespace Doppelkopf.Cli;
 

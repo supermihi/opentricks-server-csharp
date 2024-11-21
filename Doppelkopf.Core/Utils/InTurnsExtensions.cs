@@ -1,4 +1,4 @@
-using Doppelkopf.Errors;
+using Doppelkopf.API.Errors;
 
 namespace Doppelkopf.Core.Utils;
 
@@ -10,11 +10,14 @@ public static class InTurnsExtensions
     return turns.Add(value);
   }
 
-  public static void CheckIsTurn<T>(this InTurns<T> turns, Player player, bool invalidPhaseIfFull = true) {
-    if (invalidPhaseIfFull && turns.IsFull) {
+  public static void CheckIsTurn<T>(this InTurns<T> turns, Player player, bool invalidPhaseIfFull = true)
+  {
+    if (invalidPhaseIfFull && turns.IsFull)
+    {
       ErrorCodes.InvalidPhase.Throw();
     }
-    if (turns.Next != player) {
+    if (turns.Next != player)
+    {
       ErrorCodes.NotYourTurn.Throw();
     }
   }

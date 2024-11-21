@@ -1,6 +1,6 @@
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Tricks.Impl;
-using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Scoring.Impl;
 

@@ -6,7 +6,7 @@ namespace Doppelkopf.Core.Tricks;
 internal sealed class CardTraitsProvider(IReadOnlyDictionary<Card, CardTraits> traits) : ICardTraitsProvider
 {
   private static readonly ImmutableArray<Card> HigherTrump =
-    Card.Jacks.ToImmutableArray().AddRange(Card.Queens).Add(Card.HeartsTen);
+    CardUtils.Jacks.ToImmutableArray().AddRange(CardUtils.Queens).Add(Card.HeartsTen);
 
   private static readonly ImmutableArray<Rank> SideSuitRanks = [Rank.Nine, Rank.Jack, Rank.Queen, Rank.King, Rank.Ten, Rank.Ace
 ];

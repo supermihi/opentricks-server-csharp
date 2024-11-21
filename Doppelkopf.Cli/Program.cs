@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using Doppelkopf.API;
 using Doppelkopf.Bot;
 using Doppelkopf.Cli;
 using Doppelkopf.Core;

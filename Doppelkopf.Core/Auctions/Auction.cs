@@ -1,9 +1,8 @@
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Contracts;
-using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 
-namespace Doppelkopf.Core.Auctions.Impl;
+namespace Doppelkopf.Core.Auctions;
 
 internal sealed record Auction : IAuction
 {

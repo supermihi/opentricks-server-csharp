@@ -1,12 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
+using Doppelkopf.API;
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core;
 using Doppelkopf.Core.Auctions;
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Scoring;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 
 namespace Doppelkopf.Sessions;
 

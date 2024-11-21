@@ -1,5 +1,4 @@
-using Doppelkopf.Core.Games;
-using Doppelkopf.Errors;
+using Doppelkopf.API.Errors;
 
 namespace Doppelkopf.API;
 

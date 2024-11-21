@@ -1,4 +1,4 @@
-namespace Doppelkopf.Core.Cards;
+namespace Doppelkopf.API;
 
 public enum Rank
 {

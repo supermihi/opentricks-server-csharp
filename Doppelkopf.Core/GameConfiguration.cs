@@ -1,5 +1,4 @@
 using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Cards.Impl;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Scoring;

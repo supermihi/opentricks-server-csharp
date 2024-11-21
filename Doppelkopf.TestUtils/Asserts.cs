@@ -1,4 +1,4 @@
-using Doppelkopf.Errors;
+using Doppelkopf.API.Errors;
 using Xunit;
 
 namespace Doppelkopf.TestUtils;

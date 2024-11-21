@@ -1,4 +1,4 @@
-using Doppelkopf.Core;
+using Doppelkopf.API;
 using Doppelkopf.Core.Games;
 using Doppelkopf.Core.Utils;
 

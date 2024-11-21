@@ -1,5 +1,3 @@
-using Doppelkopf.Core.Cards;
-
 namespace Doppelkopf.Core.Scoring;
 
 public static class CardExtensions

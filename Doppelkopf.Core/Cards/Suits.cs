@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace Doppelkopf.Core.Cards;
+namespace Doppelkopf.API;
 
 public static class Suits
 {

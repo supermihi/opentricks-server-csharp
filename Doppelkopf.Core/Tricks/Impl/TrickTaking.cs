@@ -1,6 +1,5 @@
-using Doppelkopf.Core.Cards;
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 
 namespace Doppelkopf.Core.Tricks.Impl;
 

@@ -1,12 +1,8 @@
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Doppelkopf.API;
-using Doppelkopf.Core;
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Contracts;
-using Doppelkopf.Core.Games;
+using Doppelkopf.API.Errors;
+using Doppelkopf.API.Views;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 
 namespace Doppelkopf.Cli;
 

@@ -9,15 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.API", "Doppelkop
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Core", "Doppelkopf.Core\Doppelkopf.Core.csproj", "{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Errors", "Doppelkopf.Errors\Doppelkopf.Errors.csproj", "{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Core.Tests", "Doppelkopf.Core.Tests\Doppelkopf.Core.Tests.csproj", "{26041A75-9AEC-4F38-B2A5-C26D85D996E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.TestUtils", "Doppelkopf.TestUtils\Doppelkopf.TestUtils.csproj", "{FFD06163-C75D-485E-983B-94CFAD745926}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Sessions", "Doppelkopf.Sessions\Doppelkopf.Sessions.csproj", "{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Service", "Doppelkopf.Service\Doppelkopf.Service.csproj", "{3134A205-A730-4FEF-927D-8CDC0F95C16B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppelkopf.Notifications", "Doppelkopf.Notifications\Doppelkopf.Notifications.csproj", "{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}"
 EndProject
@@ -45,10 +41,6 @@ Global
 		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC53201F-554C-4A3E-8B5D-9BE08ADC4315}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B65EA0C-5005-4277-AE9F-A5C9FC15AF38}.Release|Any CPU.Build.0 = Release|Any CPU
 		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26041A75-9AEC-4F38-B2A5-C26D85D996E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -61,10 +53,6 @@ Global
 		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AA634E4-4DE4-4B60-8789-1981C74C8DFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3134A205-A730-4FEF-927D-8CDC0F95C16B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3134A205-A730-4FEF-927D-8CDC0F95C16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3134A205-A730-4FEF-927D-8CDC0F95C16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3134A205-A730-4FEF-927D-8CDC0F95C16B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{862A0A8C-112D-4BC0-ABD8-C9EBF2DEE42A}.Release|Any CPU.ActiveCfg = Release|Any CPU

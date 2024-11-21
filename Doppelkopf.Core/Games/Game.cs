@@ -1,15 +1,13 @@
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Auctions;
-using Doppelkopf.Core.Auctions.Impl;
-using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Scoring;
 using Doppelkopf.Core.Scoring.Impl;
 using Doppelkopf.Core.Tricks;
 using Doppelkopf.Core.Tricks.Impl;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 
-namespace Doppelkopf.Core.Games.Impl;
+namespace Doppelkopf.Core.Games;
 
 internal class Game : IGame
 {

@@ -1,8 +1,4 @@
-using Doppelkopf.Core.Auctions;
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Scoring;
-
-namespace Doppelkopf.Core.Games;
+namespace Doppelkopf.API;
 
 
 public sealed record PlayerAction(Card? PlayedCard = null, Declaration? Declaration = null, Bid? Bid = null)

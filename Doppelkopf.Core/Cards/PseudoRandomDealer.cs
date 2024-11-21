@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace Doppelkopf.Core.Cards.Impl;
+namespace Doppelkopf.Core.Cards;
 
 internal class PseudoRandomDealer(IEnumerable<Card> deck, int? baseSeed) : IDealer
 {

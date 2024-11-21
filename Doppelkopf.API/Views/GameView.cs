@@ -1,8 +1,4 @@
-using Doppelkopf.Core;
-using Doppelkopf.Core.Cards;
-using Doppelkopf.Core.Games;
-
-namespace Doppelkopf.API;
+namespace Doppelkopf.API.Views;
 
 public sealed record GameView(
   Player Player,

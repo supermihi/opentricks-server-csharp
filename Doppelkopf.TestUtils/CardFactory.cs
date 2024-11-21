@@ -1,5 +1,4 @@
-global using CardsByPlayer =
-  Doppelkopf.Core.Utils.ByPlayer<System.Collections.Immutable.ImmutableArray<Doppelkopf.Core.Cards.Card>>;
+
 using Doppelkopf.Core.Cards;
 
 namespace Doppelkopf.TestUtils;

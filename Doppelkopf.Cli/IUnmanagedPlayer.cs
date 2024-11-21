@@ -1,4 +1,5 @@
 using Doppelkopf.API;
+using Doppelkopf.API.Views;
 
 namespace Doppelkopf.Cli;
 

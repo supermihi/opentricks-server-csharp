@@ -1,4 +1,4 @@
-namespace Doppelkopf.API;
+namespace Doppelkopf.API.Views;
 
 public record TrickTakingView(
   ContractView Contract,

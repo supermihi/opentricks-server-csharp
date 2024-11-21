@@ -1,4 +1,4 @@
-namespace Doppelkopf.Core.Scoring;
+namespace Doppelkopf.API;
 
 public enum Bid
 {

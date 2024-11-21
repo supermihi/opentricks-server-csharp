@@ -1,6 +1,5 @@
 global using CardsByPlayer =
-  Doppelkopf.Core.Utils.ByPlayer<System.Collections.Immutable.ImmutableArray<Doppelkopf.Core.Cards.Card>>;
-using Doppelkopf.Core.Cards;
+  Doppelkopf.Core.Utils.ByPlayer<System.Collections.Immutable.ImmutableArray<Doppelkopf.API.Card>>;
 
 namespace Doppelkopf.Core;
 

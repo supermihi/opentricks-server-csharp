@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Auctions;
-using Doppelkopf.Core.Auctions.Impl;
-using Doppelkopf.Core.Cards;
 using Doppelkopf.Core.Contracts;
 using Doppelkopf.Core.Utils;
-using Doppelkopf.Errors;
 using Doppelkopf.TestUtils;
 using Moq;
 using Xunit;
@@ -15,7 +13,7 @@ public class AuctionTests
 {
   private static readonly IHold AllowingHold =
     Mock.Of<IHold>(
-      c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == true,
+      c => c.IsAllowed(It.IsAny<IEnumerable<Card>>()) == true && c.Id == "allowing_hold",
       MockBehavior.Strict
     );
 
@@ -31,6 +29,7 @@ public class AuctionTests
       declarableSolo.Setup(s => s.IsSolo).Returns(true);
       declarableSolo.Setup(s => s.Priority).Returns(new DeclarationPriority(2, 3));
       declarableSolo.Setup(s => s.IsAllowed(It.IsAny<IEnumerable<Card>>())).Returns(true);
+      declarableSolo.Setup(s => s.Id).Returns("declarable_solo");
       return declarableSolo.Object;
     }
   }
@@ -151,7 +150,7 @@ public class AuctionTests
       Declaration.Fine,
       DeclarableSolo.Id
     );
-    var auction = new Auction(MockCards, NoContracts, NoCompulsorySolos, state);
+    var auction = new Auction(MockCards, [DeclarableSolo], NoCompulsorySolos, state);
     var result = auction.Evaluate();
     Assert.NotNull(result);
     Assert.Equal(Player.Two, result.Declarer);
@@ -168,7 +167,7 @@ public class AuctionTests
       DeclarableSolo.Id
     );
     var compulsorySolos = new ByPlayer<bool>(false, false, true, true);
-    var auction = new Auction(MockCards, NoContracts, compulsorySolos, state);
+    var auction = new Auction(MockCards, [DeclarableSolo], compulsorySolos, state);
     var result = auction.Evaluate();
     Assert.NotNull(result);
     Assert.Equal(Player.Four, result.Declarer);

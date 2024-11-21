@@ -1,3 +1,5 @@
+using Doppelkopf.API.Views;
+
 namespace Doppelkopf.API;
 
 public interface IBot

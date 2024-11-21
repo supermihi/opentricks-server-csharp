@@ -20,9 +20,9 @@ internal record Solo(string Id, ICardTraitsProvider Traits) : IHold
 
   public static readonly Solo JackSolo = new(
     HoldIds.JackSolo,
-    CardTraitsProvider.ForTrumpWithDefaultSides(Card.Jacks));
+    CardTraitsProvider.ForTrumpWithDefaultSides(CardUtils.Jacks));
 
-  public static Solo QueenSolo => new(HoldIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(Card.Queens));
+  public static Solo QueenSolo => new(HoldIds.QueenSolo, CardTraitsProvider.ForTrumpWithDefaultSides(CardUtils.Queens));
 
   public static Solo SuitSolo(Suit trump, TieBreakingMode heartTenTieBreaking) =>
     new(

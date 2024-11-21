@@ -1,7 +1,6 @@
 using Doppelkopf.API;
-using Doppelkopf.Core;
-using Doppelkopf.Core.Games;
-using Doppelkopf.Errors;
+using Doppelkopf.API.Errors;
+using Doppelkopf.API.Views;
 
 namespace Doppelkopf.Bot;
 

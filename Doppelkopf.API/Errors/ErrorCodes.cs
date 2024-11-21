@@ -1,4 +1,4 @@
-namespace Doppelkopf.Errors;
+namespace Doppelkopf.API.Errors;
 
 public static class ErrorCodes
 {

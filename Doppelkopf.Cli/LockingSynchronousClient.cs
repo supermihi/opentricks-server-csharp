@@ -1,7 +1,6 @@
 using Doppelkopf.API;
-using Doppelkopf.Core;
+using Doppelkopf.API.Errors;
 using Doppelkopf.Core.Games;
-using Doppelkopf.Errors;
 
 namespace Doppelkopf.Cli;
 
